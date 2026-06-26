@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+Thumbs.db
+.continue/
+_tmp.py
+_update_*.py
+.ipynb_checkpoints/
+.vscode/
