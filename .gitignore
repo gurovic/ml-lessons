@@ -1,3 +1,4 @@
+~$*
 __pycache__/
 *.pyc
 *.pyo
@@ -8,3 +9,4 @@ _tmp.py
 _update_*.py
 .ipynb_checkpoints/
 .vscode/
+lessons/*/assets/gen_*.py
