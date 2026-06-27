@@ -5,6 +5,9 @@
 после получения JSON от AI сохраняет его в slides_json/,
 затем генерирует визуализации (если указаны в поле visuals).
 
+Файлы слайдов — последовательные числа: 01.json, 02.json, …
+(независимо от нумерации в plan.md).
+
 Использование:
     python agents/slides_orchestrator.py <lesson_dir>
     python agents/slides_orchestrator.py <lesson_dir> --save '<JSON>'
@@ -13,9 +16,17 @@
 """
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
+
+from slide_utils import (
+    next_slide_number,
+    parse_json_response,
+    read_slides,
+    save_slide,
+)
 
 PROMPT_PATH = Path(__file__).parent / "prompts" / "slide_generator.md"
 VIZ_PROMPT_PATH = Path(__file__).parent / "prompts" / "viz_generator.md"
@@ -26,14 +37,22 @@ def read_file(path: Path) -> str:
         return f.read()
 
 
-def read_existing_slides_json(slides_dir: Path) -> list[dict]:
-    if not slides_dir.exists():
-        return []
-    json_files = sorted(
-        slides_dir.glob("*.json"),
-        key=lambda p: int(p.stem) if p.stem.isdigit() else 0
-    )
-    return [json.loads(read_file(f)) for f in json_files]
+def parse_plan_slides(plan: str) -> list[str]:
+    """Разбивает plan.md на блоки слайдов (порядок = порядок в файле)."""
+    lines = plan.split("\n")
+    plan_lines = []
+    current = []
+    for line in lines:
+        stripped = line.strip()
+        if re.match(r"\*{0,2}\s*Слайд\s+\d+", stripped):
+            if current:
+                plan_lines.append("\n".join(current))
+            current = [stripped]
+        elif current:
+            current.append(stripped)
+    if current:
+        plan_lines.append("\n".join(current))
+    return plan_lines
 
 
 def build_prompt(plan: str, slide_topic: str, previous_slides: list[dict]) -> str:
@@ -53,28 +72,8 @@ def build_prompt(plan: str, slide_topic: str, previous_slides: list[dict]) -> st
     return f"{system_prompt}\n\n{user_prompt}"
 
 
-def parse_json_response(response: str) -> dict:
-    if "```json" in response:
-        start = response.index("```json") + 7
-        end = response.index("```", start)
-        response = response[start:end].strip()
-    elif "```" in response:
-        start = response.index("```") + 3
-        end = response.index("```", start)
-        response = response[start:end].strip()
-    return json.loads(response)
-
-
-def save_slide(slides_dir: Path, slide_data: dict, slide_num: int):
-    slides_dir.mkdir(parents=True, exist_ok=True)
-    path = slides_dir / f"{slide_num:02d}.json"
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(slide_data, f, ensure_ascii=False, indent=2)
-    print(f"Слайд {slide_num} сохранён: {path}")
-
-
 def generate_visualizations(lesson_dir: Path, slides_dir: Path) -> bool:
-    existing_slides = read_existing_slides_json(slides_dir)
+    existing_slides = read_slides(slides_dir)
     assets_dir = lesson_dir / "assets"
     assets_dir.mkdir(parents=True, exist_ok=True)
     system_prompt = read_file(VIZ_PROMPT_PATH)
@@ -114,9 +113,8 @@ def generate_visualizations(lesson_dir: Path, slides_dir: Path) -> bool:
 
 
 def save_and_run_script(lesson_dir: Path, output_file: str, script_content: str):
-    script_path = lesson_dir / "assets" / output_file.rsplit(".", 1)[0] + ".py"
+    script_path = lesson_dir / "assets" / (output_file.rsplit(".", 1)[0] + ".py")
     with open(script_path, "w", encoding="utf-8") as f:
-        # Если пришёл JSON, парсим
         try:
             parsed = json.loads(script_content)
             if isinstance(parsed, dict) and "script" in parsed:
@@ -153,26 +151,11 @@ def main():
         sys.exit(1)
 
     plan = read_file(plan_path)
-
-    # Разделяем план на слайды: каждый новый слайд начинается со строки "Слайд N."
-    import re
-    lines = plan.split("\n")
-    plan_lines = []
-    current = []
-    for line in lines:
-        stripped = line.strip()
-        if re.match(r'\*{0,2}\s*Слайд\s+\d+', stripped):
-            if current:
-                plan_lines.append("\n".join(current))
-            current = [stripped]
-        elif current:
-            current.append(stripped)
-    if current:
-        plan_lines.append("\n".join(current))
+    plan_lines = parse_plan_slides(plan)
 
     slides_dir = lesson_dir / "slides_json"
-    existing_slides = read_existing_slides_json(slides_dir)
-    current_num = len(existing_slides) + 1
+    existing_slides = read_slides(slides_dir)
+    current_num = next_slide_number(slides_dir)
 
     if len(sys.argv) >= 3 and sys.argv[2] == "--visuals":
         print("Проверка визуализаций...")
@@ -184,7 +167,7 @@ def main():
         return
 
     if current_num > len(plan_lines):
-        print("Все слайды сгенерированы. Запусти: python agents/pptx_builder.py {lesson_dir}")
+        print(f"Все слайды сгенерированы. Запусти: python agents/pptx_builder.py {lesson_dir}")
         return
 
     slide_topic = plan_lines[current_num - 1]

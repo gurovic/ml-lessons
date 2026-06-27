@@ -8,9 +8,10 @@
 Если JSON не передан аргументом, читает из stdin (pipe).
 """
 
-import json
 import sys
 from pathlib import Path
+
+from slide_utils import parse_json_response, save_slide
 
 
 def main():
@@ -26,30 +27,13 @@ def main():
     else:
         raw = sys.stdin.read().strip()
 
-    # Парсим JSON, ищем блок ```json ... ```
-    if "```json" in raw:
-        start = raw.index("```json") + 7
-        end = raw.index("```", start)
-        raw = raw[start:end].strip()
-    elif "```" in raw:
-        start = raw.index("```") + 3
-        end = raw.index("```", start)
-        raw = raw[start:end].strip()
-
     try:
-        slide_data = json.loads(raw)
+        slide_data = parse_json_response(raw)
     except Exception as e:
         print(f"Ошибка парсинга JSON: {e}")
         sys.exit(1)
 
-    slides_dir = lesson_dir / "slides_json"
-    slides_dir.mkdir(parents=True, exist_ok=True)
-
-    path = slides_dir / f"{slide_num:02d}.json"
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(slide_data, f, ensure_ascii=False, indent=2)
-
-    print(f"Слайд {slide_num} сохранён: {path}")
+    save_slide(lesson_dir / "slides_json", slide_data, slide_num)
 
 
 if __name__ == "__main__":

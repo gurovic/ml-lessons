@@ -1,0 +1,6 @@
+python-pptx
+matplotlib
+qrcode[pil]
+numpy
+seaborn
+graphviz
