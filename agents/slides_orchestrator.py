@@ -153,7 +153,23 @@ def main():
         sys.exit(1)
 
     plan = read_file(plan_path)
-    plan_lines = [line.strip() for line in plan.split("\n") if line.strip()]
+
+    # Разделяем план на слайды: каждый новый слайд начинается со строки "Слайд N."
+    import re
+    lines = plan.split("\n")
+    plan_lines = []
+    current = []
+    for line in lines:
+        stripped = line.strip()
+        if re.match(r'\*{0,2}\s*Слайд\s+\d+', stripped):
+            if current:
+                plan_lines.append("\n".join(current))
+            current = [stripped]
+        elif current:
+            current.append(stripped)
+    if current:
+        plan_lines.append("\n".join(current))
+
     slides_dir = lesson_dir / "slides_json"
     existing_slides = read_existing_slides_json(slides_dir)
     current_num = len(existing_slides) + 1

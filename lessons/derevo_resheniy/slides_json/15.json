@@ -1,0 +1,10 @@
+{
+  "title": "Визуализация деревьев в sklearn",
+  "bullets": [
+    "sklearn.tree.plot_tree(clf, filled=True) — графическое дерево с цветом классов",
+    "export_graphviz — экспорт для Graphviz (dot-формат)",
+    "export_text — текстовое представление: правила вида X[0] <= 2.5 → class=1"
+  ],
+  "notes": "Показать все три варианта в Jupyter. Объяснить, как читать дерево: в каждом узле — условие, impurity, число объектов, класс.",
+  "visuals": []
+}

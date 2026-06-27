@@ -1,0 +1,11 @@
+{
+  "title": "Дерево решений в sklearn",
+  "bullets": [
+    "clf = DecisionTreeClassifier(max_depth=3, ccp_alpha=0.01, random_state=42)",
+    "clf.fit(X, y)",
+    "Важные параметры: max_depth, min_samples_leaf, ccp_alpha, criterion (gini/entropy)",
+    "Для воспроизводимости: random_state фиксирует случайность при равной информативности разбиений"
+  ],
+  "notes": "Показать вызов в jupyter notebook, сделать predict на новых данных.",
+  "visuals": []
+}

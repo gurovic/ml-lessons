@@ -15,6 +15,14 @@ def read_file(path: Path) -> str:
         return f.read()
 
 
+def load_config(root_dir: Path) -> dict:
+    """Загружает project_config.json из корня проекта, если есть."""
+    cfg_path = root_dir / "project_config.json"
+    if cfg_path.exists():
+        return json.loads(read_file(cfg_path))
+    return {}
+
+
 def load_slides(slides_dir: Path) -> list[dict]:
     json_files = sorted(slides_dir.glob("*.json"), key=lambda p: p.stem)
     return [json.loads(read_file(f)) for f in json_files]
@@ -35,6 +43,8 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
     prs.slide_height = Inches(7.5)
 
     # Титульный слайд
+    project_config = load_config(Path(__file__).parent.parent)
+
     info = {}
     info_path = lesson_dir / "info.json"
     if info_path.exists():
@@ -42,9 +52,9 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
             info = json.load(f)
 
     lesson_title = info.get("topic", lesson_dir.name)
-    author = info.get("author", "")
-    email = info.get("email", "")
-    telegram = info.get("telegram", "") or info.get("tg", "")
+    author = info.get("author", "") or project_config.get("author", "")
+    email = info.get("email", "") or project_config.get("email", "")
+    telegram = info.get("telegram", "") or info.get("tg", "") or project_config.get("telegram", "")
     today = date.today().strftime("%d.%m.%Y")
 
     title_slide = prs.slides.add_slide(prs.slide_layouts[6])
@@ -119,6 +129,39 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
                         img_left -= Inches(4.7)
                     except Exception as e:
                         print(f"Не удалось вставить {img_path}: {e}")
+
+        # Ссылка и QR-код
+        link = slide_data.get("link")
+        if link and link.get("url"):
+            url = link["url"]
+            label = link.get("label", url)
+
+            # Текст ссылки (кликабельный)
+            link_box = slide.shapes.add_textbox(Inches(0.7), Inches(6.5), Inches(6), Inches(0.5))
+            tf_link = link_box.text_frame
+            tf_link.word_wrap = True
+            p_link = tf_link.paragraphs[0]
+
+            # Создаём run с ссылкой
+            run = p_link.add_run()
+            run.text = f"{label}: {url}"
+            run.font.size = Pt(14)
+            run.font.color.rgb = RGBColor(0x33, 0x66, 0xCC)
+            run.hyperlink.address = url
+
+            # Генерация QR-кода
+            try:
+                import qrcode
+                qr_path = assets_dir / "_qr_temp.png"
+                qr = qrcode.QRCode(box_size=10, border=1)
+                qr.add_data(url)
+                qr.make(fit=True)
+                img = qr.make_image(fill_color="black", back_color="white")
+                img.save(str(qr_path))
+                slide.shapes.add_picture(str(qr_path), Inches(11.5), Inches(4.5), width=Inches(1.5))
+                qr_path.unlink()  # удаляем временный файл
+            except ImportError:
+                print("  [warn] Установи qrcode: pip install qrcode[pil]")
 
         notes = slide_data.get("notes")
         if notes:
