@@ -98,6 +98,8 @@ def generate_visualizations(lesson_dir: Path, slides_dir: Path) -> bool:
 
 Сгенерируй Python-скрипт, который создаст эту визуализацию.
 Если нужны случайные данные — используй numpy.random.seed(42).
+Обязательно: белый непрозрачный фон (facecolor='white', затем PIL convert RGB).
+См. docs/visuals.md.
 
 В ответе верни JSON:
 {{

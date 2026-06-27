@@ -67,6 +67,7 @@
 ### Сборщик презентации (agents/pptx_builder.py)
 - Из JSON собирает presentation.pptx с титульным слайдом из info.json.
 - Формулы в `$...$` в тексте рендерятся как native Equation (см. docs/formulas.md, agents/rich_text.py).
+- До 4 иллюстраций на слайд — сетка/столбик в правой колонке (см. docs/visuals.md).
 - Использование: python agents/pptx_builder.py <lesson_dir>
 
 ### Генератор визуализаций (agents/viz_generator.py)
@@ -117,7 +118,7 @@
 - Заголовок как в plan.md (но без Слайд X), в редких случаях его можно отредактировать
 - Тезисно материал по теме, взятый как из plan.md, так и подготовленный AI RULES.md
 - Формулы — inline в тексте через `$...$` (см. docs/formulas.md)
-- При необходимости - визуализации (схемы, диаграммы и т.п.) с помощью стандартных библиотек matplotlib, seaborn graphviz итп
+- **Иллюстрации** — по политике docs/visuals.md: по умолчанию ≥1 график/схема на слайд; 2–4 где несколько наглядных идей; `visuals[]` с `description` и `output`
 - При необходимости - ссылка и QR-код на внешний ресурс (есть специальный инструмент)
 - Опционально — поле `notebook` для практики в code.ipynb (см. docs/notebook_agent.md):
   ```json
