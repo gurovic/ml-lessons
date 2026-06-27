@@ -35,9 +35,14 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
         from pptx.util import Inches, Pt
         from pptx.dml.color import RGBColor
         from pptx.enum.text import PP_ALIGN
-    except ImportError:
-        print("Установи python-pptx: pip install python-pptx")
+        from rich_text import set_paragraph_content
+    except ImportError as e:
+        print(f"Установи зависимости: pip install -r requirements.txt ({e})")
         sys.exit(1)
+
+    title_rgb = (0x1A, 0x1A, 0x2E)
+    body_rgb = (0x00, 0x00, 0x00)
+    link_rgb = (0x33, 0x66, 0xCC)
 
     prs = Presentation()
     prs.slide_width = Inches(13.333)
@@ -98,36 +103,50 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
     for i, slide_data in enumerate(slides, 1):
         slide = prs.slides.add_slide(prs.slide_layouts[6])
 
+        if slide_data.get("formula"):
+            print(f"  [warn] Слайд {i}: поле formula устарело — используйте $...$ в тексте (docs/formulas.md)")
+
         tb = slide.shapes.add_textbox(Inches(0.5), Inches(0.3), Inches(12.3), Inches(1))
         tf = tb.text_frame
         tf.word_wrap = True
         p = tf.paragraphs[0]
-        p.text = slide_data.get("title", f"Слайд {i}")
-        p.font.size = Pt(32)
-        p.font.bold = True
-        p.font.color.rgb = RGBColor(0x1A, 0x1A, 0x2E)
+        for w in set_paragraph_content(
+            p,
+            slide_data.get("title", f"Слайд {i}"),
+            font_size=Pt(32),
+            bold=True,
+            color=title_rgb,
+        ):
+            print(f"  [warn] Слайд {i}, заголовок: {w}")
+
+        visuals = slide_data.get("visuals", [])
+        has_visuals = any(v.get("output") for v in visuals)
+        body_width = Inches(7.5) if has_visuals else Inches(12.3)
 
         bullets = slide_data.get("bullets", [])
         if bullets:
-            body = slide.shapes.add_textbox(Inches(0.7), Inches(1.5), Inches(7.5), Inches(5.5))
+            body = slide.shapes.add_textbox(Inches(0.7), Inches(1.5), body_width, Inches(5.5))
             tf2 = body.text_frame
             tf2.word_wrap = True
             for j, bullet in enumerate(bullets):
                 p = tf2.paragraphs[0] if j == 0 else tf2.add_paragraph()
-                p.text = bullet
-                p.font.size = Pt(20)
                 p.space_after = Pt(8)
+                for w in set_paragraph_content(
+                    p, bullet, font_size=Pt(20), color=body_rgb
+                ):
+                    print(f"  [warn] Слайд {i}, буллет {j + 1}: {w}")
 
-        visuals = slide_data.get("visuals", [])
-        img_left = Inches(8.5)
+        right_col_left = Inches(8.5)
+        right_col_width = Inches(4.5)
+        visual_top = Inches(1.5)
         for visual_obj in visuals:
             visual = visual_obj.get("output", "")
             if visual:
                 img_path = assets_dir / visual
                 if img_path.exists():
                     try:
-                        slide.shapes.add_picture(str(img_path), img_left, Inches(1.5), width=Inches(4.5))
-                        img_left -= Inches(4.7)
+                        slide.shapes.add_picture(str(img_path), right_col_left, visual_top, width=right_col_width)
+                        visual_top += Inches(3.0)
                     except Exception as e:
                         print(f"Не удалось вставить {img_path}: {e}")
 
@@ -142,12 +161,14 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
             tf_link = link_box.text_frame
             tf_link.word_wrap = True
             p_link = tf_link.paragraphs[0]
-
-            # Создаём run с ссылкой
+            for w in set_paragraph_content(
+                p_link, f"{label}: ", font_size=Pt(14), color=link_rgb
+            ):
+                print(f"  [warn] Слайд {i}, ссылка: {w}")
             run = p_link.add_run()
-            run.text = f"{label}: {url}"
+            run.text = url
             run.font.size = Pt(14)
-            run.font.color.rgb = RGBColor(0x33, 0x66, 0xCC)
+            run.font.color.rgb = RGBColor(*link_rgb)
             run.hyperlink.address = url
 
             # Генерация QR-кода

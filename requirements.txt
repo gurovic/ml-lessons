@@ -1,4 +1,6 @@
 python-pptx
+latex2mathml
+lxml
 matplotlib
 qrcode[pil]
 numpy
