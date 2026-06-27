@@ -8,7 +8,12 @@
     "На практике для линейной регрессии чаще используют не «чистый» SGD, а стабильные solver'ы (`lbfgs`, `sag` в Ridge/Lasso)"
   ],
   "notes": "Уточнить: при $p \\gg n$ или вырожденной $X^TX$ нужна регуляризация или псевдообратная.",
-  "visuals": [],
+  "visuals": [
+    {
+      "description": "Контурный график MSE(w0,w1) + красная ломаная градиентного спуска к минимуму.",
+      "output": "gradient_descent_contour.png"
+    }
+  ],
   "notebook": {
     "include": true,
     "kinds": [

@@ -7,7 +7,12 @@
     "Для сравнения моделей на одной задаче смотрите MAE и RMSE вместе"
   ],
   "notes": "sklearn: mean_absolute_error, mean_squared_error, r2_score.",
-  "visuals": [],
+  "visuals": [
+    {
+      "description": "Bar chart MAE, RMSE и R² на одном наборе предсказаний; подписи значений.",
+      "output": "regression_metrics_bar.png"
+    }
+  ],
   "notebook": {
     "include": true,
     "kinds": [

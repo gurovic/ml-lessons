@@ -29,6 +29,87 @@ def load_slides(slides_dir: Path) -> list[dict]:
     return [json.loads(read_file(f)) for f in list_slide_files(slides_dir)]
 
 
+def _image_aspect(img_path: Path) -> float:
+    from PIL import Image
+
+    with Image.open(img_path) as im:
+        w, h = im.size
+    return w / h if h else 1.0
+
+
+def _visual_layout_slots(n: int, col_left: float, col_w: float, top: float, bottom: float):
+    """Координаты ячеек (left, top, width, height) в дюймах для 1–4 картинок."""
+    gap = 0.08
+    h_avail = bottom - top
+
+    if n <= 0:
+        return []
+    if n == 1:
+        return [(col_left, top, col_w, h_avail)]
+    if n == 2:
+        slot_h = (h_avail - gap) / 2
+        return [
+            (col_left, top, col_w, slot_h),
+            (col_left, top + slot_h + gap, col_w, slot_h),
+        ]
+
+    slot_w = (col_w - gap) / 2
+    slot_h = (h_avail - gap) / 2
+    if n == 3:
+        return [
+            (col_left, top, slot_w, slot_h),
+            (col_left + slot_w + gap, top, slot_w, slot_h),
+            (col_left, top + slot_h + gap, col_w, slot_h),
+        ]
+    return [
+        (col_left, top, slot_w, slot_h),
+        (col_left + slot_w + gap, top, slot_w, slot_h),
+        (col_left, top + slot_h + gap, slot_w, slot_h),
+        (col_left + slot_w + gap, top + slot_h + gap, slot_w, slot_h),
+    ]
+
+
+def _add_picture_fit(slide, img_path: Path, left, top, box_w, box_h):
+    from pptx.util import Inches
+
+    aspect = _image_aspect(img_path)
+    box_aspect = box_w / box_h if box_h else aspect
+    if aspect >= box_aspect:
+        width = box_w
+        height = width / aspect
+    else:
+        height = box_h
+        width = height * aspect
+    x = left + (box_w - width) / 2
+    y = top + (box_h - height) / 2
+    slide.shapes.add_picture(str(img_path), Inches(x), Inches(y), width=Inches(width))
+
+
+def _place_visuals(slide, visuals: list[dict], assets_dir: Path, slide_num: int):
+    paths = []
+    for visual_obj in visuals:
+        output = visual_obj.get("output", "")
+        if not output:
+            continue
+        img_path = assets_dir / output
+        if img_path.exists():
+            paths.append(img_path)
+        else:
+            print(f"  [warn] Слайд {slide_num}: нет файла {img_path.name}")
+
+    if not paths:
+        return
+
+    col_left, col_w = 8.35, 4.75
+    top, bottom = 1.45, 6.35
+    slots = _visual_layout_slots(len(paths), col_left, col_w, top, bottom)
+    for img_path, (left, slot_top, w, h) in zip(paths, slots):
+        try:
+            _add_picture_fit(slide, img_path, left, slot_top, w, h)
+        except Exception as e:
+            print(f"Не удалось вставить {img_path}: {e}")
+
+
 def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, lesson_dir: Path):
     try:
         from pptx import Presentation
@@ -136,19 +217,7 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
                 ):
                     print(f"  [warn] Слайд {i}, буллет {j + 1}: {w}")
 
-        right_col_left = Inches(8.5)
-        right_col_width = Inches(4.5)
-        visual_top = Inches(1.5)
-        for visual_obj in visuals:
-            visual = visual_obj.get("output", "")
-            if visual:
-                img_path = assets_dir / visual
-                if img_path.exists():
-                    try:
-                        slide.shapes.add_picture(str(img_path), right_col_left, visual_top, width=right_col_width)
-                        visual_top += Inches(3.0)
-                    except Exception as e:
-                        print(f"Не удалось вставить {img_path}: {e}")
+        _place_visuals(slide, visuals, assets_dir, i)
 
         # Ссылка и QR-код
         link = slide_data.get("link")
