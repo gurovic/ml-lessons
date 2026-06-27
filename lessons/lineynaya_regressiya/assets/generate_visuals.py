@@ -1,4 +1,8 @@
-"""Генерация всех иллюстраций lineynaya_regressiya. Запуск из корня репо."""
+"""Генерация всех иллюстраций lineynaya_regressiya.
+
+Данные подобраны педагогически: эффект на графике должен быть виден сразу
+(см. docs/visuals.md «Педагогический подбор данных»).
+"""
 from __future__ import annotations
 
 import sys
@@ -151,10 +155,13 @@ def fig_multicollinearity():
 
 def fig_train_test():
     apply_matplotlib_slide_style(compact=True)
-    x = np.linspace(0, 10, 80)
-    y = 2 * x + 3 + RNG.normal(0, 2, 80)
-    x_train, y_train = x[:60], y[:60]
-    x_test, y_test = x[60:], y[60:]
+    # train: почти идеальная линия; test: участок с систематическим промахом → R²_train >> R²_test
+    x_train = np.linspace(0, 10, 55)
+    y_train = 2 * x_train + 3 + RNG.normal(0, 0.4, 55)
+    x_test = np.linspace(0, 10, 25)
+    y_test = 2 * x_test + 3 + RNG.normal(0, 0.4, 25)
+    y_test[12:] += np.linspace(0, 9, len(y_test[12:]))  # модель «не видела» рост шума
+
     m = LinearRegression().fit(x_train.reshape(-1, 1), y_train)
 
     def r2(yt, yp):
@@ -179,8 +186,9 @@ def fig_train_test():
 
 def fig_metrics():
     apply_matplotlib_slide_style()
-    y_true = np.array([10, 12, 8, 15, 11])
-    y_pred = np.array([9.5, 13.0, 9.0, 13.5, 10.5])
+    # один крупный промах → RMSE заметно выше MAE
+    y_true = np.array([10.0, 12.0, 8.0, 15.0, 11.0])
+    y_pred = np.array([10.0, 12.0, 8.0, 7.0, 11.0])
     mae = np.mean(np.abs(y_true - y_pred))
     rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
     r2 = 1 - np.sum((y_true - y_pred) ** 2) / np.sum((y_true - np.mean(y_true)) ** 2)
@@ -235,9 +243,9 @@ def fig_pipeline():
 
 def fig_leverage_x():
     apply_matplotlib_slide_style(compact=True)
-    x = np.concatenate([RNG.uniform(1, 9, 25), [14.0]])
-    y = 2 * x + 1 + RNG.normal(0, 1.2, 26)
-    y[-1] = 2 * x[-1] + 1 + 0.5
+    x = np.concatenate([np.linspace(1, 9, 24), [15.0]])
+    y = 1.8 * x + 2 + RNG.normal(0, 0.8, 25)
+    y[-1] = 1.8 * x[-1] + 2 + 0.3  # нормальный y, но x далеко → сильный leverage
     m_clean = LinearRegression().fit(x[:-1].reshape(-1, 1), y[:-1])
     m_all = LinearRegression().fit(x.reshape(-1, 1), y)
     xx = np.linspace(0, 15, 100).reshape(-1, 1)
@@ -379,10 +387,10 @@ def fig_residuals_vertical():
 
 def fig_outlier_y():
     apply_matplotlib_slide_style(compact=True)
-    x = np.linspace(1, 10, 25)
-    y = 2 * x + 1 + RNG.normal(0, 1.2, 25)
+    x = np.linspace(1, 10, 22)
+    y = 2 * x + 1 + RNG.normal(0, 0.6, 22)
     x_all = np.append(x, 11.0)
-    y_all = np.append(y, 25.0)
+    y_all = np.append(y, 32.0)  # сильный выброс в y
     m0 = LinearRegression().fit(x.reshape(-1, 1), y)
     m1 = LinearRegression().fit(x_all.reshape(-1, 1), y_all)
     xx = np.linspace(0, 12, 100).reshape(-1, 1)
@@ -395,7 +403,7 @@ def fig_outlier_y():
         style_axes(ax)
         ax.scatter(xs, ys, c="#1f77b4", s=35)
         if title.startswith("с"):
-            ax.scatter([11], [25], c="#ff7f0e", s=120, zorder=5)
+            ax.scatter([11], [32], c="#ff7f0e", s=120, zorder=5)
         ax.plot(xx, model.predict(xx), "r-", lw=2)
         ax.set_title(title)
         ax.set_xlabel("$x$")
@@ -408,24 +416,28 @@ def fig_outlier_y():
 def fig_residual_diagnostics():
     apply_matplotlib_slide_style(compact=True)
     n = 80
-    x = RNG.uniform(0, 10, n)
-    y = x + RNG.normal(0, 1, n) ** 2
-    pred = LinearRegression().fit(x.reshape(-1, 1), y).predict(x.reshape(-1, 1))
-    resid = y - pred
+    # плохо: гетероскедастичность — «воронка»
+    x_bad = np.linspace(0.5, 10, n)
+    y_bad = x_bad + RNG.normal(0, 1, n) * (0.3 + 0.25 * x_bad)
+    pred_bad = LinearRegression().fit(x_bad.reshape(-1, 1), y_bad).predict(x_bad.reshape(-1, 1))
+    resid_bad = y_bad - pred_bad
+
+    # хорошо: гомоскедастичные остатки
+    x_good = np.linspace(0, 10, n)
+    y_good = 2 * x_good + 1 + RNG.normal(0, 1.2, n)
+    pred_good = LinearRegression().fit(x_good.reshape(-1, 1), y_good).predict(x_good.reshape(-1, 1))
+    resid_good = y_good - pred_good
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
     style_axes(axes[0])
-    axes[0].scatter(pred, resid, c="#1f77b4", s=25, alpha=0.7)
+    axes[0].scatter(pred_bad, resid_bad, c="#1f77b4", s=28, alpha=0.75)
     axes[0].axhline(0, color="#444444", lw=0.8)
     axes[0].set_xlabel("$\\hat{y}$")
     axes[0].set_ylabel("остаток")
     axes[0].set_title("«воронка» — плохо")
 
-    x2 = RNG.uniform(0, 10, n)
-    y2 = 2 * x2 + 1 + RNG.normal(0, 1.5, n)
-    pred2 = LinearRegression().fit(x2.reshape(-1, 1), y2).predict(x2.reshape(-1, 1))
     style_axes(axes[1])
-    axes[1].scatter(pred2, y2 - pred2, c="#1f77b4", s=25, alpha=0.7)
+    axes[1].scatter(pred_good, resid_good, c="#1f77b4", s=28, alpha=0.75)
     axes[1].axhline(0, color="#444444", lw=0.8)
     axes[1].set_xlabel("$\\hat{y}$")
     axes[1].set_ylabel("остаток")
