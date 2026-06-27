@@ -24,8 +24,9 @@ def load_config(root_dir: Path) -> dict:
 
 
 def load_slides(slides_dir: Path) -> list[dict]:
-    json_files = sorted(slides_dir.glob("*.json"), key=lambda p: p.stem)
-    return [json.loads(read_file(f)) for f in json_files]
+    from slide_utils import list_slide_files
+
+    return [json.loads(read_file(f)) for f in list_slide_files(slides_dir)]
 
 
 def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, lesson_dir: Path):
