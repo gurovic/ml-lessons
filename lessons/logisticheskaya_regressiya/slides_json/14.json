@@ -1,0 +1,24 @@
+{
+  "title": "Несбалансированные данные на практике",
+  "bullets": [
+    "При малой доле минорного класса модель учится предсказывать мажорный",
+    "**Решение 1:** `class_weight='balanced'` — больший штраф за ошибки на минорном классе",
+    "**Решение 2:** сдвинуть порог (например 0.3), ориентируясь на PR-кривую",
+    "**Решение 3 (вне sklearn):** SMOTE или undersampling"
+  ],
+  "notes": "make_classification с weights=[0.95, 0.05].",
+  "visuals": [
+    {
+      "description": "Три панели PR-кривые на 5% minority: (1) baseline LogReg — низкий recall; (2) class_weight='balanced' — PR-AUC выше; (3) порог 0.3 вместо 0.5 — отмечена другая trade-off точка на той же кривой. Эффект: три практических приёма улучшают recall minority. seed 42, белый фон.",
+      "output": "class_weight_balanced.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example",
+      "experiment"
+    ],
+    "hint": "сравнить balanced vs default и пороги на make_classification"
+  }
+}
