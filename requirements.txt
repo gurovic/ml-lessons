@@ -6,3 +6,6 @@ qrcode[pil]
 numpy
 seaborn
 graphviz
+scikit-learn
+pandas
+ipywidgets
