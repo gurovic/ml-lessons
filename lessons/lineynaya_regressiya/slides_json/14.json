@@ -1,0 +1,18 @@
+{
+  "title": "sklearn и защита от утечек данных",
+  "bullets": [
+    "Базовый цикл: `model.fit(X_train, y_train)`, `model.predict(X_test)`",
+    "Data leakage: impute/scale **до** split — статистики теста попадают в train",
+    "Решение: `Pipeline([('scaler', StandardScaler()), ('reg', LinearRegression())])`",
+    "Pipeline.fit на train; transform+predict на test — без утечки"
+  ],
+  "notes": "Показать разницу R² с утечкой и без на синтетике.",
+  "visuals": [],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example",
+      "experiment"
+    ]
+  }
+}
