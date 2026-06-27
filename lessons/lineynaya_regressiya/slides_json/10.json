@@ -1,0 +1,16 @@
+{
+  "title": "Регуляризация: Ridge и Lasso",
+  "bullets": [
+    "Добавляем штраф за большие веса к функции потерь",
+    "Ridge (L2): $+\\alpha \\sum_j w_j^2$ — сжимает веса, помогает при мультиколлинеарности",
+    "Lasso (L1): $+\\alpha \\sum_j |w_j|$ — может обнулять веса → отбор признаков",
+    "Гиперпараметр $\\alpha$ подбирают по validation / cross-validation"
+  ],
+  "notes": "ElasticNet — компромисс L1+L2.",
+  "visuals": [
+    {
+      "description": "График: ось X — log(alpha), ось Y — значения нескольких весов модели Ridge (paths). Или bar chart весов OLS vs Ridge vs Lasso. matplotlib, синтетические данные.",
+      "output": "regularization_weights.png"
+    }
+  ]
+}
