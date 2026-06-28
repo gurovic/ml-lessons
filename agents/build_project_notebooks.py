@@ -742,10 +742,436 @@ plt.show()
     ]
 
 
+def _sections_derevo() -> list[dict]:
+    return [
+        {
+            "slide_title": "Постановка задачи",
+            "kind": "intro",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": (
+                        "Классифицируем **сорта вина** по химическому составу "
+                        "(sklearn `load_wine`, 3 класса, 13 признаков).\n\n"
+                        "Пройдём: EDA → train/test → `DecisionTreeClassifier` → "
+                        "Gini vs entropy → глубина и переобучение → `plot_tree` → "
+                        "важность признаков → confusion matrix → `class_weight` → "
+                        "подбор гиперпараметров → ограничения оси-параллельных границ."
+                    ),
+                }
+            ],
+        },
+        {
+            "slide_title": "Загрузка данных и первичный осмотр",
+            "kind": "eda",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": (
+                        "13 числовых признаков (кислотность, алкоголь, фенолы…). "
+                        "Деревья **не требуют масштабирования**, но пропуски нужно заполнять."
+                    ),
+                },
+                {
+                    "type": "code",
+                    "source": """\
+import warnings
+warnings.filterwarnings("ignore")
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.datasets import load_wine
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import (
+    classification_report, ConfusionMatrixDisplay, accuracy_score,
+)
+
+np.random.seed(42)
+sns.set_theme(style="whitegrid", font_scale=1.05)
+
+wine = load_wine(as_frame=True)
+df = wine.frame.copy()
+target_col = "target"
+feature_cols = list(wine.feature_names)
+class_names = list(wine.target_names)
+
+print(f"Объектов: {len(df)}, признаков: {len(feature_cols)}, классов: {df[target_col].nunique()}")
+display(df.head())
+display(df.describe().round(2))
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Разведочный анализ",
+            "kind": "viz",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": "Классы умеренно сбалансированы. Пара признаков (`alcohol`, `color_intensity`) хорошо разделяет сорта — посмотрим распределения.",
+                },
+                {
+                    "type": "code",
+                    "source": """\
+fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+
+counts = df[target_col].value_counts().sort_index()
+axes[0].bar(class_names, counts.values, color="steelblue", edgecolor="white")
+axes[0].set_title("Баланс классов")
+axes[0].set_ylabel("число объектов")
+
+for cls in sorted(df[target_col].unique()):
+    sub = df[df[target_col] == cls]
+    axes[1].scatter(sub["alcohol"], sub["color_intensity"], alpha=0.7, s=35, label=class_names[cls])
+axes[1].set_xlabel("alcohol")
+axes[1].set_ylabel("color_intensity")
+axes[1].set_title("Два признака")
+axes[1].legend(fontsize=8)
+
+corr = df[feature_cols].corr()
+sns.heatmap(corr.iloc[:6, :6], ax=axes[2], cmap="RdBu_r", center=0, vmin=-1, vmax=1)
+axes[2].set_title("Корреляции (фрагмент)")
+plt.tight_layout()
+plt.show()
+
+print("Доли классов:\\n", df[target_col].value_counts(normalize=True).round(3).rename(index=dict(enumerate(class_names))))
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Train / test и базовое дерево",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": (
+                        "Стратификация сохраняет доли классов. "
+                        "`Pipeline` здесь — обёртка над моделью (без scaler: порядок признаков для дерева не важен)."
+                    ),
+                },
+                {
+                    "type": "code",
+                    "source": """\
+X = df[feature_cols].values
+y = df[target_col].values
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42, stratify=y
+)
+
+pipe = Pipeline([
+    ("tree", DecisionTreeClassifier(random_state=42)),
+])
+pipe.fit(X_train, y_train)
+y_pred = pipe.predict(X_test)
+
+print(classification_report(y_test, y_pred, target_names=class_names, digits=3))
+print(f"Accuracy test: {accuracy_score(y_test, y_pred):.3f}")
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Критерий разбиения: Gini vs entropy",
+            "kind": "experiment",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": "Оба критерия строго вогнуты и учитывают все классы. На практике деревья почти совпадают.",
+                },
+                {
+                    "type": "code",
+                    "source": """\
+rows = []
+for crit in ("gini", "entropy"):
+    m = Pipeline([("tree", DecisionTreeClassifier(criterion=crit, max_depth=5, random_state=42))])
+    m.fit(X_train, y_train)
+    rows.append({
+        "criterion": crit,
+        "accuracy train": m.score(X_train, y_train),
+        "accuracy test": m.score(X_test, y_test),
+        "depth": m.named_steps["tree"].get_depth(),
+        "n_leaves": m.named_steps["tree"].get_n_leaves(),
+    })
+
+display(pd.DataFrame(rows).round(4))
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Глубина и переобучение",
+            "kind": "experiment",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": "Без ограничений дерево запоминает train (accuracy → 1). На test качество сначала растёт, затем падает или стагнирует.",
+                },
+                {
+                    "type": "code",
+                    "source": """\
+depths = list(range(1, 16))
+train_acc, test_acc = [], []
+
+for d in depths:
+    m = DecisionTreeClassifier(max_depth=d, random_state=42)
+    m.fit(X_train, y_train)
+    train_acc.append(m.score(X_train, y_train))
+    test_acc.append(m.score(X_test, y_test))
+
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(depths, train_acc, "o-", label="train", color="steelblue")
+ax.plot(depths, test_acc, "s-", label="test", color="crimson")
+ax.set_xlabel("max_depth")
+ax.set_ylabel("accuracy")
+ax.set_title("Глубина vs accuracy (переобучение)")
+ax.legend()
+plt.tight_layout()
+plt.show()
+
+best_d = depths[int(np.argmax(test_acc))]
+print(f"Лучший max_depth на test: {best_d} (acc={max(test_acc):.3f})")
+
+# полное дерево vs ограниченное
+full = DecisionTreeClassifier(random_state=42).fit(X_train, y_train)
+shallow = DecisionTreeClassifier(max_depth=best_d, random_state=42).fit(X_train, y_train)
+print(f"Без ограничений: train={full.score(X_train, y_train):.3f}, test={full.score(X_test, y_test):.3f}")
+print(f"max_depth={best_d}: train={shallow.score(X_train, y_train):.3f}, test={shallow.score(X_test, y_test):.3f}")
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Визуализация дерева",
+            "kind": "viz",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": "`plot_tree` показывает правила «x < порог» в каждом узле. Цвет листа — доминирующий класс.",
+                },
+                {
+                    "type": "code",
+                    "source": """\
+tree_viz = DecisionTreeClassifier(max_depth=3, random_state=42)
+tree_viz.fit(X_train, y_train)
+
+fig, ax = plt.subplots(figsize=(16, 8))
+plot_tree(
+    tree_viz,
+    feature_names=feature_cols,
+    class_names=class_names,
+    filled=True,
+    rounded=True,
+    fontsize=9,
+    ax=ax,
+)
+ax.set_title("Decision tree (max_depth=3)")
+plt.tight_layout()
+plt.show()
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Важность признаков",
+            "kind": "viz",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": "Суммарное уменьшение неоднородности (Gini/entropy) по всем узлам, где использовался признак.",
+                },
+                {
+                    "type": "code",
+                    "source": """\
+clf_imp = DecisionTreeClassifier(max_depth=5, random_state=42)
+clf_imp.fit(X_train, y_train)
+imp = clf_imp.feature_importances_
+order = np.argsort(imp)
+
+plt.figure(figsize=(8, 5))
+plt.barh(np.array(feature_cols)[order], imp[order], color="steelblue")
+plt.xlabel("feature_importances_")
+plt.title("Важность признаков (max_depth=5)")
+plt.tight_layout()
+plt.show()
+
+for name, val in sorted(zip(feature_cols, imp), key=lambda t: t[1], reverse=True)[:5]:
+    print(f"{name:20s}: {val:.3f}")
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Confusion matrix и метрики по классам",
+            "kind": "viz",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": "Accuracy недостаточна при дисбалансе — смотрим precision/recall/F1 по каждому классу.",
+                },
+                {
+                    "type": "code",
+                    "source": """\
+clf_best = DecisionTreeClassifier(max_depth=best_d, random_state=42)
+clf_best.fit(X_train, y_train)
+y_hat = clf_best.predict(X_test)
+
+fig, ax = plt.subplots(figsize=(5, 4))
+ConfusionMatrixDisplay.from_predictions(
+    y_test, y_hat, display_labels=class_names, cmap="Blues", ax=ax
+)
+ax.set_title(f"Confusion matrix (max_depth={best_d})")
+plt.tight_layout()
+plt.show()
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "class_weight при дисбалансе",
+            "kind": "experiment",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": (
+                        "Класс 2 (`class_2`) — минорный. `class_weight='balanced'` "
+                        "увеличивает штраф за ошибки на редком классе **при построении дерева**."
+                    ),
+                },
+                {
+                    "type": "code",
+                    "source": """\
+minority = int(np.argmin(np.bincount(y_train)))
+minority_name = class_names[minority]
+print(f"Минорный класс: {minority_name} (label={minority})\\n")
+
+for cw, label in [(None, "без весов"), ("balanced", "balanced")]:
+    m = DecisionTreeClassifier(max_depth=5, class_weight=cw, random_state=42)
+    m.fit(X_train, y_train)
+    rep = classification_report(y_test, m.predict(X_test), target_names=class_names, output_dict=True)
+    print(f"--- {label} ---")
+    print(f"  recall {minority_name}: {rep[minority_name]['recall']:.3f}")
+    print(f"  macro F1: {rep['macro avg']['f1-score']:.3f}")
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Подбор max_depth (GridSearchCV)",
+            "kind": "experiment",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": "Кросс-валидация на train подбирает глубину без «подглядывания» в test.",
+                },
+                {
+                    "type": "code",
+                    "source": """\
+from sklearn.model_selection import GridSearchCV
+
+grid = GridSearchCV(
+    Pipeline([("tree", DecisionTreeClassifier(random_state=42))]),
+    param_grid={"tree__max_depth": [2, 3, 4, 5, 7, 10, None]},
+    cv=5,
+    scoring="accuracy",
+    n_jobs=-1,
+)
+grid.fit(X_train, y_train)
+
+print("Лучшие параметры:", grid.best_params_)
+print(f"CV accuracy: {grid.best_score_:.3f}")
+print(f"Test accuracy: {grid.score(X_test, y_test):.3f}")
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Ограничение: оси-параллельные границы",
+            "kind": "viz",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": (
+                        "Дерево делит пространство прямоугольниками, параллельными осям. "
+                        "Диагональную границу оно аппроксимирует «лестницей» — в отличие от линейной модели с комбинацией признаков."
+                    ),
+                },
+                {
+                    "type": "code",
+                    "source": """\
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+
+# два признака для 2D-визуализации
+idx_a, idx_b = feature_cols.index("alcohol"), feature_cols.index("color_intensity")
+X2 = X[:, [idx_a, idx_b]]
+X2_tr, X2_te, y2_tr, y2_te = train_test_split(X2, y, test_size=0.25, random_state=42, stratify=y)
+
+tree2 = DecisionTreeClassifier(max_depth=5, random_state=42).fit(X2_tr, y2_tr)
+log2 = make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000, random_state=42)).fit(X2_tr, y2_tr)
+
+xx, yy = np.meshgrid(
+    np.linspace(X2[:, 0].min() - 0.5, X2[:, 0].max() + 0.5, 200),
+    np.linspace(X2[:, 1].min() - 0.5, X2[:, 1].max() + 0.5, 200),
+)
+grid_pts = np.c_[xx.ravel(), yy.ravel()]
+
+fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+for ax, model, title in [
+    (axes[0], tree2, f"Дерево (acc={tree2.score(X2_te, y2_te):.2f})"),
+    (axes[1], log2, f"LogReg (acc={log2.score(X2_te, y2_te):.2f})"),
+]:
+    Z = model.predict(grid_pts).reshape(xx.shape)
+    ax.contourf(xx, yy, Z, alpha=0.35, levels=np.arange(-0.5, 3.5, 1), cmap="tab10")
+    for cls in np.unique(y):
+        mask = y2_tr == cls
+        ax.scatter(X2_tr[mask, 0], X2_tr[mask, 1], s=30, edgecolors="k", label=class_names[cls])
+    ax.set_xlabel(feature_cols[idx_a])
+    ax.set_ylabel(feature_cols[idx_b])
+    ax.set_title(title)
+    ax.legend(fontsize=7)
+plt.tight_layout()
+plt.show()
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Чек-лист мини-проекта",
+            "kind": "summary",
+            "cells": [
+                {
+                    "type": "markdown",
+                    "source": (
+                        "1. EDA и баланс классов до обучения.\n"
+                        "2. `train_test_split(..., stratify=y)` для классификации.\n"
+                        "3. Масштабирование дереву не нужно; пропуски — заполнить.\n"
+                        "4. Сравнить `criterion='gini'` и `'entropy'`.\n"
+                        "5. График depth vs accuracy — переобучение на train.\n"
+                        "6. `plot_tree` + `feature_importances_` для интерпретации.\n"
+                        "7. Confusion matrix и F1 по классам, не только accuracy.\n"
+                        "8. При дисбалансе — `class_weight='balanced'`.\n"
+                        "9. GridSearchCV / CV на train, финальная оценка на test.\n"
+                        "10. Помнить про оси-параллельные границы и нестабильность одного дерева."
+                    ),
+                }
+            ],
+        },
+    ]
+
+
 def build_all() -> None:
     lessons = [
         (ROOT / "lessons" / "lineynaya_regressiya", "Линейная регрессия — мини-проект", _sections_linear()),
         (ROOT / "lessons" / "logisticheskaya_regressiya", "Логистическая регрессия — мини-проект", _sections_logistic()),
+        (ROOT / "lessons" / "derevo_resheniy", "Дерево решений — мини-проект", _sections_derevo()),
     ]
     for lesson_dir, topic, sections in lessons:
         nb = build_ipynb(sections, topic=topic)
