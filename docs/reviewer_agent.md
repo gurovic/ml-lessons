@@ -6,7 +6,9 @@
 
 ## Решение
 
-Агент **lesson_reviewer** формирует промпт для AI-рецензента. AI возвращает структурированный отчёт в `review.md`; **агенты** (не автор) вносят правки в `slides_json/` по замечаниям, затем — визуализации и `pptx_builder`.
+Агент **lesson_reviewer** формирует промпт для AI-рецензента. AI возвращает структурированный отчёт в `review.md` (перезаписываемый); **агенты** (не автор) вносят правки в `slides_json/` по замечаниям, затем — визуализации и `pptx_builder`.
+
+Замечания автора **после** проверки `presentation.pptx` — в **`author_feedback.md`** (чеклисты по слайдам). Этот файл **не** читается и **не** перезаписывается `lesson_reviewer`.
 
 ### Когда включать
 
@@ -35,7 +37,9 @@
 
 ## Формат отчёта
 
-Файл: `lessons/<lesson>/review.md`
+Файл AI-рецензии: `lessons/<lesson>/review.md` (опционально, перезаписывается при `--save`).
+
+Замечания автора после pptx: `lessons/<lesson>/author_feedback.md` — отдельный persistent-файл, см. **docs/pipeline.md**.
 
 Структура (задаётся промптом):
 
@@ -99,5 +103,5 @@ python agents/lesson_reviewer.py <lesson_dir> --save review_response.md
 
 1. plan.md → генерация JSON (агенты)
 2. **Опционально:** lesson_reviewer → review.md → агенты правят JSON
-3. --visuals → pptx_builder → **автор проверяет presentation.pptx**
+3. --visuals → pptx_builder → **автор проверяет presentation.pptx** → замечания в `author_feedback.md`
 4. notebook_generator → code.ipynb → references_agent
