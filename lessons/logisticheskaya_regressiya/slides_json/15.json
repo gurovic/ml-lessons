@@ -1,0 +1,24 @@
+{
+  "title": "Калибровка вероятностей",
+  "bullets": [
+    "LogReg **хорошо откалибрована** — если предсказала 0.7 для 1000 объектов, ~700 действительно класс 1",
+    "Деревья и градиентный бустинг часто переуверены (0.99 при реальных ~0.7)",
+    "Для них — `CalibratedClassifierCV` (Platt scaling, Isotonic regression)",
+    "Для LogReg калибровка **обычно не нужна**"
+  ],
+  "notes": "sklearn.calibration.calibration_curve.",
+  "visuals": [
+    {
+      "description": "Reliability diagram (calibration curve): ось predicted prob vs fraction of positives, диагональ идеальной калибровки. LogReg близко к диагонали, DecisionTree сильно выше (overconfident). Эффект: LogReg надёжен, дерево завышает вероятности. seed 42, 10 bins, белый фон.",
+      "output": "calibration_reliability.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example",
+      "viz"
+    ],
+    "hint": "calibration_curve для LogisticRegression и DecisionTreeClassifier"
+  }
+}
