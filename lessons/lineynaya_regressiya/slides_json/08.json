@@ -9,7 +9,7 @@
   "notes": "Показать два почти совпадающих столбца в pandas.corr().",
   "visuals": [
     {
-      "description": "Две панели: heatmap corr(x1,x2)≈1; boxplot bootstrap-весов w1,w2 с большим разбросом.",
+      "description": "Две панели: scatter x1 vs x2 почти на одной прямой (дублирующие признаки); boxplot bootstrap-весов w1,w2 с большим разбросом и сменой знака.",
       "output": "multicollinearity.png"
     }
   ]
