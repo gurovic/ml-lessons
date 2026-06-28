@@ -78,6 +78,7 @@ code.ipynb, project.ipynb, references, link_checker (агенты)
 
 ## Связанные документы
 
+- **docs/issue_workflow.md** — когда создавать issue, ветка `issue-N/…`, PR с `Closes #N`; issue vs `plan.md`
 - **RULES.md** — краткий порядок шагов и состав папки урока
 - **docs/reviewer_agent.md** — рецензент до pptx (опционально)
 - **docs/notebook_agent.md**, **docs/slide_code_agent.md**, **docs/colab_references.md**, **docs/link_checker_agent.md** — шаги после/вокруг pptx
