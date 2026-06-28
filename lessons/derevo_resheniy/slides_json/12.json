@@ -7,5 +7,11 @@
     "Для воспроизводимости: random_state фиксирует случайность при равной информативности разбиений"
   ],
   "notes": "Показать вызов в jupyter notebook, сделать predict на новых данных.",
-  "visuals": []
+  "visuals": [],
+  "code_examples": [
+    {
+      "source": "from sklearn.tree import DecisionTreeClassifier\nclf = DecisionTreeClassifier(max_depth=3, random_state=42)\nclf.fit(X_train, y_train)\nclf.predict(X_test)",
+      "caption": "DecisionTreeClassifier"
+    }
+  ]
 }

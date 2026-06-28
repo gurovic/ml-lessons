@@ -1,0 +1,28 @@
+{
+  "title": "MultiIndex: иерархические индексы после groupby",
+  "bullets": [
+    "`groupby(['city','cat']).agg(['mean','std'])` → **двухуровневый** индекс строк и столбцов",
+    "Частая боль: как обратиться к ячейке, как склеить с исходной таблицей",
+    "`reset_index()` или `as_index=False` в `groupby()`",
+    "Перед моделью или merge — **сбросить MultiIndex**"
+  ],
+  "visuals": [
+    {
+      "description": "Схема MultiIndex: строки city×category, столбцы mean/std. Стрелка reset_index → плоская таблица.",
+      "output": "multiindex_reset.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "groupby с MultiIndex и reset_index"
+  },
+  "code_examples": [
+    {
+      "source": "g = df.groupby(['city', 'year'])['sales'].mean()\ng.loc['MSK']          # срез по первому уровню\ng.reset_index()       # обратно в таблицу",
+      "caption": "MultiIndex после groupby"
+    }
+  ]
+}

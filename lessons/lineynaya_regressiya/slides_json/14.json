@@ -7,12 +7,23 @@
     "Pipeline.fit на train; transform+predict на test — без утечки"
   ],
   "notes": "Показать разницу R² с утечкой и без на синтетике.",
-  "visuals": [],
+  "visuals": [
+    {
+      "description": "Две схемы: scale до split (утечка) vs split + Pipeline (правильно); стрелки.",
+      "output": "pipeline_leakage.png"
+    }
+  ],
   "notebook": {
     "include": true,
     "kinds": [
       "example",
       "experiment"
     ]
-  }
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LinearRegression\npipe = Pipeline([\n    ('scaler', StandardScaler()),\n    ('reg', LinearRegression()),\n])\npipe.fit(X_train, y_train)",
+      "caption": "Pipeline без утечки"
+    }
+  ]
 }

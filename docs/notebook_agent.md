@@ -10,7 +10,7 @@
 
 ### Когда включать
 
-**После** `pptx_builder` (или параллельно, когда JSON и assets финальны).
+**После** `pptx_builder`, когда JSON, assets и (желательно) проверка `presentation.pptx` завершены. См. **docs/pipeline.md**.
 
 ### Типы содержимого ноутбука
 
@@ -104,12 +104,17 @@ type response.json | python agents/notebook_generator.py lessons/derevo_resheniy
 
 Выход: `lessons/<урок>/code.ipynb`.
 
+## project.ipynb (мини-проект)
+
+Сквозной end-to-end сценарий на реальных данных — см. **docs/project_notebook.md**.  
+Сборка шаблонов: `python agents/build_project_notebooks.py` (пока для lineynaya и logisticheskaya).
+
 ## Отвергнутые альтернативы
 
 | Альтернатива | Почему нет |
 |--------------|------------|
 | Один код-блок на весь урок | теряется связь со слайдами; сложно править |
-| Ноутбук из plan.md | plan устаревает; JSON — источник истины для презентации |
+| Ноутбук из plan.md | plan устаревает; JSON — источник для пересборки pptx и ноутбука |
 | Автогенерация без AI | слишком разнообразные сценарии (эксперименты, widgets) |
 
 ## Зависимости ноутбука

@@ -1,0 +1,28 @@
+{
+  "title": "Оптимизация памяти: downcasting типов",
+  "bullets": [
+    "По умолчанию `float64`, `int64` — расточительно для ML",
+    "`astype('category')` для строк — экономия в 10–100×",
+    "`float32` вместо `float64` — обычно достаточно",
+    "`pd.to_numeric(..., downcast='integer')` — автоматический downcast"
+  ],
+  "visuals": [
+    {
+      "description": "Bar chart память object vs category vs int8 для одного столбца 100k строк — category намного меньше.",
+      "output": "dtype_memory.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "memory_usage deep=True, category, downcast"
+  },
+  "code_examples": [
+    {
+      "source": "df['small_int'] = pd.to_numeric(df['small_int'], downcast='integer')\ndf['category'] = df['category'].astype('category')",
+      "caption": "Меньше байт на ячейку"
+    }
+  ]
+}

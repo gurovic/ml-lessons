@@ -11,6 +11,10 @@
     {
       "description": "Два subplot: слева регрессия без выброса, справа та же выборка + один выброс в y сильно меняет линию MSE. matplotlib.",
       "output": "outlier_y_effect.png"
+    },
+    {
+      "description": "Два subplot: leverage-точка далеко по x меняет наклон линии при нормальном y.",
+      "output": "outlier_leverage_x.png"
     }
   ]
 }

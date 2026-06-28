@@ -1,0 +1,29 @@
+{
+  "title": "Scatter plot",
+  "bullets": [
+    "`ax.scatter(x, y, alpha=0.5, s=20)` — связь двух числовых признаков",
+    "Цвет `c=target` или `hue` в seaborn — классы или третий признак",
+    "Выбросы видны как изолированные точки; кластеры — плотные облака",
+    "Базовый график регрессии и классификации в 2D"
+  ],
+  "notes": "Scatter income vs price из California.",
+  "visuals": [
+    {
+      "description": "Scatter двух признаков, цвет по классу, alpha=0.6.",
+      "output": "scatter_classes.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "scatter с цветом по y."
+  },
+  "code_examples": [
+    {
+      "source": "ax.scatter(X[:, 0], X[:, 1], c=y, cmap='viridis', alpha=0.7)\nax.set_xlabel('feature 1'); ax.set_ylabel('feature 2')",
+      "caption": "Классы цветом"
+    }
+  ]
+}

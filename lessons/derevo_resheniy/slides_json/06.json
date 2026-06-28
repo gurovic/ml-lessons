@@ -13,5 +13,11 @@
       "description": "График двух функций impurity для бинарного случая: ось X — p (доля класса 1), ось Y — значение impurity. Три линии: Misclassification (1 - max(p, 1-p)) — кусочно-линейная, Энтропия (-p log₂ p - (1-p) log₂(1-p)) — гладкая вогнутая, Джини (2p(1-p)) — квадратичная парабола. Использовать matplotlib, легенду, подписи осей.",
       "output": "impurity_functions.png"
     }
+  ],
+  "code_examples": [
+    {
+      "source": "from sklearn.tree import DecisionTreeClassifier\nclf = DecisionTreeClassifier(criterion='gini')\nclf_ent = DecisionTreeClassifier(criterion='entropy')\n# сравните деревья на одних данных",
+      "caption": "Gini vs entropy"
+    }
   ]
 }

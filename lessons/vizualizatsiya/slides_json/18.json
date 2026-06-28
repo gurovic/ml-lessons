@@ -1,0 +1,40 @@
+{
+  "title": "Источники и практика",
+  "type": "references",
+  "references": [
+    {
+      "kind": "paper",
+      "title": "Graphical Perception: Theory, Experimentation, and Application to the Development of Graphical Methods",
+      "authors": "Cleveland W.S., McGill R.",
+      "year": 1984,
+      "url": "https://www.statsclass.com/dsci310/Notes/Cleveland_McGill_EPT.pdf"
+    },
+    {
+      "kind": "paper",
+      "title": "A Layered Grammar of Graphics",
+      "authors": "Wickham H.",
+      "year": 2010,
+      "url": "http://vita.had.co.nz/papers/layered-grammar.pdf"
+    },
+    {
+      "kind": "paper",
+      "title": "The Visual Display of Quantitative Information",
+      "authors": "Tufte E.R.",
+      "year": 1983
+    },
+    {
+      "kind": "colab",
+      "title": "code.ipynb",
+      "label": "Примеры по слайдам",
+      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/vizualizatsiya/code.ipynb"
+    },
+    {
+      "kind": "colab",
+      "title": "project.ipynb",
+      "label": "Мини-проект",
+      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/vizualizatsiya/project.ipynb"
+    }
+  ],
+  "bullets": [],
+  "notes": "Colab-ссылки обновляются агентом при --apply."
+}

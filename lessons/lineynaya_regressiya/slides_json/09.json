@@ -7,11 +7,22 @@
     "`train_test_split`: train — подбор весов, test — финальная проверка"
   ],
   "notes": "Пример: R²=0.99 на train и 0.3 на test.",
-  "visuals": [],
+  "visuals": [
+    {
+      "description": "Два scatter train/test с одной линией; в заголовке R² train vs test (train выше).",
+      "output": "train_test_split.png"
+    }
+  ],
   "notebook": {
     "include": true,
     "kinds": [
       "experiment"
     ]
-  }
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.model_selection import train_test_split\nX_tr, X_te, y_tr, y_te = train_test_split(\n    X, y, test_size=0.2, random_state=42\n)\nmodel.fit(X_tr, y_tr)  # метрики только на X_te",
+      "caption": "Отложенная выборка"
+    }
+  ]
 }

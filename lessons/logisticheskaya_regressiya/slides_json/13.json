@@ -1,0 +1,29 @@
+{
+  "title": "Логистическая регрессия в sklearn",
+  "bullets": [
+    "`make_pipeline(StandardScaler(), LogisticRegression(...))` — **обязательно**: регуляризация чувствительна к масштабу",
+    "`LogisticRegression(C=1.0, max_iter=1000)` — L-BFGS; `max_iter` часто увеличивают (по умолчанию 100)",
+    "`predict_proba` — вероятности класса 1; `predict` — бинарное решение по порогу 0.5",
+    "Главная ценность модели — **вероятности**, не только метки"
+  ],
+  "notes": "Pipeline.fit на train; transform+predict на test — без утечки.",
+  "visuals": [
+    {
+      "description": "Block-схема Pipeline: X → StandardScaler → LogisticRegression → proba/pred; стрелки, русские подписи блоков. Эффект: порядок шагов и отсутствие утечки при fit только на train. Белый фон, graphviz или matplotlib patches.",
+      "output": "logreg_pipeline.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "make_pipeline StandardScaler + LogisticRegression, predict_proba vs predict"
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.linear_model import LogisticRegression\nclf = LogisticRegression(C=1.0, random_state=42)\nclf.fit(X_train, y_train)\ny_pred = clf.predict(X_test)",
+      "caption": "Базовый классификатор"
+    }
+  ]
+}

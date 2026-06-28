@@ -1,0 +1,41 @@
+{
+  "title": "Источники и практика",
+  "type": "references",
+  "references": [
+    {
+      "kind": "paper",
+      "title": "Ridge Regression: Biased Estimation for Nonorthogonal Problems",
+      "authors": "Hoerl A.E., Kennard R.W.",
+      "year": 1970,
+      "url": "https://www.stat.cmu.edu/technometrics/90-00/vol-42-01/v4201080.pdf"
+    },
+    {
+      "kind": "paper",
+      "title": "Regression Shrinkage and Selection via the Lasso",
+      "authors": "Tibshirani R.",
+      "year": 1996,
+      "url": "https://sites.stat.washington.edu/courses/stat527/s14/readings/j_royal_stat_soc_b1996.pdf"
+    },
+    {
+      "kind": "paper",
+      "title": "Least Squares Estimation of Linear Models",
+      "authors": "Markov A.A.",
+      "year": 1900,
+      "url": "https://digital.fandm.edu/_flysystem/fedora/2022-07/Levine_CalculusOfProbabilities.pdf"
+    },
+    {
+      "kind": "colab",
+      "title": "code.ipynb",
+      "label": "Примеры по слайдам",
+      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/lineynaya_regressiya/code.ipynb"
+    },
+    {
+      "kind": "colab",
+      "title": "project.ipynb",
+      "label": "Мини-проект",
+      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/lineynaya_regressiya/project.ipynb"
+    }
+  ],
+  "bullets": [],
+  "notes": "Colab-ссылки обновляются агентом при --apply."
+}

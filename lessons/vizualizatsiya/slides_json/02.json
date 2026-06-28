@@ -1,0 +1,29 @@
+{
+  "title": "Matplotlib: figure и axes",
+  "bullets": [
+    "`fig, ax = plt.subplots()` — **figure** (холст) и **axes** (область графика)",
+    "Рисуем на `ax`: `ax.plot(...)`, `ax.set_xlabel(...)` — не смешивать pyplot без нужды",
+    "`plt.tight_layout()` — подгонка отступов перед `plt.show()` или savefig",
+    "`%matplotlib inline` в Jupyter — график под ячейкой"
+  ],
+  "notes": "OO-стиль предпочтительнее plt.plot напрямую.",
+  "visuals": [
+    {
+      "description": "Схема figure с одним axes, подписи xlabel/ylabel/title.",
+      "output": "fig_axes_diagram.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "subplots, plot на ax, labels."
+  },
+  "code_examples": [
+    {
+      "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 4))\nax.plot([1, 2, 3], [1, 4, 9])\nax.set_xlabel('x'); ax.set_ylabel('y')",
+      "caption": "OO-стиль matplotlib"
+    }
+  ]
+}

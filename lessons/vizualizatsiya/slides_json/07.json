@@ -1,0 +1,29 @@
+{
+  "title": "Seaborn: высокоуровневые графики",
+  "bullets": [
+    "Seaborn строит на matplotlib: `sns.scatterplot`, `sns.histplot`, `sns.heatmap`",
+    "`data=df, x=, y=, hue=` — имена столбцов вместо массивов",
+    "`sns.set_theme(style='whitegrid')` — единый стиль лекции",
+    "Для ML-диагностики: `sns.regplot`, `jointplot`, `pairplot` на подмножестве признаков"
+  ],
+  "notes": "pairplot только на 4–5 признаках — иначе медленно.",
+  "visuals": [
+    {
+      "description": "sns.scatterplot с hue и regression line (regplot inset).",
+      "output": "seaborn_scatter_reg.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "scatterplot и histplot seaborn."
+  },
+  "code_examples": [
+    {
+      "source": "import seaborn as sns\nsns.scatterplot(data=df, x='x', y='y', hue='class')\nsns.regplot(data=df, x='x', y='y', scatter_kws={'alpha': 0.5})",
+      "caption": "scatterplot / regplot"
+    }
+  ]
+}

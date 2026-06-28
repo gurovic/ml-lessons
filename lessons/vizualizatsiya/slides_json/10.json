@@ -1,0 +1,29 @@
+{
+  "title": "Heatmap и корреляции",
+  "bullets": [
+    "`df.corr()` — матрица Pearson; `sns.heatmap(corr, annot=True, cmap='RdBu_r', center=0)`",
+    "Сильная |r| ≳ 0.8 — кандидаты на мультиколлинеарность",
+    "Корреляция ≠ причинность; скрытые нелинейные связи corr не видит",
+    "Масштабируй признаки перед интерпретацией corr в смешанных единицах"
+  ],
+  "notes": "Ссылка на урок линейной регрессии — multicollinearity.",
+  "visuals": [
+    {
+      "description": "Heatmap 6×6 corr, annot, RdBu_r; пара с |r|>0.9 выделена.",
+      "output": "correlation_heatmap.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "corr и sns.heatmap."
+  },
+  "code_examples": [
+    {
+      "source": "import seaborn as sns\ncorr = df.corr(numeric_only=True)\nsns.heatmap(corr, annot=True, cmap='coolwarm', vmin=-1, vmax=1)",
+      "caption": "heatmap корреляций"
+    }
+  ]
+}

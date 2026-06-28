@@ -1,0 +1,28 @@
+{
+  "title": "Производительность: когда pandas «не тянет»",
+  "bullets": [
+    "pandas однопоточный — не для огромных данных",
+    "`iterrows` / `itertuples` — заменять векторизацией",
+    "`apply` с Python-функцией — ~100× медленнее векторизации",
+    "Первая линия: `.str`, numpy, `np.where` вместо `apply`"
+  ],
+  "visuals": [
+    {
+      "description": "Bar chart: время apply vs vectorized vs str.len на Series 200k — vectorized в 50-100× короче. Лог-шкала опционально.",
+      "output": "perf_vectorized.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "experiment"
+    ],
+    "hint": "замер apply vs vectorized"
+  },
+  "code_examples": [
+    {
+      "source": "df['x'] * 2              # векторизация — быстро\n# for i in range(len(df)): ...  # цикл — медленно",
+      "caption": "Векторизация vs цикл"
+    }
+  ]
+}

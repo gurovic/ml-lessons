@@ -1,0 +1,29 @@
+{
+  "title": "Источники и практика",
+  "type": "references",
+  "references": [
+    {
+      "kind": "paper",
+      "title": "Data Structures for Statistical Computing in Python",
+      "authors": "McKinney W.",
+      "year": 2010,
+      "url": "https://conference.scipy.org/proceedings/scipy2010/mckinney.html"
+    },
+    {
+      "kind": "paper",
+      "title": "Tidy Data",
+      "authors": "Wickham H.",
+      "year": 2014,
+      "url": "http://vita.had.co.nz/papers/tidy-data.pdf"
+    },
+    {
+      "kind": "paper",
+      "title": "pandas: powerful Python data analysis toolkit",
+      "authors": "Reback J., McKinney W., et al.",
+      "year": 2020,
+      "url": "https://zenodo.org/records/3509134"
+    }
+  ],
+  "bullets": [],
+  "notes": "Colab-ссылки обновляются агентом при --apply."
+}

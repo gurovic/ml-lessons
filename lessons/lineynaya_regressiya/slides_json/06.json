@@ -7,11 +7,22 @@
     "Для градиентного спуска и регуляризации масштабирование **обязательно** — иначе медленная или неверная сходимость"
   ],
   "notes": "Показать, как вес «этаж» и «площадь» несопоставимы без scaler.",
-  "visuals": [],
+  "visuals": [
+    {
+      "description": "Два bar chart весов «площадь» и «этаж»: слева без scaler, справа после StandardScaler.",
+      "output": "scaling_weights_compare.png"
+    }
+  ],
   "notebook": {
     "include": true,
     "kinds": [
       "example"
     ]
-  }
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.preprocessing import StandardScaler, OneHotEncoder\nfrom sklearn.compose import ColumnTransformer\nprep = ColumnTransformer([\n    ('num', StandardScaler(), num_cols),\n    ('cat', OneHotEncoder(), cat_cols),\n])\nX_scaled = prep.fit_transform(X_train)",
+      "caption": "Числа + категории"
+    }
+  ]
 }

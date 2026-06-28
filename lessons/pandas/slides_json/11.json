@@ -1,0 +1,28 @@
+{
+  "title": "Категории: типы кодирования и когда что применять",
+  "bullets": [
+    "**Ordinal** — только упорядоченные (`category` + `.cat.codes`)",
+    "**One-Hot** — неупорядоченные: `pd.get_dummies(..., drop_first=True)`",
+    "**Target Encoding** — среднее таргета; только внутри sklearn `Pipeline`",
+    "Числа 0,1,2 для деревьев ок, для линейных моделей — ломает геометрию"
+  ],
+  "visuals": [
+    {
+      "description": "Три панели: label encoding (0,1,2), one-hot матрица, target encoding (средние по классу). Схема.",
+      "output": "encoding_methods.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "get_dummies, astype category, cat.codes"
+  },
+  "code_examples": [
+    {
+      "source": "df['color'] = df['color'].astype('category')\ndf['color'].cat.codes   # целые коды\npd.get_dummies(df, columns=['color'])",
+      "caption": "category и get_dummies"
+    }
+  ]
+}

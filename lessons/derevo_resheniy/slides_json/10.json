@@ -7,5 +7,11 @@
     "Это частично решает проблему дисбаланса"
   ],
   "notes": "Упомянуть: точность (precision), полноту (recall), F1-меру для каждого класса. Показать, как class_weight влияет на выбор разбиения.",
-  "visuals": []
+  "visuals": [],
+  "code_examples": [
+    {
+      "source": "from sklearn.metrics import accuracy_score, f1_score\ny_pred = clf.predict(X_test)\nprint(accuracy_score(y_test, y_pred))\nprint(f1_score(y_test, y_pred, average='macro'))",
+      "caption": "Accuracy и F1"
+    }
+  ]
 }

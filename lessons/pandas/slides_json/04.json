@@ -1,0 +1,28 @@
+{
+  "title": "Три способа обратиться к данным: `[]`, `.loc`, `.iloc`",
+  "bullets": [
+    "`df['col']` — столбец по имени",
+    "`.iloc[i, j]` — доступ **по позиции** (как numpy); индексы игнорируются",
+    "`.loc[label, col]` — доступ **по метке** индекса",
+    "Присваивание — через `.loc`; перед sklearn удобнее `.iloc` (позиционная индексация)"
+  ],
+  "visuals": [
+    {
+      "description": "Таблица 4×4 с нестандартным индексом [10,20,30,40]. Подсветка: loc по метке 20, iloc по позиции 1 — разные ячейки. Подписи loc/iloc.",
+      "output": "loc_vs_iloc.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "loc vs iloc на DataFrame с кастомным индексом"
+  },
+  "code_examples": [
+    {
+      "source": "col = df['price']          # столбец\ncell = df.loc[10, 'price'] # по метке индекса\ncell = df.iloc[0, 2]       # по позиции (0, 2)",
+      "caption": "[] / loc / iloc"
+    }
+  ]
+}

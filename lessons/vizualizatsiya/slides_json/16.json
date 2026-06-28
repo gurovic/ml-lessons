@@ -1,0 +1,16 @@
+{
+  "title": "Типичные ошибки визуализации",
+  "bullets": [
+    "Truncated axis на bar (Y не с нуля) — ложное усиление эффекта",
+    "Dual axis с разными масштабами — ложные корреляции",
+    "Слишком мало/много bins в histogram",
+    "Подписи перекрываются — `rotation`, `tight_layout`, уменьшение шрифта"
+  ],
+  "notes": "Показать bar с ylim(0.9, 1.0) vs (0, 1).",
+  "visuals": [
+    {
+      "description": "Bar: ylim 0–1 vs 0.95–1.0 — второй график обманчив.",
+      "output": "truncated_axis_trap.png"
+    }
+  ]
+}

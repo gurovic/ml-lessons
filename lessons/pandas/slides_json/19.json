@@ -1,0 +1,28 @@
+{
+  "title": "pandas <-> PyTorch: создание Dataset",
+  "bullets": [
+    "Путь: pandas → numpy → `torch.from_numpy()` → `TensorDataset`",
+    "`torch.from_numpy(X)` **разделяет память** с numpy — изменение X меняет тензор",
+    "Независимость: `torch.tensor(X)` или `.copy()` перед конвертацией",
+    "Явно задавайте `dtype` — `object`/`int64` для float-тензоров не подходят"
+  ],
+  "visuals": [
+    {
+      "description": "Схема: DataFrame → float32 numpy → Tensor (shared memory стрелка) vs copy (отдельный блок).",
+      "output": "pandas_pytorch_bridge.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "to_numpy float32, torch.from_numpy vs torch.tensor"
+  },
+  "code_examples": [
+    {
+      "source": "import torch\nX_t = torch.tensor(df[cols].to_numpy(), dtype=torch.float32)\ny_t = torch.tensor(df['y'].to_numpy())",
+      "caption": "DataFrame → tensor"
+    }
+  ]
+}

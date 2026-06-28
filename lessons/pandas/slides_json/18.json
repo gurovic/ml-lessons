@@ -1,0 +1,28 @@
+{
+  "title": "pandas <-> sklearn: где возникают проблемы",
+  "bullets": [
+    "sklearn игнорирует имена столбцов и индексы — только позиции",
+    "Разные категории Train/Test → разное число OHE-столбцов → `handle_unknown='ignore'` в Pipeline",
+    "Старые индексы после split → NaN при склейке → `reset_index(drop=True)`",
+    "Все fit-зависимые шаги — внутри Pipeline"
+  ],
+  "visuals": [
+    {
+      "description": "Block-схема: DataFrame → ColumnTransformer → numpy X → sklearn model. Подписи train/test.",
+      "output": "pandas_sklearn_pipeline.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "Pipeline с OHE handle_unknown, train_test_split"
+  },
+  "code_examples": [
+    {
+      "source": "X = df.drop(columns=['target'])\ny = df['target']\nmodel.fit(X.select_dtypes('number'), y)",
+      "caption": "Только числовые столбцы"
+    }
+  ]
+}

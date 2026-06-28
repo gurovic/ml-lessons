@@ -1,0 +1,30 @@
+{
+  "title": "ROC, AUC-ROC и PR-кривая",
+  "bullets": [
+    "**ROC-кривая:** TPR (Recall) vs FPR при всех порогах",
+    "**AUC-ROC** — площадь под кривой: вероятность, что случайный положительный получит более высокую оценку, чем случайный отрицательный",
+    "При экстремальном дисбалансе ROC-AUC **обманчив** — огромное число TN занижает FPR",
+    "Для редких событий смотрите **PR-кривую (Precision-Recall)** и PR-AUC"
+  ],
+  "notes": "sklearn: roc_curve, precision_recall_curve, auc.",
+  "visuals": [
+    {
+      "description": "Subplot(1,2): слева ROC с AUC≈0.95; справа PR-кривая на тех же proba при 1% positives — PR-AUC заметно ниже, baseline = доля класса 1. Эффект: одна модель хороша по ROC, но PR показывает слабость на minority. seed 42, белый фон.",
+      "output": "roc_and_pr_curves.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example",
+      "viz"
+    ],
+    "hint": "roc_curve, precision_recall_curve, auc на imbalanced синтетике"
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.metrics import roc_curve, auc\nfpr, tpr, _ = roc_curve(y_test, y_score)\nroc_auc = auc(fpr, tpr)\nprint(f'AUC-ROC = {roc_auc:.3f}')",
+      "caption": "ROC-кривая"
+    }
+  ]
+}

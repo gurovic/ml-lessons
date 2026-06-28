@@ -1,0 +1,28 @@
+{
+  "title": "Форматы хранения: Смерть CSV и восстание Parquet",
+  "bullets": [
+    "CSV не сохраняет типы: ID `007`→`7`, даты→строки, категории→object",
+    "CSV медленен на больших датасетах",
+    "**Parquet** — колоночный формат, типы pandas, сжатие 5–10×",
+    "CSV — отчёт бизнесу; внутри ML-пайплайна — `.to_parquet()`"
+  ],
+  "visuals": [
+    {
+      "description": "Сравнение CSV vs Parquet: размер файла (bar), время чтения (bar), сохранение типов (галочки/кресты).",
+      "output": "csv_vs_parquet.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "to_parquet/read_parquet, сравнить dtypes"
+  },
+  "code_examples": [
+    {
+      "source": "df.to_parquet('data.parquet', index=False)\ndf = pd.read_parquet('data.parquet')\n# типы и сжатие сохраняются",
+      "caption": "Parquet вместо CSV"
+    }
+  ]
+}

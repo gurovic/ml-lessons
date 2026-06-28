@@ -9,7 +9,7 @@
   "notes": "ElasticNet — компромисс L1+L2.",
   "visuals": [
     {
-      "description": "График: ось X — log(alpha), ось Y — значения нескольких весов модели Ridge (paths). Или bar chart весов OLS vs Ridge vs Lasso. matplotlib, синтетические данные.",
+      "description": "Две панели: слева — L2-круг vs L1-ромб и контуры MSE (почему Lasso обнуляет вес); справа — bar chart весов OLS vs Ridge vs Lasso с пометками «0» у Lasso. Белый фон, matplotlib.",
       "output": "regularization_weights.png"
     }
   ]

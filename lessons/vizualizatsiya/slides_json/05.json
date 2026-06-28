@@ -1,0 +1,29 @@
+{
+  "title": "Bar chart",
+  "bullets": [
+    "`ax.bar(categories, values)` — сравнение **дискретных** категорий",
+    "Горизонтальный `barh` — длинные подписи категорий",
+    "Grouped bar — несколько серий рядом; stacked — доли суммы",
+    "Ось Y для bar должна начинаться с **0**, иначе преувеличение различий"
+  ],
+  "notes": "Сравнение метрик моделей.",
+  "visuals": [
+    {
+      "description": "Grouped bar: MAE и RMSE двух моделей; y=0 на оси.",
+      "output": "bar_metrics_compare.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "bar и barh сравнение категорий."
+  },
+  "code_examples": [
+    {
+      "source": "ax.bar(categories, values, color='steelblue')\nax.set_ylabel('count')\nplt.xticks(rotation=45)",
+      "caption": "Столбчатая диаграмма"
+    }
+  ]
+}
