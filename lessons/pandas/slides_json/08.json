@@ -1,16 +1,19 @@
 {
-  "title": "groupby и агрегации",
+  "title": "Базовая аналитика: `value_counts()`, `nunique()`, `corr()`",
   "bullets": [
-    "«Разбить по ключу → применить функцию → собрать» — `df.groupby('Pclass')`",
-    "`.agg({'Age':'mean', 'Fare':'sum'})` — разные функции по столбцам",
-    "`.mean()`, `.size()`, `.count()` — частые сокращения",
-    "Несколько ключей: `groupby(['Pclass','Sex'])` — вложенные группы"
+    "`value_counts()` — частоты категорий, дисбаланс классов, мусорные категории",
+    "`nunique()` — кардинальность: 100k уникальных из 100k строк → признак-ID, удалить",
+    "`corr()` — мультиколлинеарность (корреляция $> 0.9$) перед линейными моделями",
+    "`describe(include='all')` — числа и категории в одном отчёте"
   ],
-  "notes": "Средний Fare по классу — наглядный пример.",
   "visuals": [
     {
-      "description": "Bar chart: средний Fare по Pclass (1>2>3 заметно).",
-      "output": "groupby_fare_pclass.png"
+      "description": "Heatmap корреляций 4 числовых признаков: две пары с corr>0.9 выделены. annot=True, RdBu_r.",
+      "output": "corr_heatmap.png"
+    },
+    {
+      "description": "Bar chart value_counts для категории с явным дисбалансом 90/10.",
+      "output": "value_counts_bar.png"
     }
   ],
   "notebook": {
@@ -18,6 +21,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "groupby Pclass, agg mean Fare и count."
+    "hint": "value_counts, nunique, corr, describe"
   }
 }

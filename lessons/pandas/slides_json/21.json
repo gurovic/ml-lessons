@@ -1,0 +1,22 @@
+{
+  "title": "Итеративная обработка: когда файл не влезает в RAM",
+  "bullets": [
+    "50 ГБ CSV при 16 ГБ RAM — `read_csv()` упадёт с OOM",
+    "`chunksize` в `read_csv()` — итератор порций",
+    "Обрабатывайте chunk, накапливайте статистики",
+    "Альтернатива: Parquet + фильтрация через `pyarrow`"
+  ],
+  "visuals": [
+    {
+      "description": "Схема: большой CSV → chunks (3 блока) → агрегаты. Стрелки потока. Подписи chunksize.",
+      "output": "read_csv_chunks.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "read_csv с chunksize на синтетическом CSV"
+  }
+}

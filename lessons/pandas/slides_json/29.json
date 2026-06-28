@@ -1,0 +1,22 @@
+{
+  "title": "Гигиена памяти в Jupyter: борьба с OOM",
+  "bullets": [
+    "Jupyter хранит ссылки на старые датафреймы (`_`, история выводов)",
+    "Переопределение `df1` не освобождает память сразу",
+    "`del df_old` + `gc.collect()` перед тяжёлой моделью",
+    "Явное управление памятью — навык для больших ноутбуков"
+  ],
+  "visuals": [
+    {
+      "description": "Диаграмма RAM: несколько DataFrame блоков + скрытые ссылки Jupyter; после del+gc — освобождение (меньше блоков).",
+      "output": "jupyter_memory.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "del, gc.collect, memory_usage"
+  }
+}

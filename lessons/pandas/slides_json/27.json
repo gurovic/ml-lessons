@@ -1,0 +1,15 @@
+{
+  "title": "Альтернативы: что использовать, когда pandas не справляется",
+  "bullets": [
+    "**Polars** (Rust) — ленивые вычисления, 10–100× быстрее",
+    "**Dask** — распределённый pandas, данные > RAM",
+    "**DuckDB** — SQL-аналитика поверх файлов",
+    "pandas — EDA и < 1–2 ГБ; продакшен чаще Polars/DuckDB"
+  ],
+  "visuals": [
+    {
+      "description": "Таблица сравнения: pandas/Polars/Dask/DuckDB — скорость, RAM, API похожесть. Bar или таблица.",
+      "output": "alternatives_compare.png"
+    }
+  ]
+}

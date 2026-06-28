@@ -1,0 +1,16 @@
+{
+  "title": "Итоговая ментальная модель pandas для ML-инженера",
+  "bullets": [
+    "pandas = EDA и первичная очистка, не тяжёлые продакшен-трансформации",
+    "Индекс — ключ; помните при join/merge/concat",
+    "`.copy()` / `.loc`; векторизация > apply > iterrows",
+    "Fit-зависимое — в Pipeline; перед моделью — `.to_numpy()` + `reset_index()`",
+    "Промежуточные данные — Parquet; GPU — cuDF/PyTorch, не pandas"
+  ],
+  "visuals": [
+    {
+      "description": "Mind-map или block-схема ML-пайплайна: load→EDA(pandas)→Pipeline(sklearn)→numpy→model. Подписи на русском.",
+      "output": "pandas_ml_pipeline.png"
+    }
+  ]
+}

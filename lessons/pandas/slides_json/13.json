@@ -1,16 +1,15 @@
 {
-  "title": "pivot и pivot_table",
+  "title": "Работа с текстом: стринговый аксессор `.str`",
   "bullets": [
-    "`pivot_table(values, index, columns, aggfunc='mean')` — сводная таблица",
-    "Аналог Excel Pivot: строки × столбцы × агрегат",
-    "`.pivot()` — без агрегации, требует уникальных пар index×columns",
-    "Удобно для отчётов и быстрой проверки гипотез (выживаемость по классу и полу)"
+    "`.str` — векторизованные операции над строками (база NLP-препроцессинга)",
+    "`.str.len()`, `.str.lower()`, `.str.contains()`, `.str.replace()`",
+    "`.str.extract(regex)` — извлечение в DataFrame; `.str.split().str[0]`",
+    "Работает с `object` и `string[pyarrow]`"
   ],
-  "notes": "Survived rate по Pclass и Sex.",
   "visuals": [
     {
-      "description": "Heatmap pivot_table: Survived mean по Pclass (rows) и Sex (cols).",
-      "output": "pivot_survival.png"
+      "description": "Пример Series email-адресов: до/после .str.extract домена. Таблица 5 строк.",
+      "output": "str_extract.png"
     }
   ],
   "notebook": {
@@ -18,6 +17,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "pivot_table Survived by Pclass and Sex."
+    "hint": "str.len, contains, extract regex"
   }
 }

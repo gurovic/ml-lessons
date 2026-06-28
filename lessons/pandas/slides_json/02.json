@@ -1,16 +1,16 @@
 {
-  "title": "Series и DataFrame",
+  "title": "Индекс — это не «номер строки», а ключ",
   "bullets": [
-    "**Series** — одномерный массив с индексом: `s['a']`, `s.iloc[0]`",
-    "**DataFrame** — таблица: столбцы — Series с общим индексом строк",
-    "Создание: `pd.DataFrame({'col': [...]})`, из dict/list, из NumPy",
-    "`.shape`, `.columns`, `.dtypes` — первые вопросы к любой таблице"
+    "Позиция ($0, 1, 2\\ldots$) и **метка индекса** — разные вещи",
+    "После фильтрации, merge или сортировки индексы становятся «рваными»",
+    "`reset_index(drop=True)` — базовая операция после трансформации",
+    "sklearn игнорирует индексы, но при склейке в pandas несовпадение даст неожиданные NaN"
   ],
-  "notes": "Показать в ноутбуке создание из dict.",
+  "notes": "Демо: filter → ragged index → reset_index.",
   "visuals": [
     {
-      "description": "Схема: Series (индекс+значения) и DataFrame как набор столбцов-Series.",
-      "output": "series_dataframe_schema.png"
+      "description": "Две панели: слева DataFrame с индексом 0..4; справа после фильтра индекс 1,3,7 — красные пропуски. Стрелка reset_index → 0..N. seed 42.",
+      "output": "index_ragged_reset.png"
     }
   ],
   "notebook": {
@@ -18,6 +18,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "Создать Series и DataFrame из dict, вывести shape и dtypes."
+    "hint": "set_index, ragged index после фильтра, reset_index"
   }
 }
