@@ -1,0 +1,15 @@
+{
+  "title": "Экспорт в продакшен: SQL и другие форматы",
+  "bullets": [
+    "`to_sql(..., index=False)` — интеграция с БД через SQLAlchemy",
+    "`to_json()` — REST API и веб",
+    "`to_feather()` — быстрый бинарный промежуточный формат",
+    "Всегда `index=False` при экспорте — иначе лишний столбец"
+  ],
+  "visuals": [
+    {
+      "description": "Схема: DataFrame → стрелки к SQL, JSON, Feather, Parquet. Иконки форматов, подписи на русском.",
+      "output": "export_formats.png"
+    }
+  ]
+}

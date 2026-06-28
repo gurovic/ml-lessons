@@ -1,0 +1,28 @@
+{
+  "title": "merge_asof: асинхронный join для временных рядов",
+  "bullets": [
+    "Классический `merge` требует точного совпадения времени",
+    "`pd.merge_asof()` — join по **ближайшему** времени",
+    "Пример: транзакции + курс валют `direction='backward'`",
+    "Нужен для признаков «курс/погода на момент события»"
+  ],
+  "visuals": [
+    {
+      "description": "Timeline: точки транзакций и ступенчатый курс валют; стрелки merge_asof backward к ближайшему курсу слева.",
+      "output": "merge_asof_timeline.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "merge_asof на синтетических timestamp"
+  },
+  "code_examples": [
+    {
+      "source": "pd.merge_asof(\n    quotes.sort_values('time'),\n    trades.sort_values('time'),\n    on='time', direction='backward',\n)",
+      "caption": "Ближайшее прошлое событие"
+    }
+  ]
+}

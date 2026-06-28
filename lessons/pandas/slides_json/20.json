@@ -1,0 +1,29 @@
+{
+  "title": "Data Leakage: где прячется в pandas",
+  "bullets": [
+    "Импутация `fillna(mean())` **до** split — классическая утечка",
+    "Target Encoding вне Pipeline — утечка таргета",
+    "Индекс как сигнал (`timestamp`, `user_id`) если забыли `reset_index()`",
+    "Случайный join по старым индексам после split",
+    "Решение: fit-зависимые шаги в `sklearn.Pipeline`; pandas — загрузка и EDA"
+  ],
+  "visuals": [
+    {
+      "description": "Две ветки: красная (fillna до split — утечка) vs зелёная (imputer в Pipeline после split). Block-схема.",
+      "output": "pandas_leakage.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "experiment"
+    ],
+    "hint": "сравнить fillna до и после split"
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.model_selection import train_test_split\ntrain, test = train_test_split(df, random_state=42)\nmu = train['x'].mean()  # статистика только с train\ntest['x'] = test['x'].fillna(mu)",
+      "caption": "Impute после split"
+    }
+  ]
+}

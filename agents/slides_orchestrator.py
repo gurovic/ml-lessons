@@ -98,6 +98,8 @@ def generate_visualizations(lesson_dir: Path, slides_dir: Path) -> bool:
 
 Сгенерируй Python-скрипт, который создаст эту визуализацию.
 Если нужны случайные данные — используй numpy.random.seed(42).
+Обязательно: белый непрозрачный фон, agents/viz_style.py, педагогический подбор данных (эффект виден на графике).
+См. docs/visuals.md.
 
 В ответе верни JSON:
 {{
@@ -168,6 +170,7 @@ def main():
 
     if current_num > len(plan_lines):
         print(f"Все слайды сгенерированы. Запусти: python agents/pptx_builder.py {lesson_dir}")
+        print("После сборки откройте presentation.pptx для проверки (JSON править не обязательно).")
         return
 
     slide_topic = plan_lines[current_num - 1]

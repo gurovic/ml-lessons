@@ -1,0 +1,30 @@
+{
+  "title": "Обучение: градиент и оптимизация",
+  "bullets": [
+    "Аналитического решения **нет** — функция потерь нелинейная; используем итеративные методы",
+    "Градиент LogLoss: $\\nabla_w L = \\frac{1}{N} X^T (p - y)$ — та же форма, что у МНК, но вместо $y$ стоят предсказанные вероятности $p$",
+    "В sklearn по умолчанию **L-BFGS** — квази-ньютоновский метод, учитывает вторые производные",
+    "L-BFGS сходится быстрее обычного градиентного спуска на типичных задачах"
+  ],
+  "notes": "Единство математики: (p−y) как «остатки» вероятностей.",
+  "visuals": [
+    {
+      "description": "Контурный график LogLoss(w₀,w₁) для синтетически разделимых данных + красная ломаная сходимости L-BFGS к минимуму vs более длинная ломаная обычного GD (тот же старт). Эффект: L-BFGS меньше итераций до минимума. seed 42, белый фон.",
+      "output": "logreg_gradient_descent.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example",
+      "experiment"
+    ],
+    "hint": "fit LogisticRegression, сравнить число итераций solver lbfgs vs saga"
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.linear_model import LogisticRegression\nclf = LogisticRegression(max_iter=1000, random_state=42)\nclf.fit(X_train, y_train)\nproba = clf.predict_proba(X_test)[:, 1]",
+      "caption": "Оптимизация в sklearn"
+    }
+  ]
+}

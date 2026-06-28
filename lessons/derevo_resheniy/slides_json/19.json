@@ -9,5 +9,11 @@
     "One-Hot при 100+ категориях — разреженность и замедление; альтернатива — целевое кодирование"
   ],
   "notes": "Показать пример: номинативный признак «цвет» с Label Encoding ломает интерпретацию дерева.",
-  "visuals": []
+  "visuals": [],
+  "code_examples": [
+    {
+      "source": "from sklearn.tree import DecisionTreeClassifier\n# масштабирование не обязательно\nclf = DecisionTreeClassifier(random_state=42)\nclf.fit(X_raw, y)  # можно на исходных признаках",
+      "caption": "Без StandardScaler"
+    }
+  ]
 }

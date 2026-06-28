@@ -29,6 +29,304 @@ def load_slides(slides_dir: Path) -> list[dict]:
     return [json.loads(read_file(f)) for f in list_slide_files(slides_dir)]
 
 
+def _image_aspect(img_path: Path) -> float:
+    from PIL import Image
+
+    with Image.open(img_path) as im:
+        w, h = im.size
+    return w / h if h else 1.0
+
+
+def _visual_layout_slots(n: int, col_left: float, col_w: float, top: float, bottom: float):
+    """Координаты ячеек (left, top, width, height) в дюймах для 1–4 картинок."""
+    gap = 0.08
+    h_avail = bottom - top
+
+    if n <= 0:
+        return []
+    if n == 1:
+        return [(col_left, top, col_w, h_avail)]
+    if n == 2:
+        slot_h = (h_avail - gap) / 2
+        return [
+            (col_left, top, col_w, slot_h),
+            (col_left, top + slot_h + gap, col_w, slot_h),
+        ]
+
+    slot_w = (col_w - gap) / 2
+    slot_h = (h_avail - gap) / 2
+    if n == 3:
+        return [
+            (col_left, top, slot_w, slot_h),
+            (col_left + slot_w + gap, top, slot_w, slot_h),
+            (col_left, top + slot_h + gap, col_w, slot_h),
+        ]
+    return [
+        (col_left, top, slot_w, slot_h),
+        (col_left + slot_w + gap, top, slot_w, slot_h),
+        (col_left, top + slot_h + gap, slot_w, slot_h),
+        (col_left + slot_w + gap, top + slot_h + gap, slot_w, slot_h),
+    ]
+
+
+def _add_picture_fit(slide, img_path: Path, left, top, box_w, box_h):
+    from pptx.util import Inches
+
+    aspect = _image_aspect(img_path)
+    box_aspect = box_w / box_h if box_h else aspect
+    if aspect >= box_aspect:
+        width = box_w
+        height = width / aspect
+    else:
+        height = box_h
+        width = height * aspect
+    x = left + (box_w - width) / 2
+    y = top + (box_h - height) / 2
+    slide.shapes.add_picture(str(img_path), Inches(x), Inches(y), width=Inches(width))
+
+
+def _add_hyperlink_run(paragraph, text: str, url: str, font_size, link_rgb):
+    from pptx.dml.color import RGBColor
+
+    run = paragraph.add_run()
+    run.text = text
+    run.font.size = font_size
+    run.font.color.rgb = RGBColor(*link_rgb)
+    run.hyperlink.address = url
+
+
+def _render_references_slide(
+    slide,
+    slide_data: dict,
+    assets_dir: Path,
+    slide_num: int,
+    *,
+    set_paragraph_content,
+    Pt,
+    Inches,
+    body_rgb,
+    link_rgb,
+):
+    """Слайд type=references: литература слева, QR для Colab справа."""
+    from pptx.dml.color import RGBColor
+    from pptx.enum.text import PP_ALIGN
+
+    from references_utils import format_paper_bullet, generate_qr_png
+
+    refs = slide_data.get("references", [])
+    papers = [r for r in refs if r.get("kind") == "paper"]
+    colabs = [r for r in refs if r.get("kind") == "colab"]
+
+    body_left, body_top = 0.7, 1.45
+    body_width = 7.2
+    y_cursor = body_top
+
+    def add_section_heading(text: str):
+        nonlocal y_cursor
+        box = slide.shapes.add_textbox(
+            Inches(body_left), Inches(y_cursor), Inches(body_width), Inches(0.35)
+        )
+        p = box.text_frame.paragraphs[0]
+        p.text = text
+        p.font.size = Pt(18)
+        p.font.bold = True
+        p.font.color.rgb = RGBColor(*body_rgb)
+        y_cursor += 0.38
+
+    def add_text_line(height: float = 0.55):
+        nonlocal y_cursor
+        box = slide.shapes.add_textbox(
+            Inches(body_left), Inches(y_cursor), Inches(body_width), Inches(height)
+        )
+        tf = box.text_frame
+        tf.word_wrap = True
+        y_cursor += height
+        return tf.paragraphs[0]
+
+    if papers:
+        add_section_heading("Литература")
+        for ref in papers:
+            p = add_text_line(0.62)
+            p.space_after = Pt(4)
+            bullet_text = format_paper_bullet(ref)
+            url = ref.get("url")
+            if url:
+                for w in set_paragraph_content(
+                    p, "• ", font_size=Pt(16), color=body_rgb
+                ):
+                    print(f"  [warn] Слайд {slide_num}, литература: {w}")
+                _add_hyperlink_run(p, bullet_text, url, Pt(16), link_rgb)
+            else:
+                for w in set_paragraph_content(
+                    p, f"• {bullet_text}", font_size=Pt(16), color=body_rgb
+                ):
+                    print(f"  [warn] Слайд {slide_num}, литература: {w}")
+
+    if colabs:
+        add_section_heading("Практика в Colab")
+        for entry in colabs:
+            url = entry.get("url", "")
+            label = entry.get("label") or entry.get("title", "Colab")
+            p = add_text_line(0.5)
+            for w in set_paragraph_content(
+                p, f"• {label}: ", font_size=Pt(15), color=body_rgb
+            ):
+                print(f"  [warn] Слайд {slide_num}, Colab: {w}")
+            if url:
+                _add_hyperlink_run(p, url, url, Pt(14), link_rgb)
+
+    bullets = slide_data.get("bullets", [])
+    if bullets:
+        y_cursor += 0.1
+        for bullet in bullets:
+            p = add_text_line(0.45)
+            for w in set_paragraph_content(
+                p, f"• {bullet}", font_size=Pt(15), color=body_rgb
+            ):
+                print(f"  [warn] Слайд {slide_num}, буллет: {w}")
+
+    qr_size = 1.15
+    qr_gap = 0.25
+    qr_left = 9.0
+    qr_top_start = 1.6
+    for i, entry in enumerate(colabs):
+        url = entry.get("url", "")
+        if not url:
+            continue
+        label = entry.get("label") or entry.get("title", "Colab")
+        top = qr_top_start + i * (qr_size + qr_gap + 0.35)
+        try:
+            qr_path = assets_dir / f"_qr_ref_{slide_num}_{i}.png"
+            generate_qr_png(url, qr_path)
+            slide.shapes.add_picture(
+                str(qr_path), Inches(qr_left), Inches(top), width=Inches(qr_size)
+            )
+            qr_path.unlink(missing_ok=True)
+        except ImportError:
+            print("  [warn] Установи qrcode: pip install qrcode[pil]")
+            break
+
+        cap = slide.shapes.add_textbox(
+            Inches(qr_left - 0.1),
+            Inches(top + qr_size + 0.02),
+            Inches(qr_size + 0.4),
+            Inches(0.3),
+        )
+        cp = cap.text_frame.paragraphs[0]
+        cp.text = label
+        cp.font.size = Pt(10)
+        cp.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
+        cp.alignment = PP_ALIGN.CENTER
+
+
+def _render_code_examples(
+    slide,
+    code_examples: list[dict],
+    *,
+    left: float,
+    top: float,
+    width: float,
+    Inches,
+    body_rgb,
+):
+    """Моноширинный блок(и) кода под буллетами."""
+    from pptx.dml.color import RGBColor
+    from pptx.enum.text import MSO_AUTO_SIZE, PP_ALIGN
+    from pptx.util import Pt
+
+    if not code_examples:
+        return top
+
+    code_font = "Consolas"
+    code_size = Pt(11)
+    caption_size = Pt(10)
+    pad = 0.08
+    y = top
+
+    for block in code_examples:
+        source = block.get("source", "")
+        if not source:
+            continue
+        lines = source.split("\n")
+        n_lines = max(len(lines), 1)
+        block_h = 0.19 * n_lines + 0.12
+
+        bg = slide.shapes.add_shape(
+            1,
+            Inches(left),
+            Inches(y),
+            Inches(width),
+            Inches(block_h),
+        )
+        bg.fill.solid()
+        bg.fill.fore_color.rgb = RGBColor(0xF5, 0xF5, 0xF5)
+        bg.line.color.rgb = RGBColor(0xDD, 0xDD, 0xDD)
+
+        box = slide.shapes.add_textbox(
+            Inches(left + pad),
+            Inches(y + pad * 0.5),
+            Inches(width - 2 * pad),
+            Inches(block_h - pad),
+        )
+        tf = box.text_frame
+        tf.word_wrap = True
+        tf.auto_size = MSO_AUTO_SIZE.NONE
+        for j, line in enumerate(lines):
+            p = tf.paragraphs[0] if j == 0 else tf.add_paragraph()
+            p.text = line
+            p.font.name = code_font
+            p.font.size = code_size
+            p.font.color.rgb = RGBColor(*body_rgb)
+            p.space_after = Pt(0)
+
+        y += block_h + 0.06
+
+        caption = block.get("caption")
+        if caption:
+            cap_box = slide.shapes.add_textbox(
+                Inches(left),
+                Inches(y),
+                Inches(width),
+                Inches(0.22),
+            )
+            cp = cap_box.text_frame.paragraphs[0]
+            cp.text = caption
+            cp.font.size = caption_size
+            cp.font.italic = True
+            cp.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
+            cp.alignment = PP_ALIGN.LEFT
+            y += 0.24
+
+        y += 0.04
+
+    return y
+
+
+def _place_visuals(slide, visuals: list[dict], assets_dir: Path, slide_num: int):
+    paths = []
+    for visual_obj in visuals:
+        output = visual_obj.get("output", "")
+        if not output:
+            continue
+        img_path = assets_dir / output
+        if img_path.exists():
+            paths.append(img_path)
+        else:
+            print(f"  [warn] Слайд {slide_num}: нет файла {img_path.name}")
+
+    if not paths:
+        return
+
+    col_left, col_w = 8.35, 4.75
+    top, bottom = 1.45, 6.35
+    slots = _visual_layout_slots(len(paths), col_left, col_w, top, bottom)
+    for img_path, (left, slot_top, w, h) in zip(paths, slots):
+        try:
+            _add_picture_fit(slide, img_path, left, slot_top, w, h)
+        except Exception as e:
+            print(f"Не удалось вставить {img_path}: {e}")
+
+
 def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, lesson_dir: Path):
     try:
         from pptx import Presentation
@@ -121,69 +419,93 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
 
         visuals = slide_data.get("visuals", [])
         has_visuals = any(v.get("output") for v in visuals)
-        body_width = Inches(7.5) if has_visuals else Inches(12.3)
+        is_references = slide_data.get("type") == "references"
 
-        bullets = slide_data.get("bullets", [])
-        if bullets:
-            body = slide.shapes.add_textbox(Inches(0.7), Inches(1.5), body_width, Inches(5.5))
-            tf2 = body.text_frame
-            tf2.word_wrap = True
-            for j, bullet in enumerate(bullets):
-                p = tf2.paragraphs[0] if j == 0 else tf2.add_paragraph()
-                p.space_after = Pt(8)
+        if is_references:
+            _render_references_slide(
+                slide,
+                slide_data,
+                assets_dir,
+                i,
+                set_paragraph_content=set_paragraph_content,
+                Pt=Pt,
+                Inches=Inches,
+                body_rgb=body_rgb,
+                link_rgb=link_rgb,
+            )
+        else:
+            from slide_code_utils import estimate_code_height_inches
+
+            body_width_in = 7.5 if has_visuals else 12.3
+            body_width = Inches(body_width_in)
+
+            code_examples = slide_data.get("code_examples", [])
+            code_h = (
+                estimate_code_height_inches(code_examples)
+                if code_examples
+                else 0.0
+            )
+            bullets = slide_data.get("bullets", [])
+            n_bullets = len(bullets)
+            bullet_h = min(5.5, max(1.8, 0.42 * n_bullets + 0.3))
+            if code_h:
+                max_body = 6.0 if has_visuals else 6.2
+                bullet_h = min(bullet_h, max(1.5, max_body - code_h - 0.2))
+
+            bullet_top = 1.5
+            if bullets:
+                body = slide.shapes.add_textbox(
+                    Inches(0.7), Inches(bullet_top), body_width, Inches(bullet_h)
+                )
+                tf2 = body.text_frame
+                tf2.word_wrap = True
+                for j, bullet in enumerate(bullets):
+                    p = tf2.paragraphs[0] if j == 0 else tf2.add_paragraph()
+                    p.space_after = Pt(8)
+                    for w in set_paragraph_content(
+                        p, bullet, font_size=Pt(20), color=body_rgb
+                    ):
+                        print(f"  [warn] Слайд {i}, буллет {j + 1}: {w}")
+
+            if code_examples:
+                code_top = bullet_top + bullet_h + 0.12
+                _render_code_examples(
+                    slide,
+                    code_examples,
+                    left=0.7,
+                    top=code_top,
+                    width=body_width_in - 0.1,
+                    Inches=Inches,
+                    body_rgb=body_rgb,
+                )
+
+            _place_visuals(slide, visuals, assets_dir, i)
+
+            # Ссылка и QR-код
+            link = slide_data.get("link")
+            if link and link.get("url"):
+                url = link["url"]
+                label = link.get("label", url)
+
+                link_box = slide.shapes.add_textbox(Inches(0.7), Inches(6.5), Inches(6), Inches(0.5))
+                tf_link = link_box.text_frame
+                tf_link.word_wrap = True
+                p_link = tf_link.paragraphs[0]
                 for w in set_paragraph_content(
-                    p, bullet, font_size=Pt(20), color=body_rgb
+                    p_link, f"{label}: ", font_size=Pt(14), color=link_rgb
                 ):
-                    print(f"  [warn] Слайд {i}, буллет {j + 1}: {w}")
+                    print(f"  [warn] Слайд {i}, ссылка: {w}")
+                _add_hyperlink_run(p_link, url, url, Pt(14), link_rgb)
 
-        right_col_left = Inches(8.5)
-        right_col_width = Inches(4.5)
-        visual_top = Inches(1.5)
-        for visual_obj in visuals:
-            visual = visual_obj.get("output", "")
-            if visual:
-                img_path = assets_dir / visual
-                if img_path.exists():
-                    try:
-                        slide.shapes.add_picture(str(img_path), right_col_left, visual_top, width=right_col_width)
-                        visual_top += Inches(3.0)
-                    except Exception as e:
-                        print(f"Не удалось вставить {img_path}: {e}")
+                try:
+                    from references_utils import generate_qr_png
 
-        # Ссылка и QR-код
-        link = slide_data.get("link")
-        if link and link.get("url"):
-            url = link["url"]
-            label = link.get("label", url)
-
-            # Текст ссылки (кликабельный)
-            link_box = slide.shapes.add_textbox(Inches(0.7), Inches(6.5), Inches(6), Inches(0.5))
-            tf_link = link_box.text_frame
-            tf_link.word_wrap = True
-            p_link = tf_link.paragraphs[0]
-            for w in set_paragraph_content(
-                p_link, f"{label}: ", font_size=Pt(14), color=link_rgb
-            ):
-                print(f"  [warn] Слайд {i}, ссылка: {w}")
-            run = p_link.add_run()
-            run.text = url
-            run.font.size = Pt(14)
-            run.font.color.rgb = RGBColor(*link_rgb)
-            run.hyperlink.address = url
-
-            # Генерация QR-кода
-            try:
-                import qrcode
-                qr_path = assets_dir / "_qr_temp.png"
-                qr = qrcode.QRCode(box_size=10, border=1)
-                qr.add_data(url)
-                qr.make(fit=True)
-                img = qr.make_image(fill_color="black", back_color="white")
-                img.save(str(qr_path))
-                slide.shapes.add_picture(str(qr_path), Inches(11.5), Inches(4.5), width=Inches(1.5))
-                qr_path.unlink()  # удаляем временный файл
-            except ImportError:
-                print("  [warn] Установи qrcode: pip install qrcode[pil]")
+                    qr_path = assets_dir / "_qr_temp.png"
+                    generate_qr_png(url, qr_path, box_size=10)
+                    slide.shapes.add_picture(str(qr_path), Inches(11.5), Inches(4.5), width=Inches(1.5))
+                    qr_path.unlink(missing_ok=True)
+                except ImportError:
+                    print("  [warn] Установи qrcode: pip install qrcode[pil]")
 
         notes = slide_data.get("notes")
         if notes:
@@ -215,6 +537,7 @@ def main():
 
     print(f"Загружено слайдов: {len(slides)}")
     build_presentation(slides, lesson_dir / "presentation.pptx", lesson_dir / "assets", lesson_dir)
+    print("Откройте presentation.pptx для проверки (JSON править не обязательно).")
 
 
 if __name__ == "__main__":

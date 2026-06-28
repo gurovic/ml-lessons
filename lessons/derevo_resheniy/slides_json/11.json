@@ -13,5 +13,11 @@
       "description": "График зависимости accuracy от глубины дерева. Две линии: train accuracy (растёт до 1.0) и test accuracy (колокол — растёт до оптимума, затем падает). Ось X — глубина (1-15), ось Y — accuracy. Использовать matplotlib, обозначить точку оптимальной глубины. Добавить подпись Overfitting region после оптимума.",
       "output": "overfitting_curve.png"
     }
+  ],
+  "code_examples": [
+    {
+      "source": "clf_deep = DecisionTreeClassifier(max_depth=None)\nclf_reg = DecisionTreeClassifier(max_depth=3)\n# глубокое дерево: высокий train, низкий test",
+      "caption": "Ограничение max_depth"
+    }
   ]
 }

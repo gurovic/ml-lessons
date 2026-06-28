@@ -1,0 +1,30 @@
+{
+  "title": "LogLoss (бинарная кросс-энтропия)",
+  "bullets": [
+    "$L = -\\frac{1}{N} \\sum \\left[ y_i \\log(p_i) + (1-y_i) \\log(1-p_i) \\right]$",
+    "При $y=1$: предсказание $p=0.99$ → штраф $\\approx 0.01$; при $p=0.01$ → штраф $\\approx 4.6$",
+    "LogLoss **строго выпукла** → градиентный спуск находит глобальный минимум",
+    "Минимизация LogLoss эквивалентна **максимизации правдоподобия (MLE)** данных"
+  ],
+  "notes": "sklearn: log_loss. Сравнить штрафы при p=0.99 и p=0.01 для y=1.",
+  "visuals": [
+    {
+      "description": "Две кривые потерь L vs p при фиксированном y=1 (красная) и y=0 (синяя) на p∈(0.01, 0.99). Аннотации: p=0.99 почти нулевой штраф, p=0.01 огромный. Эффект: асимметричный сильный штраф за уверенную ошибку. Белый фон.",
+      "output": "logloss_curves.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example",
+      "viz"
+    ],
+    "hint": "вычислить log_loss вручную и через sklearn для нескольких p"
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.metrics import log_loss\ny_true = [0, 1, 1, 0]\ny_prob = [0.1, 0.9, 0.8, 0.3]\nloss = log_loss(y_true, y_prob)\nprint(f'LogLoss = {loss:.3f}')",
+      "caption": "Штраф за уверенные ошибки"
+    }
+  ]
+}

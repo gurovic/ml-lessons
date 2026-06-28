@@ -1,0 +1,29 @@
+{
+  "title": "Несколько subplots",
+  "bullets": [
+    "`fig, axes = plt.subplots(nrows, ncols, figsize=(w,h))` — сетка графиков",
+    "`axes.ravel()` — плоский обход ячеек; `axes[0,1]` — доступ по индексу",
+    "`fig.suptitle('Общий заголовок')` — над всей фигурой",
+    "Одинаковые пределы осей (`sharex`, `sharey`) — для сравнения панелей"
+  ],
+  "notes": "2×2 EDA на одном экране.",
+  "visuals": [
+    {
+      "description": "subplots 2×2: hist, scatter, bar, box — компактная EDA.",
+      "output": "subplots_grid_2x2.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "subplots 2x2 с разными типами."
+  },
+  "code_examples": [
+    {
+      "source": "fig, axes = plt.subplots(2, 2, figsize=(8, 6))\naxes[0, 0].hist(a); axes[0, 1].scatter(x, y)\nfig.tight_layout()",
+      "caption": "Сетка 2×2"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "title": "pandas <-> numpy: мост между экосистемами",
+  "bullets": [
+    "`df.to_numpy()` — современный способ в numpy",
+    "`df.select_dtypes(include=np.number).to_numpy()` — только числа для модели",
+    "`pd.DataFrame(arr, columns=[...])` — из numpy в pandas",
+    "Строки в DataFrame → `.to_numpy()` даст `object`, модель сломается"
+  ],
+  "visuals": [
+    {
+      "description": "Схема: DataFrame → to_numpy (числа float64) vs смешанные типы → object array (красный крест).",
+      "output": "to_numpy_bridge.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "to_numpy, select_dtypes"
+  },
+  "code_examples": [
+    {
+      "source": "arr = df[['x', 'y']].to_numpy()   # DataFrame → ndarray\ndf2 = pd.DataFrame(arr, columns=['x', 'y'])\ndf.values  # устаревший alias",
+      "caption": "to_numpy()"
+    }
+  ]
+}

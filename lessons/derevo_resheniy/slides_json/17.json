@@ -11,5 +11,11 @@
       "description": "Двумерное пространство (x₁, x₂) с точками трёх классов. Наложены оси-параллельные прямоугольники — результат работы дерева глубины 3. Каждый прямоугольник залит цветом мажоритарного класса, точки нарисованы поверх. Использовать matplotlib, Rectangle, scatter.",
       "output": "decision_boundary.png"
     }
+  ],
+  "code_examples": [
+    {
+      "source": "import numpy as np\nxx, yy = np.meshgrid(\n    np.linspace(x.min(), x.max(), 200),\n    np.linspace(y.min(), y.max(), 200),\n)\nZ = clf.predict(np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)",
+      "caption": "Сетка для границы"
+    }
   ]
 }

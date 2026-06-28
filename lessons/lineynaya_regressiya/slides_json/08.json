@@ -7,5 +7,10 @@
     "Решения: удалить дубликаты, PCA, Ridge (L2), или собрать один составной признак"
   ],
   "notes": "Показать два почти совпадающих столбца в pandas.corr().",
-  "visuals": []
+  "visuals": [
+    {
+      "description": "Две панели: heatmap corr(x1,x2)≈1; boxplot bootstrap-весов w1,w2 с большим разбросом.",
+      "output": "multicollinearity.png"
+    }
+  ]
 }

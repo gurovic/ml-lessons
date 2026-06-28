@@ -1,0 +1,30 @@
+{
+  "title": "Ограничения и связь с нейросетями",
+  "bullets": [
+    "Не работает при **нелинейных границах**: XOR, концентрические круги",
+    "Решения: полиномиальные признаки ($x_1^2, x_1 x_2$) или нелинейные модели",
+    "$P = \\sigma(\\vec{w} \\cdot \\vec{x} + b)$ — скалярное произведение + **функция активации**",
+    "LogReg — это **один нейрон** (Single-layer Perceptron), базовый блок нейросетей"
+  ],
+  "notes": "make_moons / XOR: LogReg fail, PolynomialFeatures fix.",
+  "visuals": [
+    {
+      "description": "Subplot(1,2): слева XOR scatter (4 группы) + прямая граница LogReg не может разделить; справа те же точки + нелинейная граница (полиномиальные фичи). Эффект: линейная граница бессильна на XOR. seed 42, белый фон.",
+      "output": "nonlinear_decision_boundary.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example",
+      "viz"
+    ],
+    "hint": "make_moons/XOR, LogReg fail и PolynomialFeatures fix"
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.neural_network import MLPClassifier\nmlp = MLPClassifier(hidden_layer_sizes=(8,), max_iter=500)\nmlp.fit(X_train, y_train)\n# один скрытый слой ≈ нелинейная логистическая",
+      "caption": "MLP как обобщение"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "title": "Пропуски: NaN, None, NaT и эволюция типов",
+  "bullets": [
+    "Разные «пустые»: `np.nan` (числа), `None` (object), `pd.NaT` (время)",
+    "`df.isnull().sum()` — первый шаг диагностики",
+    "Раньше пропуск в `int64` → весь столбец во `float64`; сейчас **Nullable** (`Int64`, `boolean`, `pd.NA`)",
+    "В ML: импутация только по **Train**, иначе утечка"
+  ],
+  "visuals": [
+    {
+      "description": "Bar chart: количество пропусков по столбцам (Age, Fare, Embarked) — явный дисбаланс. Подписи на русском.",
+      "output": "missing_counts.png"
+    },
+    {
+      "description": "Две панели: int64+NaN→float64 (красная стрелка) vs Int64+pd.NA (зелёная галочка). Схема типов.",
+      "output": "nullable_int_types.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example",
+      "experiment"
+    ],
+    "hint": "isnull, Int64 vs float64 при пропусках"
+  },
+  "code_examples": [
+    {
+      "source": "df['col'].isna().sum()          # число пропусков\ndf['col'].fillna(df['col'].median())\ndf = df.dropna(subset=['target'])",
+      "caption": "isna / fillna / dropna"
+    }
+  ]
+}

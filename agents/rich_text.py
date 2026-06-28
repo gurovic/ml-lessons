@@ -18,6 +18,26 @@ _SEGMENT_RE = re.compile(
     r"\$\$(.+?)\$\$|\$(.+?)\$|\\\$"
 )
 
+# **жирный** (markdown); нежадное совпадение
+_BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
+
+
+def iter_bold_chunks(text: str, default_bold: bool = False):
+    """Разбивает текст на фрагменты (подстрока, bold). Маркеры ** снимаются."""
+    if "**" not in text:
+        if text:
+            yield text, default_bold
+        return
+
+    pos = 0
+    for match in _BOLD_RE.finditer(text):
+        if match.start() > pos:
+            yield text[pos : match.start()], default_bold
+        yield match.group(1), True
+        pos = match.end()
+    if pos < len(text):
+        yield text[pos:], default_bold
+
 
 def parse_segments(text: str) -> list[Segment]:
     if not text:
@@ -76,6 +96,34 @@ def _append_text_run(p_el, text: str, *, font_size, bold, color) -> None:
         t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
 
 
+def _append_rich_text(
+    p_el,
+    text: str,
+    *,
+    font_size,
+    bold: bool,
+    color,
+    warnings: list[str],
+) -> None:
+    """Текст с **bold** и $...$ в одном фрагменте."""
+    for chunk, chunk_bold in iter_bold_chunks(text, default_bold=bold):
+        effective_bold = bold or chunk_bold
+        for kind, content in parse_segments(chunk):
+            if kind == "text":
+                _append_text_run(
+                    p_el, content, font_size=font_size, bold=effective_bold, color=color
+                )
+                continue
+            try:
+                p_el.append(latex_to_pptx_element(content.strip()))
+            except Exception as e:
+                fallback = f"$${content}$$" if kind == "display" else f"${content}$"
+                warnings.append(f"Формула не сконвертирована ({content!r}): {e}")
+                _append_text_run(
+                    p_el, fallback, font_size=font_size, bold=effective_bold, color=color
+                )
+
+
 def set_paragraph_content(
     paragraph,
     text: str,
@@ -91,7 +139,9 @@ def set_paragraph_content(
 
     for kind, content in parse_segments(text):
         if kind == "text":
-            _append_text_run(p_el, content, font_size=font_size, bold=bold, color=color)
+            _append_rich_text(
+                p_el, content, font_size=font_size, bold=bold, color=color, warnings=warnings
+            )
             continue
 
         try:

@@ -1,0 +1,28 @@
+{
+  "title": "Самая большая боль: SettingWithCopyWarning",
+  "bullets": [
+    "pandas не всегда понимает: вы меняете оригинал или копию",
+    "`subset = df[df['age'] > 30]; subset['new_col'] = 1` — **Warning**",
+    "Изменения могут не попасть в `df` или перезаписать данные случайно",
+    "Решение: `.copy()` или `df.loc[mask, 'col'] = value`"
+  ],
+  "visuals": [
+    {
+      "description": "Block-схема: фильтр → view?/copy? → warning при присваивании. Два пути: .copy() (зелёный) и .loc на оригинале (зелёный).",
+      "output": "setting_with_copy.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "experiment"
+    ],
+    "hint": "воспроизвести SettingWithCopyWarning и исправить через .copy()/.loc"
+  },
+  "code_examples": [
+    {
+      "source": "df2 = df[df['active']].copy()  # явная копия\ndf2.loc[:, 'score'] = 0        # без предупреждения\n# без .copy() — риск записи во view",
+      "caption": "copy() перед присваиванием"
+    }
+  ]
+}
