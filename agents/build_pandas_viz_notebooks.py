@@ -12,32 +12,13 @@ from notebook_utils import build_ipynb, save_ipynb  # noqa: E402
 def _pandas_code_sections() -> list[dict]:
     return [
         {
-            "slide_title": "Series и DataFrame",
+            "slide_title": "Индекс — это не «номер строки», а ключ",
             "kind": "example",
             "cells": [
-                {"type": "markdown", "source": "Базовые структуры Pandas."},
                 {
                     "type": "code",
                     "source": """\
 import pandas as pd
-
-s = pd.Series([10, 20, 15], index=["a", "b", "c"])
-df = pd.DataFrame({"Age": [22, 38, 26], "Fare": [7.25, 71.28, 7.92], "Sex": ["male", "female", "female"]})
-
-print("Series:\\n", s)
-print("\\nDataFrame shape:", df.shape)
-print(df.dtypes)
-""",
-                },
-            ],
-        },
-        {
-            "slide_title": "Чтение данных",
-            "kind": "example",
-            "cells": [
-                {
-                    "type": "code",
-                    "source": """\
 from sklearn.datasets import fetch_openml
 
 raw = fetch_openml("titanic", version=1, as_frame=True, parser="auto")
@@ -47,168 +28,344 @@ df["Pclass"] = df["pclass"].astype(int)
 df["Age"] = pd.to_numeric(df["age"], errors="coerce")
 df["Fare"] = pd.to_numeric(df["fare"], errors="coerce")
 df["Sex"] = df["sex"]
-df["Embarked"] = df["embarked"]
+df["Embarked"] = df["embarked"].astype(str)
 
-print(df.shape)
-df.head()
+filtered = df[df["Age"] > 30]
+print("Индекс после фильтра (рваный):", filtered.index[:5].tolist())
+flat = filtered.reset_index(drop=True)
+print("После reset_index:", flat.index[:5].tolist())
 """,
                 },
             ],
         },
         {
-            "slide_title": "Первичный осмотр таблицы",
+            "slide_title": "Булева индексация — магия numpy внутри pandas",
             "kind": "example",
             "cells": [
                 {
                     "type": "code",
                     "source": """\
-df.info()
-display(df.describe())
-print("Sex counts:\\n", df["Sex"].value_counts())
+mask_age = df["Age"] > 30
+mask_class = df["Pclass"] == 1
+mask = mask_age & mask_class  # скобки обязательны для составных условий
+print("Маска (первые 10):", mask.head(10).tolist())
+df.loc[mask, ["Sex", "Age", "Pclass", "Survived"]].head()
 """,
                 },
             ],
         },
         {
-            "slide_title": "Индексы строк и столбцов",
+            "slide_title": "Три способа обратиться к данным: `[]`, `.loc`, `.iloc`",
             "kind": "example",
             "cells": [
                 {
                     "type": "code",
                     "source": """\
-df_idx = df.set_index("name")
-print(df_idx.index[:3])
-df_back = df_idx.reset_index()
-print("После reset_index:", df_back.columns[:3].tolist())
+sample = df.head(8).copy()
+sample.index = sample.index * 10 + 5  # нестандартные метки
+print("loc по метке 45:", sample.loc[45, "Age"])
+print("iloc по позиции 0:", sample.iloc[0]["Age"])
+sample.loc[45, "Fare_note"] = "vip"
 """,
                 },
             ],
         },
         {
-            "slide_title": "loc и iloc: две системы адресации",
-            "kind": "example",
-            "cells": [
-                {
-                    "type": "code",
-                    "source": """\
-sample = df.head(8)
-print("loc по меткам 3:5, столбцы Age/Fare:")
-display(sample.loc[3:5, ["Age", "Fare"]])
-print("iloc по позициям 0:3, столбцы 1:3:")
-display(sample.iloc[0:3, 1:3])
-""",
-                },
-            ],
-        },
-        {
-            "slide_title": "Фильтрация и булевы маски",
-            "kind": "example",
-            "cells": [
-                {
-                    "type": "code",
-                    "source": """\
-mask = (df["Age"] > 30) & (df["Pclass"] == 1)
-filtered = df.loc[mask, ["Sex", "Age", "Pclass", "Survived"]]
-print(f"Строк по маске: {len(filtered)}")
-filtered.head()
-""",
-                },
-            ],
-        },
-        {
-            "slide_title": "groupby и агрегации",
-            "kind": "example",
-            "cells": [
-                {
-                    "type": "code",
-                    "source": """\
-by_class = df.groupby("Pclass").agg({"Fare": "mean", "Age": "median", "Survived": "mean"})
-by_class.round(2)
-""",
-                },
-            ],
-        },
-        {
-            "slide_title": "merge и join",
-            "kind": "example",
-            "cells": [
-                {
-                    "type": "code",
-                    "source": """\
-ports = pd.DataFrame({"Embarked": ["S", "C", "Q"], "port_name": ["Southampton", "Cherbourg", "Queenstown"]})
-merged = pd.merge(df[["Embarked", "Fare"]].drop_duplicates("Embarked"), ports, on="Embarked", how="left")
-merged
-""",
-                },
-            ],
-        },
-        {
-            "slide_title": "Пропуски: isna, fillna, dropna",
+            "slide_title": "Самая большая боль: SettingWithCopyWarning",
             "kind": "experiment",
             "cells": [
                 {
                     "type": "code",
                     "source": """\
-print("Пропуски Age:", df["Age"].isna().sum())
-df_filled = df.copy()
-df_filled["Age"] = df_filled["Age"].fillna(df_filled["Age"].median())
-print("После fillna median:", df_filled["Age"].isna().sum())
+import warnings
+warnings.filterwarnings("default", category=pd.errors.SettingWithCopyWarning)
+
+subset = df[df["Age"] > 30]  # может быть view
+# subset["flag"] = 1  # раскомментируйте — увидите Warning
+
+subset_copy = df[df["Age"] > 30].copy()
+subset_copy["flag"] = 1
+
+df.loc[df["Age"] > 30, "high_age"] = 1
+print("Через .loc на оригинале — без неоднозначности")
 """,
                 },
             ],
         },
         {
-            "slide_title": "Типы данных",
+            "slide_title": "Пропуски: NaN, None, NaT и эволюция типов",
+            "kind": "experiment",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+print(df[["Age", "Fare"]].isnull().sum())
+s_int = pd.Series([1, 2, None], dtype="Int64")
+print("Nullable Int64:", s_int.dtype, s_int.tolist())
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Базовая аналитика: `value_counts()`, `nunique()`, `corr()`",
             "kind": "example",
             "cells": [
                 {
                     "type": "code",
                     "source": """\
-df_cat = df.copy()
-df_cat["Sex"] = df_cat["Sex"].astype("category")
-print(df_cat["Sex"].dtype)
-print("Память object vs category:", df["Sex"].memory_usage(deep=True), df_cat["Sex"].memory_usage(deep=True))
+print(df["Sex"].value_counts())
+print("nunique Embarked:", df["Embarked"].nunique())
+num = df[["Survived", "Pclass", "Age", "Fare"]].dropna()
+print(num.corr().round(2))
 """,
                 },
             ],
         },
         {
-            "slide_title": "apply и transform",
+            "slide_title": "GroupBy: две операции, которые должен знать ML-инженер",
             "kind": "example",
             "cells": [
                 {
                     "type": "code",
                     "source": """\
-emb_map = {"S": 0, "C": 1, "Q": 2}
-df["Embarked_code"] = df["Embarked"].map(emb_map)
-df["Fare_z"] = df.groupby("Pclass")["Fare"].transform(lambda x: (x - x.mean()) / x.std())
-df[["Embarked", "Embarked_code", "Pclass", "Fare_z"]].head()
+agg = df.groupby("Pclass")["Fare"].mean()
+print(agg.round(2))
+df = df.copy()
+df["fare_vs_class"] = df["Fare"] - df.groupby("Pclass")["Fare"].transform("mean")
+df[["Pclass", "Fare", "fare_vs_class"]].head()
 """,
                 },
             ],
         },
         {
-            "slide_title": "pivot и pivot_table",
+            "slide_title": "MultiIndex: иерархические индексы после groupby",
             "kind": "example",
             "cells": [
                 {
                     "type": "code",
                     "source": """\
-pt = df.pivot_table(values="Survived", index="Pclass", columns="Sex", aggfunc="mean")
-pt.round(2)
+mi = df.groupby(["Pclass", "Sex"]).agg({"Fare": "mean", "Age": "median"})
+print("MultiIndex:", mi.index.names)
+flat = mi.reset_index()
+flat.head()
 """,
                 },
             ],
         },
         {
-            "slide_title": "Базовая производительность",
+            "slide_title": "Категории: типы кодирования и когда что применять",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+dummies = pd.get_dummies(df, columns=["Sex", "Embarked"], drop_first=True)
+print("OHE столбцы:", [c for c in dummies.columns if c.startswith("Sex") or c.startswith("Embarked")][:4])
+cat = df["Sex"].astype("category")
+print("Ordinal codes:", cat.cat.codes.head())
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Быстрый Feature Engineering: условия, биннинг и отсечение",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+import numpy as np
+
+df_fe = df.copy()
+df_fe["is_expensive"] = np.where(df_fe["Fare"] > df_fe["Fare"].median(), 1, 0)
+df_fe["fare_bin"] = pd.qcut(df_fe["Fare"].fillna(0), q=4, labels=["Q1", "Q2", "Q3", "Q4"])
+upper = df_fe["Fare"].quantile(0.99)
+df_fe["Fare_clip"] = df_fe["Fare"].clip(upper=upper)
+df_fe[["Fare", "Fare_clip", "is_expensive", "fare_bin"]].head()
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Работа с текстом: стринговый аксессор `.str`",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+names = df["name"].dropna().head(5)
+print("Длины:", names.str.len().tolist())
+print("Содержит 'Mr':", names.str.contains("Mr").tolist())
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Время как признак: аксессор `.dt`",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+dates = pd.date_range("2023-01-01", periods=5, freq="D")
+ts = pd.DataFrame({"date": dates})
+ts["dow"] = ts["date"].dt.dayofweek
+ts["hour_sin"] = np.sin(2 * np.pi * ts["date"].dt.hour / 24)
+ts
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "pandas <-> numpy: мост между экосистемами",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+X_num = df.select_dtypes(include="number").drop(columns=["Survived"], errors="ignore")
+arr = X_num.fillna(0).to_numpy(dtype="float32")
+print(arr.shape, arr.dtype)
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Опасности склейки таблиц: merge и concat",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+ports = pd.DataFrame({"Embarked": ["S", "C", "Q", "S"], "port": ["Soton", "Cher", "Queen", "Soton_dup"]})
+merged = pd.merge(df[["Embarked"]].head(6), ports, on="Embarked", how="left")
+print(f"Строк после merge с дублями ключа: {len(merged)}")
+
+left = df.iloc[:3].reset_index(drop=True)
+right = df.iloc[5:8].reset_index(drop=True)
+pd.concat([left[["Age"]], right[["Fare"]]], axis=1)
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "merge_asof: асинхронный join для временных рядов",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+tx = pd.DataFrame({"ts": pd.to_datetime(["2024-01-01 10:05", "2024-01-01 10:20", "2024-01-01 10:40"]), "amt": [100, 200, 150]})
+rates = pd.DataFrame({"ts": pd.to_datetime(["2024-01-01 10:00", "2024-01-01 10:15", "2024-01-01 10:30"]), "rate": [1.0, 1.1, 1.2]})
+pd.merge_asof(tx.sort_values("ts"), rates.sort_values("ts"), on="ts", direction="backward")
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "pandas <-> sklearn: где возникают проблемы",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+
+features = ["Pclass", "Age", "Fare", "Sex"]
+X = df[features]
+y = df["Survived"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
+
+prep = ColumnTransformer([
+    ("num", Pipeline([("imp", SimpleImputer(strategy="median")), ("sc", StandardScaler())]), ["Pclass", "Age", "Fare"]),
+    ("cat", Pipeline([("imp", SimpleImputer(strategy="most_frequent")), ("ohe", OneHotEncoder(handle_unknown="ignore"))]), ["Sex"]),
+])
+pipe = Pipeline([("prep", prep), ("model", LogisticRegression(max_iter=500, random_state=42))])
+pipe.fit(X_train, y_train)
+print(f"Test accuracy: {pipe.score(X_test, y_test):.3f}")
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "pandas <-> PyTorch: создание Dataset",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+try:
+    import torch
+    from torch.utils.data import TensorDataset
+
+    X_np = df[["Pclass", "Age", "Fare"]].fillna(0).to_numpy(dtype="float32")
+    y_np = df["Survived"].to_numpy(dtype="float32")
+    t_shared = torch.from_numpy(X_np)
+    t_copy = torch.tensor(X_np)
+    print("from_numpy shares memory:", t_shared.data_ptr() == X_np.__array_interface__["data"][0])
+    ds = TensorDataset(t_copy, torch.tensor(y_np))
+    print("Dataset size:", len(ds))
+except ImportError:
+    print("torch не установлен — пропуск демо")
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Data Leakage: где прячется в pandas",
+            "kind": "experiment",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+# НЕПРАВИЛЬНО: статистика по всему датасету до split
+# df["Age"].fillna(df["Age"].mean())
+
+from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
+
+X = df[["Age", "Fare"]]
+y = df["Survived"]
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.3, random_state=42)
+imp = SimpleImputer(strategy="median")
+X_tr_imp = imp.fit_transform(X_tr)
+X_te_imp = imp.transform(X_te)  # медиана только с train
+print("NaN после imputer (train):", np.isnan(X_tr_imp).any())
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Итеративная обработка: когда файл не влезает в RAM",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+import io
+buf = io.StringIO("\\n".join([f"{i},{i*2}" for i in range(1000)]))
+buf.seek(0)
+chunks = pd.read_csv(buf, names=["a", "b"], chunksize=200)
+total = sum(chunk["a"].sum() for chunk in chunks)
+print("Сумма a по chunks:", total)
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Производительность: когда pandas «не тянет»",
             "kind": "experiment",
             "cells": [
                 {
                     "type": "code",
                     "source": """\
 import time
-s = pd.Series(range(200_000))
+s = pd.Series(range(100_000))
 t0 = time.perf_counter(); _ = s.apply(lambda x: x * 2); t1 = time.perf_counter()
 t2 = time.perf_counter(); _ = s * 2; t3 = time.perf_counter()
 print(f"apply: {t1-t0:.3f}s, vectorized: {t3-t2:.3f}s")
@@ -217,30 +374,56 @@ print(f"apply: {t1-t0:.3f}s, vectorized: {t3-t2:.3f}s")
             ],
         },
         {
-            "slide_title": "Pandas и sklearn Pipeline",
+            "slide_title": "Оптимизация памяти: downcasting типов",
             "kind": "example",
             "cells": [
                 {
                     "type": "code",
                     "source": """\
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
+col = df["Sex"].astype(str)
+print("object KiB:", col.memory_usage(deep=True) / 1024)
+cat = col.astype("category")
+print("category KiB:", cat.memory_usage(deep=True) / 1024)
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Форматы хранения: Смерть CSV и восстание Parquet",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+import tempfile
+from pathlib import Path
 
-features = ["Pclass", "Age", "Fare"]
-X = df[features]
-y = df["Survived"]
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
+tmp = Path(tempfile.mkdtemp())
+pq = tmp / "titanic.parquet"
+try:
+    df.head(100).to_parquet(pq, index=False)
+    loaded = pd.read_parquet(pq)
+    print("dtypes сохранены:", loaded.dtypes.head(3).tolist())
+except ImportError as e:
+    print("Parquet требует pyarrow: pip install pyarrow")
+    print(e)
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "Гигиена памяти в Jupyter: борьба с OOM",
+            "kind": "example",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+import gc
 
-pipe = Pipeline([
-    ("imputer", SimpleImputer(strategy="median")),
-    ("scaler", StandardScaler()),
-    ("model", LogisticRegression(max_iter=500, random_state=42)),
-])
-pipe.fit(X_train, y_train)
-print(f"Test accuracy: {pipe.score(X_test, y_test):.3f}")
+big = df.copy()
+del big
+gc.collect()
+print("После del + gc.collect()")
 """,
                 },
             ],
@@ -448,6 +631,7 @@ plt.show()
                     "type": "code",
                     "source": """\
 df["Sex"] = df["sex"]
+df["Embarked"] = df["embarked"].astype(str)
 fig, axes = plt.subplots(1, 2, figsize=(10, 4))
 sns.countplot(data=df, x="Sex", hue="Sex", ax=axes[0], palette="Set2", legend=False)
 sns.barplot(data=df, x="Pclass", y="Fare", hue="Pclass", ax=axes[1], palette="Blues", legend=False)
@@ -522,14 +706,14 @@ def _pandas_project_sections() -> list[dict]:
                 {
                     "type": "markdown",
                     "source": (
-                        "Разберём **Titanic (OpenML)**: загрузка, очистка, groupby, merge, pivot, "
-                        "экспорт инсайтов и подготовка данных для sklearn Pipeline."
+                        "Сквозной сценарий на **Titanic (OpenML)**: EDA в pandas, индексы и маски, "
+                        "groupby/transform, кодирование, merge, Parquet, sklearn Pipeline без утечки."
                     ),
                 }
             ],
         },
         {
-            "slide_title": "Загрузка и первичный осмотр",
+            "slide_title": "Загрузка и первичный EDA",
             "kind": "eda",
             "cells": [
                 {
@@ -538,12 +722,14 @@ def _pandas_project_sections() -> list[dict]:
 import warnings
 warnings.filterwarnings("ignore")
 
+import gc
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.datasets import fetch_openml
 
+%matplotlib inline
 np.random.seed(42)
 sns.set_theme(style="whitegrid", font_scale=1.05)
 
@@ -557,46 +743,25 @@ df["Sex"] = df["sex"].astype(str)
 df["Embarked"] = df["embarked"].astype(str)
 
 print(f"Объектов: {len(df)}")
-display(df.head())
-print("Пропуски:\\n", df[["Age", "Fare", "Embarked"]].isna().sum())
+df.info()
+print(df.describe(include="all").T.head(8))
+print("Пропуски:\\n", df[["Age", "Fare", "Embarked"]].isnull().sum())
 """,
                 },
             ],
         },
         {
-            "slide_title": "Очистка и типы",
-            "kind": "example",
+            "slide_title": "Аналитика и кардинальность",
+            "kind": "eda",
             "cells": [
                 {
                     "type": "code",
                     "source": """\
-df_clean = df.copy()
-df_clean["Age"] = df_clean["Age"].fillna(df_clean.groupby("Pclass")["Age"].transform("median"))
-df_clean["Embarked"] = df_clean["Embarked"].fillna(df_clean["Embarked"].mode()[0])
-df_clean["Sex"] = df_clean["Sex"].astype("category")
-print("Пропуски Age после impute:", df_clean["Age"].isna().sum())
-""",
-                },
-            ],
-        },
-        {
-            "slide_title": "groupby и агрегаты",
-            "kind": "viz",
-            "cells": [
-                {
-                    "type": "code",
-                    "source": """\
-summary = df_clean.groupby(["Pclass", "Sex"]).agg(
-    count=("Survived", "size"),
-    survival_rate=("Survived", "mean"),
-    avg_fare=("Fare", "mean"),
-).round(3)
-display(summary)
-
-summary.reset_index().pivot(index="Pclass", columns="Sex", values="survival_rate").plot(
-    kind="bar", figsize=(7, 4), title="Доля выживших по классу и полу"
-)
-plt.ylabel("survival_rate")
+print(df["Sex"].value_counts())
+print("nunique name:", df["name"].nunique(), "— почти ID, в модель не берём")
+corr = df[["Survived", "Pclass", "Age", "Fare"]].corr()
+sns.heatmap(corr, annot=True, cmap="RdBu_r", center=0, vmin=-1, vmax=1)
+plt.title("corr() перед моделью")
 plt.tight_layout()
 plt.show()
 """,
@@ -604,12 +769,41 @@ plt.show()
             ],
         },
         {
-            "slide_title": "merge справочника",
+            "slide_title": "Очистка: пропуски и признаки",
             "kind": "example",
             "cells": [
                 {
                     "type": "code",
                     "source": """\
+df_clean = df.copy()
+df_clean["Age"] = df_clean.groupby("Pclass")["Age"].transform(lambda s: s.fillna(s.median()))
+df_clean["Embarked"] = df_clean["Embarked"].fillna(df_clean["Embarked"].mode()[0])
+df_clean["Fare"] = df_clean["Fare"].fillna(df_clean.groupby("Pclass")["Fare"].transform("median"))
+
+df_clean["is_expensive"] = np.where(df_clean["Fare"] > df_clean["Fare"].median(), 1, 0)
+upper = df_clean["Fare"].quantile(0.99)
+df_clean["Fare_clip"] = df_clean["Fare"].clip(upper=upper)
+df_clean["fare_dev"] = df_clean["Fare"] - df_clean.groupby("Pclass")["Fare"].transform("mean")
+print("Пропуски Age:", df_clean["Age"].isna().sum())
+df_clean[["Fare", "Fare_clip", "fare_dev", "is_expensive"]].head()
+""",
+                },
+            ],
+        },
+        {
+            "slide_title": "groupby, MultiIndex и merge",
+            "kind": "viz",
+            "cells": [
+                {
+                    "type": "code",
+                    "source": """\
+summary = df_clean.groupby(["Pclass", "Sex"]).agg(
+    n=("Survived", "size"),
+    survival=("Survived", "mean"),
+    avg_fare=("Fare", "mean"),
+).round(3)
+print(summary)
+
 ports = pd.DataFrame({
     "Embarked": ["S", "C", "Q"],
     "port_name": ["Southampton", "Cherbourg", "Queenstown"],
@@ -621,21 +815,36 @@ df_ports.groupby("port_name")["Survived"].mean().sort_values(ascending=False)
             ],
         },
         {
-            "slide_title": "pivot_table и инсайты",
-            "kind": "viz",
+            "slide_title": "Кодирование и Parquet",
+            "kind": "example",
             "cells": [
                 {
                     "type": "code",
                     "source": """\
-pt = df_clean.pivot_table(values="Survived", index="Pclass", columns="Sex", aggfunc="mean")
-display(pt.round(2))
-print("Инсайт: женщины 1 класса выживали чаще всего")
+df_model = pd.get_dummies(df_clean, columns=["Sex", "Embarked"], drop_first=True)
+feature_cols = ["Pclass", "Age", "Fare_clip", "is_expensive", "fare_dev"] + [
+    c for c in df_model.columns if c.startswith("Sex_") or c.startswith("Embarked_")
+]
+df_model = df_model[feature_cols + ["Survived"]].reset_index(drop=True)
+
+import tempfile
+from pathlib import Path
+pq_path = Path(tempfile.mkdtemp()) / "titanic_clean.parquet"
+try:
+    df_model.to_parquet(pq_path, index=False)
+    df_loaded = pd.read_parquet(pq_path)
+    print("Загружено из Parquet:", df_loaded.shape)
+except ImportError:
+    csv_path = pq_path.with_suffix(".csv")
+    df_model.to_csv(csv_path, index=False)
+    df_loaded = pd.read_csv(csv_path)
+    print("pyarrow нет — сохранено в CSV:", df_loaded.shape)
 """,
                 },
             ],
         },
         {
-            "slide_title": "Экспорт и Pipeline",
+            "slide_title": "train_test_split и Pipeline",
             "kind": "example",
             "cells": [
                 {
@@ -643,46 +852,62 @@ print("Инсайт: женщины 1 класса выживали чаще в�
                     "source": """\
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
 
-feature_cols = ["Pclass", "Age", "Fare", "Sex", "Embarked"]
-X = df_clean[feature_cols]
-y = df_clean["Survived"]
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
+X = df_model.drop(columns=["Survived"])
+y = df_model["Survived"]
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42, stratify=y
+)
 
-preprocess = ColumnTransformer([
-    ("num", Pipeline([("imputer", SimpleImputer(strategy="median")), ("scaler", StandardScaler())]), ["Pclass", "Age", "Fare"]),
-    ("cat", Pipeline([("imputer", SimpleImputer(strategy="most_frequent")), ("ohe", OneHotEncoder(handle_unknown="ignore"))]), ["Sex", "Embarked"]),
+pipe = Pipeline([
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler", StandardScaler()),
+    ("model", LogisticRegression(max_iter=500, random_state=42)),
 ])
-pipe = Pipeline([("prep", preprocess), ("model", LogisticRegression(max_iter=500, random_state=42))])
 pipe.fit(X_train, y_train)
-print(f"Test accuracy: {pipe.score(X_test, y_test):.3f}")
+pred = pipe.predict(X_test)
+print(classification_report(y_test, pred, digits=3))
 
-insights = summary.reset_index()
-insights.to_csv("titanic_groupby_summary.csv", index=False)
-print("Сводка сохранена в titanic_groupby_summary.csv")
+X_np = pipe.named_steps["scaler"].transform(pipe.named_steps["imputer"].transform(X_test))
+print("numpy dtype:", X_np.dtype, "NaN:", np.isnan(X_np).any())
 """,
                 },
             ],
         },
         {
-            "slide_title": "Чек-лист мини-проекта",
+            "slide_title": "Память и чек-лист",
             "kind": "summary",
             "cells": [
                 {
+                    "type": "code",
+                    "source": """\
+del df_ports, summary
+gc.collect()
+
+print("Чек-лист:")
+print("  info/describe/value_counts/corr — EDA")
+print("  transform для контекстных признаков")
+print("  get_dummies + Parquet для типов")
+print("  split до fit-статистик; Pipeline для imputer/scaler")
+print("  to_numpy перед sklearn; del + gc перед тяжёлой моделью")
+""",
+                },
+                {
                     "type": "markdown",
                     "source": (
-                        "1. `fetch_openml` → `head/info/describe`.\n"
-                        "2. Пропуски — осмысленный impute (по группе или median).\n"
-                        "3. groupby + pivot — инсайты до модели.\n"
-                        "4. merge справочников по ключу.\n"
-                        "5. Pipeline после train_test_split.\n"
-                        "6. Экспорт агрегатов для отчёта."
+                        "1. EDA: `info`, `describe`, `value_counts`, `corr`.\n"
+                        "2. Индексы: `reset_index` после фильтров и перед concat.\n"
+                        "3. Пропуски и признаки — осмысленно; clip/qcut/np.where.\n"
+                        "4. `groupby` agg + `transform`; merge по уникальному ключу.\n"
+                        "5. OHE; промежуточные данные — Parquet.\n"
+                        "6. `train_test_split` → Pipeline → numpy → метрики.\n"
+                        "7. `del` + `gc.collect()` в Jupyter."
                     ),
-                }
+                },
             ],
         },
     ]
@@ -730,6 +955,7 @@ df["Pclass"] = df["pclass"].astype(int)
 df["Age"] = pd.to_numeric(df["age"], errors="coerce")
 df["Fare"] = pd.to_numeric(df["fare"], errors="coerce")
 df["Sex"] = df["sex"]
+df["Embarked"] = df["embarked"].astype(str)
 print(df.shape)
 df.head()
 """,
@@ -909,6 +1135,22 @@ def build_all() -> None:
     ]
     for lesson_dir, topic, code_sections, proj_sections, proj_title in jobs:
         code_nb = build_ipynb(code_sections, topic=topic)
+        if lesson_dir.name == "pandas":
+            code_nb["cells"][1]["source"] = [
+                "# Практика к уроку — выполняйте ячейки по порядку\n",
+                "%matplotlib inline\n",
+                "\n",
+                "import numpy as np\n",
+                "import pandas as pd\n",
+                "import matplotlib.pyplot as plt\n",
+                "\n",
+                "try:\n",
+                "    from IPython.display import display\n",
+                "except ImportError:\n",
+                "    display = print\n",
+                "\n",
+                "np.random.seed(42)\n",
+            ]
         save_ipynb(lesson_dir / "code.ipynb", code_nb)
         proj_nb = build_ipynb(proj_sections, topic=proj_title)
         proj_nb["cells"][0]["source"] = [

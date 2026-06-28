@@ -1,0 +1,15 @@
+{
+  "title": "Pandas и GPU: разрушение мифов и экосистема RAPIDS",
+  "bullets": [
+    "Миф: «pandas на GPU из коробки» — **нативный pandas только CPU**",
+    "**cuDF** (NVIDIA RAPIDS) — API как pandas, вычисления на GPU",
+    "`cudf.pandas` — перехват вызовов GPU/CPU автоматически",
+    "В VRAM данные передаёт PyTorch (`tensor.to('cuda')`), не pandas"
+  ],
+  "visuals": [
+    {
+      "description": "Схема: pandas CPU (RAM) → cuDF GPU (VRAM) → PyTorch tensor.cuda. Разделение RAM/VRAM.",
+      "output": "rapids_gpu_flow.png"
+    }
+  ]
+}

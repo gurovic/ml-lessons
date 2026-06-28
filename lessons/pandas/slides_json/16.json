@@ -1,16 +1,19 @@
 {
-  "title": "Pandas и sklearn Pipeline",
+  "title": "Опасности склейки таблиц: merge и concat",
   "bullets": [
-    "Pandas — EDA и подготовка; sklearn — `fit`/`predict` на NumPy",
-    "`ColumnTransformer` + `Pipeline`: imputer/scaler/encoder внутри пайплайна",
-    "`df[feature_cols].to_numpy()` или `Pipeline` с `FunctionTransformer`",
-    "Сохраняй согласованность имён столбцов между train и test"
+    "**Cartesian product** в merge: неуникальный ключ в B размножает строки A",
+    "Всегда проверяйте уникальность ключей перед join",
+    "`pd.concat([df1, df2], axis=1)` склеивает **по индексу**, не по порядку",
+    "После `train_test_split` — `reset_index(drop=True)` перед concat по столбцам"
   ],
-  "notes": "Показать SimpleImputer в Pipeline после split.",
   "visuals": [
     {
-      "description": "Block-схема: DataFrame → split → Pipeline(Imputer, OHE, Model).",
-      "output": "pandas_sklearn_pipeline.png"
+      "description": "Схема merge: таблица A (3 строки) + B с дублями ключа → 5+ строк (раздувание). Красные стрелки.",
+      "output": "merge_cartesian.png"
+    },
+    {
+      "description": "concat axis=1: рваные индексы → NaN в результате. До/после reset_index.",
+      "output": "concat_index_trap.png"
     }
   ],
   "notebook": {
@@ -18,6 +21,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "Pipeline с imputer на Titanic numeric cols."
+    "hint": "merge с дублями, concat после split"
   }
 }

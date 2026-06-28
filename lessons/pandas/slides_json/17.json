@@ -1,12 +1,22 @@
 {
-  "title": "Итоги и чек-лист",
+  "title": "merge_asof: асинхронный join для временных рядов",
   "bullets": [
-    "1. `read_*` → `head/info/describe` перед любыми выводами",
-    "2. Выборка: **loc** по меткам, **iloc** по позициям; маски через loc",
-    "3. groupby/merge/pivot — три кита аналитики таблиц",
-    "4. Пропуски и dtypes — до модели; трансформации — в Pipeline после split",
-    "5. Векторизация вместо apply в горячих местах"
+    "Классический `merge` требует точного совпадения времени",
+    "`pd.merge_asof()` — join по **ближайшему** времени",
+    "Пример: транзакции + курс валют `direction='backward'`",
+    "Нужен для признаков «курс/погода на момент события»"
   ],
-  "notes": "Резюме перед project.ipynb.",
-  "visuals": []
+  "visuals": [
+    {
+      "description": "Timeline: точки транзакций и ступенчатый курс валют; стрелки merge_asof backward к ближайшему курсу слева.",
+      "output": "merge_asof_timeline.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "merge_asof на синтетических timestamp"
+  }
 }

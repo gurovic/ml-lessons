@@ -1,23 +1,22 @@
 {
-  "title": "Пропуски: isna, fillna, dropna",
+  "title": "MultiIndex: иерархические индексы после groupby",
   "bullets": [
-    "`isna()` / `notna()` — маска пропусков; `df.isna().sum()` — счёт по столбцам",
-    "`fillna(value)` или `fillna(df['col'].median())` — заполнение",
-    "`dropna(subset=['Age'])` — удалить строки с пропуском в Age",
-    "Стратегия зависит от задачи: удалить vs impute; для ML — только на **train**"
+    "`groupby(['city','cat']).agg(['mean','std'])` → **двухуровневый** индекс строк и столбцов",
+    "Частая боль: как обратиться к ячейке, как склеить с исходной таблицей",
+    "`reset_index()` или `as_index=False` в `groupby()`",
+    "Перед моделью или merge — **сбросить MultiIndex**"
   ],
-  "notes": "Age в Titanic — классический пример.",
   "visuals": [
     {
-      "description": "Bar chart пропусков по столбцам Titanic (Cabin много, Age меньше).",
-      "output": "missing_counts.png"
+      "description": "Схема MultiIndex: строки city×category, столбцы mean/std. Стрелка reset_index → плоская таблица.",
+      "output": "multiindex_reset.png"
     }
   ],
   "notebook": {
     "include": true,
     "kinds": [
-      "experiment"
+      "example"
     ],
-    "hint": "isna().sum(), fillna median Age."
+    "hint": "groupby с MultiIndex и reset_index"
   }
 }

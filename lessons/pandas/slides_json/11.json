@@ -1,16 +1,15 @@
 {
-  "title": "Типы данных",
+  "title": "Категории: типы кодирования и когда что применять",
   "bullets": [
-    "object — строки; int64/float64 — числа; category — экономия памяти для повторов",
-    "`astype({'col': 'category'})` — явное приведение",
-    "`pd.to_datetime(df['date'])` — даты; `.dt.year`, `.dt.month` — компоненты",
-    "Неверный dtype ломает sort и merge — смотри `df.dtypes` после чтения"
+    "**Ordinal** — только упорядоченные (`category` + `.cat.codes`)",
+    "**One-Hot** — неупорядоченные: `pd.get_dummies(..., drop_first=True)`",
+    "**Target Encoding** — среднее таргета; только внутри sklearn `Pipeline`",
+    "Числа 0,1,2 для деревьев ок, для линейных моделей — ломает геометрию"
   ],
-  "notes": "Sex → category на Titanic.",
   "visuals": [
     {
-      "description": "До/после: object Sex vs category — memory_usage меньше.",
-      "output": "dtype_category.png"
+      "description": "Три панели: label encoding (0,1,2), one-hot матрица, target encoding (средние по классу). Схема.",
+      "output": "encoding_methods.png"
     }
   ],
   "notebook": {
@@ -18,6 +17,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "astype category, to_datetime demo."
+    "hint": "get_dummies, astype category, cat.codes"
   }
 }

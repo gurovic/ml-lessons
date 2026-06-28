@@ -1,23 +1,27 @@
 {
-  "title": "Фильтрация и булевы маски",
+  "title": "Пропуски: NaN, None, NaT и эволюция типов",
   "bullets": [
-    "Условие даёт Series bool: `df['Age'] > 18`",
-    "Несколько условий: `&` (и), `|` (или); каждое в скобках: `(A) & (B)`",
-    "`.isin([...])`, `.between(a, b)`, `.str.contains(...)` для строк",
-    "`.query('Age > 18 and Pclass == 1')` — альтернативный синтаксис"
+    "Разные «пустые»: `np.nan` (числа), `None` (object), `pd.NaT` (время)",
+    "`df.isnull().sum()` — первый шаг диагностики",
+    "Раньше пропуск в `int64` → весь столбец во `float64`; сейчас **Nullable** (`Int64`, `boolean`, `pd.NA`)",
+    "В ML: импутация только по **Train**, иначе утечка"
   ],
-  "notes": "Показать фильтр выживших женщин 1 класса.",
   "visuals": [
     {
-      "description": "Таблица: серые строки отфильтрованы, синие прошли маску Age>30 & Pclass==1.",
-      "output": "boolean_filter.png"
+      "description": "Bar chart: количество пропусков по столбцам (Age, Fare, Embarked) — явный дисбаланс. Подписи на русском.",
+      "output": "missing_counts.png"
+    },
+    {
+      "description": "Две панели: int64+NaN→float64 (красная стрелка) vs Int64+pd.NA (зелёная галочка). Схема типов.",
+      "output": "nullable_int_types.png"
     }
   ],
   "notebook": {
     "include": true,
     "kinds": [
-      "example"
+      "example",
+      "experiment"
     ],
-    "hint": "Булева маска и query."
+    "hint": "isnull, Int64 vs float64 при пропусках"
   }
 }

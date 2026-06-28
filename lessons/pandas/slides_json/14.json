@@ -1,23 +1,22 @@
 {
-  "title": "Базовая производительность",
+  "title": "Время как признак: аксессор `.dt`",
   "bullets": [
-    "Векторизация NumPy/Pandas **быстрее** цикла Python и построчного apply",
-    "`.values` / `.to_numpy()` — массив для sklearn без копий где возможно",
-    "category и правильные dtypes уменьшают память на больших таблицах",
-    "Чтение: `usecols`, `dtype`, `chunksize` — для файлов на миллионы строк"
+    "Модель не понимает timestamp — нужны **смысловые** признаки",
+    "`.dt.dayofweek`, `.dt.hour`, `.dt.is_month_end` — события и циклы",
+    "Час и месяц кодируют через $\\sin$, $\\cos$ для цикличности (23:00 близко к 00:00)",
+    "Всегда приводите к `datetime64` перед `.dt`"
   ],
-  "notes": "Микро-бенчмарк apply vs vectorized — опционально в ноутбуке.",
   "visuals": [
     {
-      "description": "Bar chart: время apply vs vectorized (vectorized в 10–50× быстрее).",
-      "output": "perf_vectorized.png"
+      "description": "Линейный график sin/cos для часа 0-23 — 23 и 0 близки на круге. Подпись циклического кодирования.",
+      "output": "dt_cyclic_hour.png"
     }
   ],
   "notebook": {
     "include": true,
     "kinds": [
-      "experiment"
+      "example"
     ],
-    "hint": "Сравнить apply и векторизацию по времени."
+    "hint": "pd.to_datetime, dt.hour, sin/cos"
   }
 }

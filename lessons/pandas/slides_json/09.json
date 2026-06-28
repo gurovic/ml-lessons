@@ -1,16 +1,15 @@
 {
-  "title": "merge и join",
+  "title": "GroupBy: две операции, которые должен знать ML-инженер",
   "bullets": [
-    "`pd.merge(left, right, on='key', how='inner|left|right|outer')` — SQL-подобное соединение",
-    "how='left' — все строки левой таблицы; пропуски где нет совпадения",
-    "`.join()` — по индексу; для merge ключи часто приводят к одному типу",
-    "Дубликаты ключей → декартово умножение строк — проверяй `len` до и после"
+    "`agg()` — схлопывает группы в одну строку (среднее по группе)",
+    "`transform()` — результат **того же размера**, что вход",
+    "Пример: `df['dev'] = df['income'] - df.groupby('city')['income'].transform('mean')`",
+    "Без `transform` нельзя создать контекстный признак без потери гранулярности"
   ],
-  "notes": "Пример: таблица пассажиров + справочник портов.",
   "visuals": [
     {
-      "description": "Venn inner/left merge двух маленьких таблиц с ключом id.",
-      "output": "merge_diagram.png"
+      "description": "Две панели: agg (3 группы → 3 строки) vs transform (исходный размер, новый столбец отклонения). Bar/line наглядно.",
+      "output": "agg_vs_transform.png"
     }
   ],
   "notebook": {
@@ -18,6 +17,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "merge двух DataFrame по ключу."
+    "hint": "groupby agg и transform для контекстного признака"
   }
 }

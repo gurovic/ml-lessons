@@ -1,16 +1,16 @@
 {
-  "title": "Чтение данных",
+  "title": "Булева индексация — магия numpy внутри pandas",
   "bullets": [
-    "`pd.read_csv(path)` — основной формат; параметры `sep`, `encoding`, `parse_dates`",
-    "`pd.read_excel` — листы через `sheet_name`; для OpenML — `fetch_openml(..., as_frame=True)`",
-    "После чтения: `df.head()`, `df.info()`, `df.describe()` — быстрый осмотр",
-    "Сохранение: `df.to_csv(..., index=False)` — индекс в файл обычно не пишем"
+    "`df[df['age'] > 30]` — маска numpy внутри pandas",
+    "Шаг 1: `df['age'] > 30` → булев массив `[True, False, True, \\ldots]`",
+    "Шаг 2: `df[mask]` возвращает строки, где `True` — прямое наследие numpy",
+    "Составные условия: `&`, `|`, `~` (не `and`/`or`); **каждое условие в скобках**"
   ],
-  "notes": "OpenML Titanic как пример в project.ipynb.",
+  "notes": "Показать mask.sum() и ошибку без скобок.",
   "visuals": [
     {
-      "description": "Скрин-схема: read_csv → DataFrame с подписью n_rows × n_cols.",
-      "output": "read_csv_flow.png"
+      "description": "Схема 3 шага: столбец age → булева маска (зелёные/красные строки) → отфильтрованный DataFrame. Подписи на русском.",
+      "output": "boolean_mask_flow.png"
     }
   ],
   "notebook": {
@@ -18,6 +18,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "read_csv из StringIO или fetch_openml titanic."
+    "hint": "булева маска, составные условия со скобками"
   }
 }

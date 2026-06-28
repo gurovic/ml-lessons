@@ -1,23 +1,27 @@
 {
-  "title": "apply и transform",
+  "title": "Быстрый Feature Engineering: условия, биннинг и отсечение",
   "bullets": [
-    "`.apply(func, axis=0|1)` — функция по столбцу или строке; медленнее векторизации",
-    "`.map(dict)` на Series — замена значений по словарю",
-    "`.transform('mean')` после groupby — результат той же длины, что и исходник",
-    "Предпочитай встроенные методы (`str`, `dt`, NumPy) — apply для сложной логики"
+    "`np.where` — векторизованные условия, в сотни раз быстрее `apply`",
+    "`pd.cut` — равные интервалы; `pd.qcut` — равное число объектов в корзинах",
+    "`clip` / Winsorization: `df['x'].clip(upper=quantile(0.99))` — спасает от выбросов без удаления строк",
+    "Линейным моделям помогает биннинг; деревьям — проще разбиения"
   ],
-  "notes": "map для Embarked кодов.",
   "visuals": [
     {
-      "description": "Series до map и после: S→0, C→1, Q→2.",
-      "output": "apply_map_transform.png"
+      "description": "Две панели: scatter с выбросом + clip до 99-го перцентиля (до/после). Гистограмма income.",
+      "output": "clip_outliers.png"
+    },
+    {
+      "description": "Гистограмма с вертикальными линиями границ pd.cut (5 бинов) — равные интервалы.",
+      "output": "cut_bins.png"
     }
   ],
   "notebook": {
     "include": true,
     "kinds": [
-      "example"
+      "example",
+      "experiment"
     ],
-    "hint": "map Embarked, groupby transform mean."
+    "hint": "np.where, cut/qcut, clip"
   }
 }

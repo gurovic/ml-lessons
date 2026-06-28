@@ -1,0 +1,19 @@
+{
+  "title": "Профилирование данных: автоматический EDA",
+  "bullets": [
+    "Ручной EDA (`info`, `describe`, `value_counts`) — часы на новом датасете",
+    "`ydata-profiling` (бывш. `pandas-profiling`) — HTML-отчёт одной командой",
+    "Отчёт: распределения, корреляции, пропуски, дубликаты, предупреждения",
+    "Стандарт индустрии для быстрого знакомства с данными"
+  ],
+  "visuals": [
+    {
+      "description": "Макет HTML-отчёта profiling: миниатюры гистограмм, heatmap corr, таблица missing — схематично.",
+      "output": "profiling_report_mock.png"
+    }
+  ],
+  "link": {
+    "url": "https://docs.profiling.ydata.ai/",
+    "label": "Документация ydata-profiling"
+  }
+}
