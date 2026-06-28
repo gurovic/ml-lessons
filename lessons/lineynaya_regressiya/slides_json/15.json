@@ -9,9 +9,8 @@
   "notes": "Пример: площадь vs цена с ускоряющимся ростом.",
   "visuals": [
     {
-      "description": "Scatter нелинейных данных (например y=x^2 + noise) с наложенной прямой (плохое приближение) и кривой (хорошее). matplotlib.",
-      "output": "nonlinear_vs_linear.png",
-      "size": "large"
+      "description": "Scatter параболы: прямая (плохо) vs полином 2-й степени (лучше) на одном графике.",
+      "output": "nonlinear_vs_linear.png"
     }
   ]
 }

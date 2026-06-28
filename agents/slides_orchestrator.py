@@ -98,8 +98,6 @@ def generate_visualizations(lesson_dir: Path, slides_dir: Path) -> bool:
 
 Сгенерируй Python-скрипт, который создаст эту визуализацию.
 Если нужны случайные данные — используй numpy.random.seed(42).
-Обязательно: белый непрозрачный фон, agents/viz_style.py, педагогический подбор данных (эффект виден на графике).
-См. docs/visuals.md.
 
 В ответе верни JSON:
 {{
@@ -161,7 +159,24 @@ def main():
 
     if len(sys.argv) >= 3 and sys.argv[2] == "--visuals":
         print("Проверка визуализаций...")
-        generate_visualizations(lesson_dir, slides_dir)
+        gen_script = lesson_dir / "assets" / "generate_visuals.py"
+        if gen_script.exists():
+            from visuals_pipeline import check_visuals_quality, run_generate_visuals
+
+            run_generate_visuals(lesson_dir)
+            print("\n=== Проверка иллюстраций ===")
+            issues = check_visuals_quality(lesson_dir)
+            if issues:
+                for i in issues:
+                    print(f"  [warn] {i}")
+            else:
+                print("  OK: замечаний нет")
+            print(
+                f"\nДля AI-рецензии: python agents/visuals_pipeline.py {lesson_dir} --review"
+            )
+            print(f"Пересборка pptx: python agents/visuals_pipeline.py {lesson_dir}")
+        else:
+            generate_visualizations(lesson_dir, slides_dir)
         return
 
     if len(sys.argv) >= 4 and sys.argv[2] == "--save-script":
@@ -170,7 +185,6 @@ def main():
 
     if current_num > len(plan_lines):
         print(f"Все слайды сгенерированы. Запусти: python agents/pptx_builder.py {lesson_dir}")
-        print("После сборки откройте presentation.pptx для проверки (JSON править не обязательно).")
         return
 
     slide_topic = plan_lines[current_num - 1]

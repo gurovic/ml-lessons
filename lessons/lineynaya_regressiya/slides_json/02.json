@@ -9,12 +9,8 @@
   "notes": "На доске: нарисовать точку выше/ниже линии — показать вертикальный остаток.",
   "visuals": [
     {
-      "description": "Scatter с линией регрессии; вертикальные пунктирные остатки от каждой точки (lw≥2, заметные); подпись intercept на оси y. matplotlib.",
-      "output": "residuals_vertical.png"
-    },
-    {
-      "description": "Гистограмма остатков модели; вертикальная линия x=0; подпись «среднее ≈ 0».",
-      "output": "residuals_histogram.png"
+      "description": "Две панели (2,1): сверху scatter с линией, вертикальные остатки и подпись intercept; снизу гистограмма остатков с линией x=0.",
+      "output": "residuals_geometry.png"
     }
   ]
 }

@@ -18,7 +18,11 @@ from sklearn.preprocessing import StandardScaler
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "agents"))
 from viz_style import (  # noqa: E402
+    COL_HSPACE,
+    FIGSIZE_DUAL_COL,
     TEXT_DARK,
+    FONT_HEATMAP,
+    FONT_TICK,
     apply_matplotlib_slide_style,
     heatmap_text_color,
     save_slide_figure,
@@ -30,7 +34,7 @@ RNG = np.random.default_rng(42)
 
 
 def fig_anscombe_quartet():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     fig, axes = plt.subplots(2, 2, figsize=(10, 8))
     datasets = [
         ([10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5], [8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68]),
@@ -57,7 +61,7 @@ def fig_fig_axes_diagram():
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_title("axes — область графика")
-    fig.text(0.5, 0.92, "figure — весь холст", ha="center", fontsize=14, color=TEXT_DARK)
+    fig.text(0.5, 0.92, "figure — весь холст", ha="center", fontsize=FONT_TICK, color=TEXT_DARK)
     rect = plt.Rectangle((0.02, 0.02), 0.96, 0.96, fill=False, edgecolor="#888888", lw=2, transform=fig.transFigure)
     fig.patches.append(rect)
     save_slide_figure(fig, ASSETS / "fig_axes_diagram.png")
@@ -118,7 +122,7 @@ def fig_bar_metrics_compare():
 
 
 def fig_hist_box_combo():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     from sklearn.datasets import fetch_openml
 
     raw = fetch_openml("titanic", version=1, as_frame=True, parser="auto")
@@ -126,7 +130,7 @@ def fig_hist_box_combo():
     df["Fare"] = pd.to_numeric(df["fare"], errors="coerce")
     df["Pclass"] = df["pclass"].astype(int)
     resid = RNG.normal(0, 1, 200)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     style_axes(axes[0])
     axes[0].hist(resid, bins=25, color="#1f77b4", edgecolor="white")
     axes[0].axvline(0, color="#d62728", ls="--")
@@ -169,7 +173,7 @@ def fig_legend_color_marker():
 
 
 def fig_subplots_grid_2x2():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     fig, axes = plt.subplots(2, 2, figsize=(10, 8))
     style_axes(axes[0, 0])
     axes[0, 0].hist(RNG.normal(0, 1, 200), bins=20, color="#1f77b4", edgecolor="white")
@@ -204,14 +208,14 @@ def fig_correlation_heatmap():
     for i in range(len(corr)):
         for j in range(len(corr)):
             v = corr.values[i, j]
-            ax.text(j, i, f"{v:.2f}", ha="center", va="center", fontsize=9, color=heatmap_text_color(abs(v), 0, 1))
+            ax.text(j, i, f"{v:.2f}", ha="center", va="center", fontsize=FONT_HEATMAP, color=heatmap_text_color(abs(v), 0, 1))
     ax.set_title("Heatmap корреляций")
     plt.tight_layout()
     save_slide_figure(fig, ASSETS / "correlation_heatmap.png")
 
 
 def fig_categorical_plots():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     from sklearn.datasets import fetch_openml
 
     raw = fetch_openml("titanic", version=1, as_frame=True, parser="auto")
@@ -219,7 +223,7 @@ def fig_categorical_plots():
     df["Sex"] = df["sex"]
     df["Pclass"] = df["pclass"].astype(int)
     df["Fare"] = pd.to_numeric(df["fare"], errors="coerce")
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     sns.countplot(data=df, x="Sex", hue="Sex", ax=axes[0], palette="Set2", legend=False)
     style_axes(axes[0])
     axes[0].set_title("countplot Sex")
@@ -231,10 +235,10 @@ def fig_categorical_plots():
 
 
 def fig_pie_vs_bar():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     labels = ["A", "B", "C", "D", "E"]
     sizes = [35, 25, 20, 12, 8]
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     style_axes(axes[0])
     axes[0].pie(sizes, labels=labels, autopct="%1.0f%%")
     axes[0].set_title("pie — углы трудно сравнить")
@@ -247,9 +251,9 @@ def fig_pie_vs_bar():
 
 
 def fig_style_clean_vs_clutter():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     x = np.linspace(0, 5, 40)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     axes[0].set_facecolor("#eeeeee")
     axes[0].plot(x, np.sin(x), lw=4, color="magenta")
     axes[0].grid(True, color="cyan")
@@ -262,7 +266,7 @@ def fig_style_clean_vs_clutter():
 
 
 def fig_residuals_good_vs_funnel():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     n = 150
     x = RNG.uniform(0, 10, n)
     y_good = 2 * x + RNG.normal(0, 1.5, n)
@@ -271,7 +275,7 @@ def fig_residuals_good_vs_funnel():
     y_funnel = x + RNG.normal(0, 1, n) * (0.3 + 0.25 * x)
     y_hat_f = x
     res_f = y_funnel - y_hat_f
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     for ax, yhat, res, title in [
         (axes[0], y_hat_g, res_g, "равномерное облако"),
         (axes[1], y_hat_f, res_f, "воронка (heteroscedastic)"),
@@ -287,7 +291,7 @@ def fig_residuals_good_vs_funnel():
 
 
 def fig_roc_pr_curves():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     X, y = make_classification(
         n_samples=300, n_features=2, n_informative=2, n_redundant=0, weights=[0.7, 0.3], random_state=42
     )
@@ -297,7 +301,7 @@ def fig_roc_pr_curves():
     proba = clf.predict_proba(X_te)[:, 1]
     fpr, tpr, _ = roc_curve(y_te, proba)
     prec, rec, _ = precision_recall_curve(y_te, proba)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     style_axes(axes[0])
     axes[0].plot(fpr, tpr, color="#1f77b4", lw=2, label=f"AUC={auc(fpr, tpr):.2f}")
     axes[0].plot([0, 1], [0, 1], "k--", alpha=0.5)
@@ -315,10 +319,10 @@ def fig_roc_pr_curves():
 
 
 def fig_truncated_axis_trap():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     cats = ["M1", "M2"]
     vals = [0.92, 0.96]
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     for ax, ylim, title in [(axes[0], (0, 1), "ylim с 0"), (axes[1], (0.9, 1.0), "ylim 0.9–1.0")]:
         style_axes(ax)
         ax.bar(cats, vals, color="#1f77b4")
@@ -330,7 +334,7 @@ def fig_truncated_axis_trap():
 
 
 def fig_ml_lessons_viz_collage():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     fig, axes = plt.subplots(2, 2, figsize=(10, 8))
     # scatter + line
     x = np.linspace(0, 5, 30)
