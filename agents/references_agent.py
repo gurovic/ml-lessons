@@ -165,10 +165,10 @@ def cmd_apply(lesson_dir: Path) -> None:
     refs_json = lesson_dir / "references.json"
 
     papers_slide = None
-    if ref_path:
-        papers_slide = json.loads(read_file(ref_path))
-    elif refs_json.exists():
+    if refs_json.exists():
         papers_slide = json.loads(read_file(refs_json))
+    elif ref_path:
+        papers_slide = json.loads(read_file(ref_path))
 
     slide = build_slide_from_sources(lesson_dir, papers_slide)
 

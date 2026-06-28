@@ -7,14 +7,14 @@
       "title": "Graphical Perception: Theory, Experimentation, and Application to the Development of Graphical Methods",
       "authors": "Cleveland W.S., McGill R.",
       "year": 1984,
-      "url": "https://doi.org/10.1080/01621459.1984.10477176"
+      "url": "https://www.statsclass.com/dsci310/Notes/Cleveland_McGill_EPT.pdf"
     },
     {
       "kind": "paper",
       "title": "A Layered Grammar of Graphics",
       "authors": "Wickham H.",
       "year": 2010,
-      "url": "https://doi.org/10.1007/s00180-009-0118-0"
+      "url": "http://vita.had.co.nz/papers/layered-grammar.pdf"
     },
     {
       "kind": "paper",
@@ -26,13 +26,13 @@
       "kind": "colab",
       "title": "code.ipynb",
       "label": "Примеры по слайдам",
-      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/feature/references-and-slide-code/lessons/vizualizatsiya/code.ipynb"
+      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/vizualizatsiya/code.ipynb"
     },
     {
       "kind": "colab",
       "title": "project.ipynb",
       "label": "Мини-проект",
-      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/feature/references-and-slide-code/lessons/vizualizatsiya/project.ipynb"
+      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/vizualizatsiya/project.ipynb"
     }
   ],
   "bullets": [],

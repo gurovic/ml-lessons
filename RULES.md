@@ -8,8 +8,9 @@
 4. **Минимальный рабочий вариант**.
 5. **Следование запросу** — уточни, если неоднозначно.
 6. **RULES.md** — единственный источник правил.
-7. **Работа с ветками** — каждая задача в новой ветке, затем PR в main.
-8. **Сначала документ, потом код** — архитектурные решения, изменения пайплайна и новые правила сначала фиксируются в `.md`-файлах; реализация — только после этого (см. раздел ниже).
+7. **Issue-first** — для задач от ~30 мин (агенты, пайплайн, урок, пересборка pptx): сначала GitHub issue по шаблону (см. **docs/issue_workflow.md**), затем ветка `issue-<N>/<short-name>`, в PR — `Closes #N`. Мелкие правки — без issue.
+8. **Работа с ветками** — каждая задача в новой ветке, затем PR в main.
+9. **Сначала документ, потом код** — архитектурные решения, изменения пайплайна и новые правила сначала фиксируются в `.md`-файлах; реализация — только после этого (см. раздел ниже).
 
 ## Архитектурные решения и изменения пайплайна
 
@@ -109,6 +110,16 @@
 - --save [file] — сохранить JSON слайда (файл или stdin)
 - --apply — вставить/обновить слайд в slides_json/ и пересобрать presentation.pptx
 
+### Агент проверки ссылок (agents/link_checker_agent.py)
+- HTTP-доступность, paywall-эвристики для paper, формат Colab URL, поля `link` в slides_json.
+- Описание: docs/link_checker_agent.md
+- Промпт (LLM-альтернативы): agents/prompts/link_checker_agent.md
+- Использование: python agents/link_checker_agent.py <lesson_dir> | --all
+- --fix — исправить Colab URL из project_config (без угадывания paper URL)
+- --offline — без HTTP (формат и локальные файлы)
+- --llm — промпт для AI с бесплатными full-text альтернативами
+- Пакетно: python agents/apply_all_link_checks.py
+
 ### Мини-проект (project.ipynb)
 - Сквозной сценарий на реальных данных — docs/project_notebook.md
 - Шаблоны: python agents/build_project_notebooks.py
@@ -127,7 +138,8 @@
 8. При содержательных правках после pptx: описать в чате или обновить plan.md → агенты правят JSON и пересобирают pptx (указать, что сохранить из ручных правок, или сделать backup).
 9. **notebook_generator** → промпт → AI → --save → `code.ipynb` (см. docs/notebook_agent.md).
 10. **project.ipynb** — мини-проект end-to-end по docs/project_notebook.md (вручную или отдельным промптом).
-11. **references_agent** → --prompt → AI → --save → --apply (статьи + Colab + QR; см. docs/colab_references.md) → снова проверить presentation.pptx.
+11. **references_agent** → --prompt → AI → --save → --apply (статьи + Colab + QR; см. docs/colab_references.md).
+12. **link_checker_agent** → проверить URL (--all или по уроку); при необходимости --fix (Colab) или --llm → AI для paper URL → снова проверить presentation.pptx.
 
 Структурные изменения (новый слайд, порядок) — через plan.md и оркестратор, не только правкой pptx.
 

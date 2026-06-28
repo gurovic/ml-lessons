@@ -219,6 +219,60 @@ def _render_references_slide(
         cp.alignment = PP_ALIGN.CENTER
 
 
+def _get_python_highlighter():
+    """Pygments lexer + style для подсветки Python; None при отсутствии pygments."""
+    try:
+        from pygments.lexers import PythonLexer
+        from pygments.styles import get_style_by_name
+
+        return PythonLexer(), get_style_by_name("default")
+    except ImportError:
+        return None, None
+
+
+def _rgb_from_hex(hex_color: str):
+    from pptx.dml.color import RGBColor
+
+    h = hex_color.lstrip("#")
+    return RGBColor(int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+
+
+def _add_highlighted_code_line(
+    paragraph,
+    line: str,
+    *,
+    lexer,
+    style,
+    code_font: str,
+    code_size,
+    default_rgb,
+):
+    from pptx.dml.color import RGBColor
+
+    if lexer is None or style is None:
+        run = paragraph.add_run()
+        run.text = line if line else " "
+        run.font.name = code_font
+        run.font.size = code_size
+        run.font.color.rgb = RGBColor(*default_rgb)
+        return
+
+    from pygments import lex
+
+    for token_type, text in lex(line, lexer):
+        if not text:
+            continue
+        run = paragraph.add_run()
+        run.text = text
+        run.font.name = code_font
+        run.font.size = code_size
+        color = style.style_for_token(token_type).get("color")
+        if color:
+            run.font.color.rgb = _rgb_from_hex(color)
+        else:
+            run.font.color.rgb = RGBColor(*default_rgb)
+
+
 def _render_code_examples(
     slide,
     code_examples: list[dict],
@@ -237,6 +291,7 @@ def _render_code_examples(
     if not code_examples:
         return top
 
+    lexer, style = _get_python_highlighter()
     code_font = "Consolas"
     code_size = Pt(11)
     caption_size = Pt(10)
@@ -269,14 +324,19 @@ def _render_code_examples(
             Inches(block_h - pad),
         )
         tf = box.text_frame
-        tf.word_wrap = True
+        tf.word_wrap = False
         tf.auto_size = MSO_AUTO_SIZE.NONE
         for j, line in enumerate(lines):
             p = tf.paragraphs[0] if j == 0 else tf.add_paragraph()
-            p.text = line
-            p.font.name = code_font
-            p.font.size = code_size
-            p.font.color.rgb = RGBColor(*body_rgb)
+            _add_highlighted_code_line(
+                p,
+                line,
+                lexer=lexer,
+                style=style,
+                code_font=code_font,
+                code_size=code_size,
+                default_rgb=body_rgb,
+            )
             p.space_after = Pt(0)
 
         y += block_h + 0.06
@@ -332,7 +392,7 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
         from pptx import Presentation
         from pptx.util import Inches, Pt
         from pptx.dml.color import RGBColor
-        from pptx.enum.text import PP_ALIGN
+        from pptx.enum.text import MSO_AUTO_SIZE, PP_ALIGN
         from rich_text import set_paragraph_content
     except ImportError as e:
         print(f"Установи зависимости: pip install -r requirements.txt ({e})")
@@ -440,25 +500,36 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
             body_width = Inches(body_width_in)
 
             code_examples = slide_data.get("code_examples", [])
-            code_h = (
-                estimate_code_height_inches(code_examples)
-                if code_examples
-                else 0.0
-            )
             bullets = slide_data.get("bullets", [])
             n_bullets = len(bullets)
-            bullet_h = min(5.5, max(1.8, 0.42 * n_bullets + 0.3))
-            if code_h:
-                max_body = 6.0 if has_visuals else 6.2
-                bullet_h = min(bullet_h, max(1.5, max_body - code_h - 0.2))
+            has_link = bool(slide_data.get("link", {}).get("url"))
+            content_bottom = 6.0 if has_link else 6.35
 
+            code_h = estimate_code_height_inches(code_examples) if code_examples else 0.0
             bullet_top = 1.5
+
+            if code_examples:
+                code_top = content_bottom - code_h
+                min_bullet_h = 0.9 if bullets else 0.0
+                if bullets and code_top < bullet_top + min_bullet_h + 0.12:
+                    code_top = bullet_top + min_bullet_h + 0.12
+            else:
+                code_top = None
+
             if bullets:
+                if code_top is not None:
+                    bullet_h = code_top - bullet_top - 0.12
+                    bullet_h = max(min_bullet_h, bullet_h)
+                else:
+                    bullet_h = min(5.5, max(1.8, 0.42 * n_bullets + 0.3))
+
                 body = slide.shapes.add_textbox(
                     Inches(0.7), Inches(bullet_top), body_width, Inches(bullet_h)
                 )
                 tf2 = body.text_frame
                 tf2.word_wrap = True
+                if code_examples:
+                    tf2.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
                 for j, bullet in enumerate(bullets):
                     p = tf2.paragraphs[0] if j == 0 else tf2.add_paragraph()
                     p.space_after = Pt(8)
@@ -468,12 +539,12 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
                         print(f"  [warn] Слайд {i}, буллет {j + 1}: {w}")
 
             if code_examples:
-                code_top = bullet_top + bullet_h + 0.12
+                render_top = code_top if code_top is not None else bullet_top + 0.12
                 _render_code_examples(
                     slide,
                     code_examples,
                     left=0.7,
-                    top=code_top,
+                    top=render_top,
                     width=body_width_in - 0.1,
                     Inches=Inches,
                     body_rgb=body_rgb,

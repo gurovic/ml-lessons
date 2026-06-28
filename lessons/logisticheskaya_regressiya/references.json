@@ -6,22 +6,20 @@
       "kind": "paper",
       "title": "Application of the Logistic Function to Bio-Assay",
       "authors": "Berkson J.",
-      "year": 1944,
-      "url": "https://doi.org/10.1080/01621459.1944.10500628"
+      "year": 1944
     },
     {
       "kind": "paper",
-      "title": "The Regression Analysis of Life Tables",
+      "title": "The Regression Analysis of Binary Sequences",
       "authors": "Cox D.R.",
-      "year": 1958,
-      "url": "https://doi.org/10.1111/j.2517-6161.1958.tb00078.x"
+      "year": 1958
     },
     {
       "kind": "paper",
       "title": "Generalized Linear Models",
       "authors": "Nelder J.A., Wedderburn R.W.",
       "year": 1972,
-      "url": "https://doi.org/10.2307/2344614"
+      "url": "https://jhanley.biostat.mcgill.ca/bios601/Likelihood/NelderWedderburn1972.pdf"
     }
   ],
   "bullets": [],

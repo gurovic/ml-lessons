@@ -6,34 +6,33 @@
       "kind": "paper",
       "title": "Classification and Regression Trees",
       "authors": "Breiman L., Friedman J., Olshen R., Stone C.",
-      "year": 1984,
-      "url": "https://doi.org/10.1201/9781315139470"
+      "year": 1984
     },
     {
       "kind": "paper",
       "title": "Induction of Decision Trees",
       "authors": "Quinlan J.R.",
       "year": 1986,
-      "url": "https://doi.org/10.1007/BF00116251"
+      "url": "https://hunch.net/~coms-4771/quinlan.pdf"
     },
     {
       "kind": "paper",
       "title": "Random Forests",
       "authors": "Breiman L.",
       "year": 2001,
-      "url": "https://doi.org/10.1023/A:1010933404324"
+      "url": "https://www.stat.berkeley.edu/~breiman/randomforest2001.pdf"
     },
     {
       "kind": "colab",
       "title": "code.ipynb",
       "label": "Примеры по слайдам",
-      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/feature/references-and-slide-code/lessons/derevo_resheniy/code.ipynb"
+      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/derevo_resheniy/code.ipynb"
     },
     {
       "kind": "colab",
       "title": "project.ipynb",
       "label": "Мини-проект",
-      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/feature/references-and-slide-code/lessons/derevo_resheniy/project.ipynb"
+      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/derevo_resheniy/project.ipynb"
     }
   ],
   "bullets": [],

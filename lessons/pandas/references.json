@@ -14,14 +14,14 @@
       "title": "Tidy Data",
       "authors": "Wickham H.",
       "year": 2014,
-      "url": "https://doi.org/10.18637/jss.v059.i10"
+      "url": "http://vita.had.co.nz/papers/tidy-data.pdf"
     },
     {
       "kind": "paper",
       "title": "pandas: powerful Python data analysis toolkit",
       "authors": "Reback J., McKinney W., et al.",
       "year": 2020,
-      "url": "https://doi.org/10.21105/joss.03396"
+      "url": "https://zenodo.org/records/3509134"
     }
   ],
   "bullets": [],
