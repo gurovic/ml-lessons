@@ -63,7 +63,8 @@
 - **presentation.pptx** — **основной артефакт для автора**: проверка и правка слайдов в PowerPoint (см. docs/pipeline.md)
 - assets/
 - slides_json/ — JSON-слайды (01.json, 02.json, …); **редактируют агенты**, не автор вручную; источник для пересборки pptx
-- review.md — опциональный отчёт агента-рецензента (до сборки pptx)
+- review.md — опциональный отчёт агента-рецензента (до сборки pptx; перезаписывается при повторной рецензии)
+- author_feedback.md — замечания автора после проверки pptx (чеклисты по слайдам; **не** трогается lesson_reviewer)
 - code.ipynb — короткие примеры по слайдам (см. docs/notebook_agent.md)
 - project.ipynb — сквозной мини-проект на реальных данных (см. docs/project_notebook.md)
 - info.json — тема, автор (email, Telegram), продолжительность
@@ -132,8 +133,11 @@
 - Пакетно: python agents/apply_all_link_checks.py
 
 ### Мини-проект (project.ipynb)
-- Сквозной сценарий на реальных данных — docs/project_notebook.md
-- Шаблоны: python agents/build_project_notebooks.py
+- Сквозной **непрерывный** сценарий на реальных данных — docs/project_notebook.md
+- **Не изолированные демо:** EDA → решение → следующий шаг использует результат (очищенный `df`, выбранная модель); один test-set на весь ноутбук
+- Явные markdown-ячейки «**Решение:** …» между этапами; после сравнения вариантов — переменная `final_model` / `final_pipe`
+- Шаблоны: `python agents/build_project_notebooks.py`, `python agents/build_pandas_viz_notebooks.py`
+- Промпт для ручной сборки: agents/prompts/build_project_notebooks.md
 
 ## Порядок работы над уроком
 
@@ -145,8 +149,8 @@
 4. --visuals → промпты → AI → --save-script (генерация диаграмм в assets/).
 5. **slide_code_agent** → --apply или --prompt → --save → `code_examples` в JSON (см. docs/slide_code_agent.md).
 6. **pptx_builder** → `presentation.pptx`.
-7. **Проверка и правка пользователем в PowerPoint** — не JSON. Ручные правки pptx не синхронизируются с JSON; повторный pptx_builder перезаписывает файл.
-8. При содержательных правках после pptx: описать в чате или обновить plan.md → агенты правят JSON и пересобирают pptx (указать, что сохранить из ручных правок, или сделать backup).
+7. **Проверка и правка пользователем в PowerPoint** — не JSON. Ручные правки pptx не синхронизируются с JSON; повторный pptx_builder перезаписывает файл. Замечания по слайдам фиксировать в **author_feedback.md** (чеклисты по слайдам).
+8. При содержательных правках после pptx: **author_feedback.md** и/или чат → агенты правят JSON и пересобирают pptx (указать, что сохранить из ручных правок, или сделать backup).
 9. **notebook_generator** → промпт → AI → --save → `code.ipynb` (см. docs/notebook_agent.md).
 10. **project.ipynb** — мини-проект end-to-end по docs/project_notebook.md (вручную или отдельным промптом).
 11. **references_agent** → --prompt → AI → --save → --apply (статьи + Colab + QR; см. docs/colab_references.md).

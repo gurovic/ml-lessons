@@ -45,6 +45,207 @@ def _visual_size_hint(visual_obj: dict) -> str:
     return size
 
 
+BODY_LEFT = 0.7
+BODY_WIDTH_VIS = 7.2
+BODY_WIDTH_FULL = 12.3
+BULLET_TOP = 1.5
+BULLET_COL_W = 3.4
+BULLET_COL_GAP = 0.15
+IMG_COL_LEFT = 7.95
+IMG_COL_W = 5.5
+VISUAL_TOP = 1.45
+TEXT_IMG_GAP = 0.12
+WIDE_BAND_LEFT = 0.7
+WIDE_BAND_W = 7.9
+MIN_WIDE_BAND_H = 0.85
+MAX_WIDE_BAND_H = 2.45
+WIDE_ASPECT_THRESHOLD = 1.55
+TWO_COL_MIN_BULLETS = 3
+SLIDE_WIDTH = 13.333
+SLIDE_HEIGHT = 7.5
+SLIDE_RIGHT_MARGIN = 0.5
+
+
+def _max_image_right(slide_width: float = SLIDE_WIDTH) -> float:
+    return slide_width - SLIDE_RIGHT_MARGIN
+
+
+def _clamp_image_width(
+    left: float, width: float, *, max_right: float | None = None
+) -> float:
+    limit = max_right if max_right is not None else _max_image_right()
+    return min(width, max(limit - left, 0.0))
+
+
+def _image_column_dims(*, max_right: float | None = None) -> tuple[float, float]:
+    col_w = _clamp_image_width(IMG_COL_LEFT, IMG_COL_W, max_right=max_right)
+    return IMG_COL_LEFT, col_w
+
+
+def _wide_band_dims(*, max_right: float | None = None) -> tuple[float, float]:
+    wide_w = _clamp_image_width(WIDE_BAND_LEFT, WIDE_BAND_W, max_right=max_right)
+    return WIDE_BAND_LEFT, wide_w
+
+
+def _split_bullets(bullets: list[str]) -> tuple[list[str], list[str]]:
+    mid = (len(bullets) + 1) // 2
+    return bullets[:mid], bullets[mid:]
+
+
+def _use_two_column_bullets(bullets: list[str], has_visuals: bool) -> bool:
+    if not has_visuals or len(bullets) < TWO_COL_MIN_BULLETS:
+        return False
+    if len(bullets) >= 4:
+        return True
+    return sum(len(b) for b in bullets) >= 140
+
+
+def _would_use_wide_band(aspects: list[float], size_hints: list[str]) -> bool:
+    if len(aspects) != 1:
+        return False
+    hint = size_hints[0] if size_hints else "default"
+    return hint == "large" or aspects[0] >= WIDE_ASPECT_THRESHOLD
+
+
+def _estimate_bullet_height(n_rows: int, *, two_col: bool) -> float:
+    if n_rows <= 0:
+        return 0.0
+    row_h = 0.38 if two_col else 0.42
+    return row_h * n_rows + 0.3
+
+
+def _compute_slide_layout(
+    bullets: list[str],
+    code_examples: list[dict],
+    visuals: list[dict],
+    assets_dir: Path,
+    *,
+    has_visuals: bool,
+    has_link: bool,
+    estimate_code_height_inches,
+) -> dict:
+    content_bottom = 6.0 if has_link else 6.35
+    bullet_top = BULLET_TOP
+    two_col = _use_two_column_bullets(bullets, has_visuals)
+    has_code = bool(code_examples)
+    code_h = estimate_code_height_inches(code_examples) if has_code else 0.0
+    min_bullet_h = 0.9 if bullets else 0.0
+
+    aspects: list[float] = []
+    size_hints: list[str] = []
+    if has_visuals:
+        for visual_obj in visuals:
+            output = visual_obj.get("output", "")
+            if not output:
+                continue
+            img_path = assets_dir / output
+            if img_path.exists():
+                aspects.append(_image_aspect(img_path))
+                size_hints.append(_visual_size_hint(visual_obj))
+
+    wide_band = _would_use_wide_band(aspects, size_hints)
+
+    if two_col and bullets:
+        left_b, right_b = _split_bullets(bullets)
+        n_rows = max(len(left_b), len(right_b))
+    else:
+        n_rows = len(bullets)
+
+    est_bullet_h = _estimate_bullet_height(n_rows, two_col=two_col)
+    code_top = content_bottom - code_h if has_code else None
+    visual_bottom = (code_top - TEXT_IMG_GAP) if code_top is not None else (content_bottom - 0.08)
+
+    band_top = None
+    band_h = None
+    bullet_h = 0.0
+    bullet_bottom = bullet_top
+
+    if wide_band:
+        if bullets:
+            max_bullet_h = visual_bottom - bullet_top - TEXT_IMG_GAP - MIN_WIDE_BAND_H
+            bullet_h = max(min_bullet_h, min(max_bullet_h, est_bullet_h))
+        bullet_bottom = bullet_top + bullet_h
+        band_top = (bullet_bottom + TEXT_IMG_GAP) if bullets else VISUAL_TOP
+        band_h = min(MAX_WIDE_BAND_H, visual_bottom - band_top)
+        if band_h < MIN_WIDE_BAND_H:
+            wide_band = False
+            band_top = band_h = None
+
+    if not wide_band:
+        if bullets:
+            if code_top is not None:
+                max_h = code_top - bullet_top - TEXT_IMG_GAP
+                bullet_h = max(min_bullet_h, min(max_h, est_bullet_h))
+            else:
+                bullet_h = min(5.5, max(1.8, est_bullet_h))
+        bullet_bottom = bullet_top + bullet_h
+
+    if has_code:
+        min_code_top = bullet_bottom + TEXT_IMG_GAP
+        if wide_band and band_top is not None and band_h is not None:
+            min_code_top = band_top + band_h + TEXT_IMG_GAP
+        if code_top is None or code_top < min_code_top:
+            code_top = min_code_top
+        visual_bottom = code_top - TEXT_IMG_GAP
+        if wide_band and band_top is not None:
+            band_h = min(MAX_WIDE_BAND_H, visual_bottom - band_top)
+            if band_h < MIN_WIDE_BAND_H:
+                wide_band = False
+                band_top = band_h = None
+                if bullets:
+                    max_h = code_top - bullet_top - TEXT_IMG_GAP
+                    bullet_h = max(min_bullet_h, min(max_h, est_bullet_h))
+                    bullet_bottom = bullet_top + bullet_h
+
+    return {
+        "body_left": BODY_LEFT,
+        "body_width": BODY_WIDTH_VIS if has_visuals else BODY_WIDTH_FULL,
+        "bullet_top": bullet_top,
+        "bullet_h": bullet_h,
+        "bullet_bottom": bullet_bottom,
+        "two_col": two_col,
+        "wide_band": wide_band,
+        "band_top": band_top,
+        "band_h": band_h,
+        "code_top": code_top,
+        "visual_bottom": visual_bottom,
+        "content_bottom": content_bottom,
+    }
+
+
+def _picture_fit_rect(left, top, box_w, box_h, aspect: float):
+    box_aspect = box_w / box_h if box_h else aspect
+    if aspect >= box_aspect:
+        width = box_w
+        height = width / aspect
+    else:
+        height = box_h
+        width = height * aspect
+    x = left + (box_w - width) / 2
+    y = top + (box_h - height) / 2
+    return (x, y, width, height)
+
+
+def _rects_intersect(a, b) -> bool:
+    ax, ay, aw, ah = a
+    bx, by, bw, bh = b
+    return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
+
+
+def _bullet_text_rects(layout: dict) -> list[tuple[float, float, float, float]]:
+    if layout["bullet_h"] <= 0:
+        return []
+    left = layout["body_left"]
+    top = layout["bullet_top"]
+    h = layout["bullet_h"]
+    if layout["two_col"]:
+        return [
+            (left, top, BULLET_COL_W, h),
+            (left + BULLET_COL_W + BULLET_COL_GAP, top, BULLET_COL_W, h),
+        ]
+    return [(left, top, layout["body_width"], h)]
+
+
 def _visual_layout_slots(
     n: int,
     col_left: float,
@@ -54,27 +255,25 @@ def _visual_layout_slots(
     *,
     aspects: list[float] | None = None,
     size_hints: list[str] | None = None,
+    layout: dict | None = None,
 ):
     """Координаты ячеек (left, top, width, height) в дюймах для 1–4 картинок."""
     gap = 0.06
     h_avail = bottom - top
     aspects = aspects or []
     size_hints = size_hints or []
+    layout = layout or {}
 
     if n <= 0:
         return []
     if n == 1:
-        aspect = aspects[0] if aspects else 1.0
-        hint = size_hints[0] if size_hints else "default"
-        if hint == "large" or aspect >= 1.55:
-            # Широкая dual-panel PNG: полоса под буллетами, ~78% ширины слайда
-            wide_left = 5.0
-            wide_w = 7.9
-            band_top = 4.05
-            band_bottom = 6.85 if bottom >= 6.3 else bottom
-            band_h = band_bottom - band_top
-            return [(wide_left, band_top, wide_w, band_h)]
-        return [(col_left, top, col_w, h_avail)]
+        use_wide = layout.get("wide_band") and layout.get("band_top") is not None
+        if use_wide and layout.get("band_h"):
+            wide_left, wide_w = _wide_band_dims()
+            return [(wide_left, layout["band_top"], wide_w, layout["band_h"])]
+        slot_bottom = layout.get("visual_bottom", bottom)
+        slot_h = max(0.5, slot_bottom - top)
+        return [(col_left, top, col_w, slot_h)]
     if n == 2:
         slot_h = (h_avail - gap) / 2
         return [
@@ -391,7 +590,196 @@ def _render_code_examples(
     return y
 
 
-def _place_visuals(slide, visuals: list[dict], assets_dir: Path, slide_num: int):
+def _render_bullets(
+    slide,
+    bullets: list[str],
+    layout: dict,
+    *,
+    set_paragraph_content,
+    Pt,
+    Inches,
+    body_rgb,
+    slide_num: int,
+    auto_fit: bool = False,
+):
+    from pptx.enum.text import MSO_AUTO_SIZE
+
+    if not bullets:
+        return
+
+    left = layout["body_left"]
+    top = layout["bullet_top"]
+    height = layout["bullet_h"]
+
+    def fill_column(col_left: float, col_width: float, col_bullets: list[str], label: str):
+        box = slide.shapes.add_textbox(
+            Inches(col_left), Inches(top), Inches(col_width), Inches(height)
+        )
+        tf = box.text_frame
+        tf.word_wrap = True
+        if auto_fit:
+            tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
+        for j, bullet in enumerate(col_bullets):
+            p = tf.paragraphs[0] if j == 0 else tf.add_paragraph()
+            p.space_after = Pt(8)
+            for w in set_paragraph_content(
+                p, bullet, font_size=Pt(20), color=body_rgb
+            ):
+                print(f"  [warn] Слайд {slide_num}, {label} {j + 1}: {w}")
+
+    if layout["two_col"]:
+        left_bullets, right_bullets = _split_bullets(bullets)
+        fill_column(left, BULLET_COL_W, left_bullets, "буллет")
+        fill_column(
+            left + BULLET_COL_W + BULLET_COL_GAP,
+            BULLET_COL_W,
+            right_bullets,
+            "буллет (кол.2)",
+        )
+    else:
+        fill_column(left, layout["body_width"], bullets, "буллет")
+
+
+def _collect_visual_rects(
+    visuals: list[dict],
+    assets_dir: Path,
+    layout: dict,
+) -> list[tuple[float, float, float, float]]:
+    items: list[tuple[Path, dict]] = []
+    for visual_obj in visuals:
+        output = visual_obj.get("output", "")
+        if not output:
+            continue
+        img_path = assets_dir / output
+        if img_path.exists():
+            items.append((img_path, visual_obj))
+
+    if not items:
+        return []
+
+    paths = [p for p, _ in items]
+    aspects = [_image_aspect(p) for p in paths]
+    size_hints = [_visual_size_hint(v) for _, v in items]
+    col_left, col_w = _image_column_dims()
+    slots = _visual_layout_slots(
+        len(paths),
+        col_left,
+        col_w,
+        VISUAL_TOP,
+        layout["content_bottom"],
+        aspects=aspects,
+        size_hints=size_hints,
+        layout=layout,
+    )
+    rects = []
+    for img_path, (left, slot_top, w, h) in zip(paths, slots):
+        rects.append(_picture_fit_rect(left, slot_top, w, h, _image_aspect(img_path)))
+    return rects
+
+
+def _verify_slide_layouts(
+    slides: list[dict],
+    assets_dir: Path,
+    *,
+    estimate_code_height_inches,
+) -> list[str]:
+    errors: list[str] = []
+    for i, slide_data in enumerate(slides, 1):
+        if slide_data.get("type") == "references":
+            continue
+        visuals = slide_data.get("visuals", [])
+        has_visuals = any(v.get("output") for v in visuals)
+        if not has_visuals:
+            continue
+
+        layout = _compute_slide_layout(
+            slide_data.get("bullets", []),
+            slide_data.get("code_examples", []),
+            visuals,
+            assets_dir,
+            has_visuals=True,
+            has_link=bool(slide_data.get("link", {}).get("url")),
+            estimate_code_height_inches=estimate_code_height_inches,
+        )
+        text_rects = _bullet_text_rects(layout)
+        image_rects = _collect_visual_rects(visuals, assets_dir, layout)
+        max_right = _max_image_right()
+        for t_rect in text_rects:
+            for img_rect in image_rects:
+                if _rects_intersect(t_rect, img_rect):
+                    errors.append(
+                        f"Слайд {i}: пересечение текста {t_rect} и картинки {img_rect}"
+                    )
+        for img_rect in image_rects:
+            x, _y, w, _h = img_rect
+            right = x + w
+            if right > max_right + 1e-3:
+                errors.append(
+                    f"Слайд {i}: картинка выходит за правый край "
+                    f"(right={right:.3f}\" > {max_right:.3f}\") rect={img_rect}"
+                )
+    return errors
+
+
+def _audit_image_overflow_slides(
+    slides: list[dict],
+    assets_dir: Path,
+    *,
+    estimate_code_height_inches,
+) -> list[dict]:
+    """Слайды, у которых старые размеры колонки выходили за правый край."""
+    max_right = _max_image_right()
+    old_col_right = IMG_COL_LEFT + IMG_COL_W
+    col_left, col_w = _image_column_dims()
+    wide_left, wide_w = _wide_band_dims()
+    fixed: list[dict] = []
+
+    for i, slide_data in enumerate(slides, 1):
+        if slide_data.get("type") == "references":
+            continue
+        visuals = slide_data.get("visuals", [])
+        if not any(v.get("output") for v in visuals):
+            continue
+
+        layout = _compute_slide_layout(
+            slide_data.get("bullets", []),
+            slide_data.get("code_examples", []),
+            visuals,
+            assets_dir,
+            has_visuals=True,
+            has_link=bool(slide_data.get("link", {}).get("url")),
+            estimate_code_height_inches=estimate_code_height_inches,
+        )
+        if layout.get("wide_band"):
+            old_right = WIDE_BAND_LEFT + 12.0
+            new_dims = f"wide left={wide_left}\", w={wide_w:.3f}\""
+            overflow = old_right > max_right + 1e-3
+        else:
+            old_right = old_col_right
+            new_dims = f"col left={col_left}\", w={col_w:.3f}\""
+            overflow = old_col_right > max_right + 1e-3
+
+        if overflow:
+            fixed.append(
+                {
+                    "slide": i,
+                    "layout": "wide_band" if layout.get("wide_band") else "column",
+                    "old_right": old_right,
+                    "max_right": max_right,
+                    "new_dims": new_dims,
+                }
+            )
+    return fixed
+
+
+def _place_visuals(
+    slide,
+    visuals: list[dict],
+    assets_dir: Path,
+    slide_num: int,
+    *,
+    layout: dict,
+):
     items: list[tuple[Path, dict]] = []
     for visual_obj in visuals:
         output = visual_obj.get("output", "")
@@ -410,8 +798,8 @@ def _place_visuals(slide, visuals: list[dict], assets_dir: Path, slide_num: int)
     size_hints = [_visual_size_hint(v) for _, v in items]
     aspects = [_image_aspect(p) for p in paths]
 
-    col_left, col_w = 7.95, 5.5
-    top, bottom = 1.45, 6.35
+    col_left, col_w = _image_column_dims()
+    top, bottom = VISUAL_TOP, layout["content_bottom"]
     slots = _visual_layout_slots(
         len(paths),
         col_left,
@@ -420,6 +808,7 @@ def _place_visuals(slide, visuals: list[dict], assets_dir: Path, slide_num: int)
         bottom,
         aspects=aspects,
         size_hints=size_hints,
+        layout=layout,
     )
     for (img_path, _), (left, slot_top, w, h) in zip(items, slots):
         try:
@@ -444,8 +833,8 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
     link_rgb = (0x33, 0x66, 0xCC)
 
     prs = Presentation()
-    prs.slide_width = Inches(13.333)
-    prs.slide_height = Inches(7.5)
+    prs.slide_width = Inches(SLIDE_WIDTH)
+    prs.slide_height = Inches(SLIDE_HEIGHT)
 
     # Титульный слайд
     project_config = load_config(Path(__file__).parent.parent)
@@ -537,61 +926,45 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
         else:
             from slide_code_utils import estimate_code_height_inches
 
-            body_width_in = 7.2 if has_visuals else 12.3
-            body_width = Inches(body_width_in)
-
             code_examples = slide_data.get("code_examples", [])
             bullets = slide_data.get("bullets", [])
-            n_bullets = len(bullets)
             has_link = bool(slide_data.get("link", {}).get("url"))
-            content_bottom = 6.0 if has_link else 6.35
 
-            code_h = estimate_code_height_inches(code_examples) if code_examples else 0.0
-            bullet_top = 1.5
-
-            if code_examples:
-                code_top = content_bottom - code_h
-                min_bullet_h = 0.9 if bullets else 0.0
-                if bullets and code_top < bullet_top + min_bullet_h + 0.12:
-                    code_top = bullet_top + min_bullet_h + 0.12
-            else:
-                code_top = None
+            layout = _compute_slide_layout(
+                bullets,
+                code_examples,
+                visuals,
+                assets_dir,
+                has_visuals=has_visuals,
+                has_link=has_link,
+                estimate_code_height_inches=estimate_code_height_inches,
+            )
 
             if bullets:
-                if code_top is not None:
-                    bullet_h = code_top - bullet_top - 0.12
-                    bullet_h = max(min_bullet_h, bullet_h)
-                else:
-                    bullet_h = min(5.5, max(1.8, 0.42 * n_bullets + 0.3))
-
-                body = slide.shapes.add_textbox(
-                    Inches(0.7), Inches(bullet_top), body_width, Inches(bullet_h)
+                _render_bullets(
+                    slide,
+                    bullets,
+                    layout,
+                    set_paragraph_content=set_paragraph_content,
+                    Pt=Pt,
+                    Inches=Inches,
+                    body_rgb=body_rgb,
+                    slide_num=i,
+                    auto_fit=bool(code_examples),
                 )
-                tf2 = body.text_frame
-                tf2.word_wrap = True
-                if code_examples:
-                    tf2.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
-                for j, bullet in enumerate(bullets):
-                    p = tf2.paragraphs[0] if j == 0 else tf2.add_paragraph()
-                    p.space_after = Pt(8)
-                    for w in set_paragraph_content(
-                        p, bullet, font_size=Pt(20), color=body_rgb
-                    ):
-                        print(f"  [warn] Слайд {i}, буллет {j + 1}: {w}")
 
-            if code_examples:
-                render_top = code_top if code_top is not None else bullet_top + 0.12
+            if code_examples and layout["code_top"] is not None:
                 _render_code_examples(
                     slide,
                     code_examples,
-                    left=0.7,
-                    top=render_top,
-                    width=body_width_in - 0.1,
+                    left=layout["body_left"],
+                    top=layout["code_top"],
+                    width=layout["body_width"] - 0.1,
                     Inches=Inches,
                     body_rgb=body_rgb,
                 )
 
-            _place_visuals(slide, visuals, assets_dir, i)
+            _place_visuals(slide, visuals, assets_dir, i, layout=layout)
 
             # Ссылка и QR-код
             link = slide_data.get("link")
@@ -648,7 +1021,55 @@ def main():
         sys.exit(1)
 
     print(f"Загружено слайдов: {len(slides)}")
-    build_presentation(slides, lesson_dir / "presentation.pptx", lesson_dir / "assets", lesson_dir)
+    from slide_code_utils import estimate_code_height_inches
+
+    assets_dir = lesson_dir / "assets"
+    col_left, col_w = _image_column_dims()
+    wide_left, wide_w = _wide_band_dims()
+    print(
+        f"  [layout] image column: left={col_left}\", width={col_w:.3f}\" "
+        f"(max right={_max_image_right():.3f}\")"
+    )
+    print(f"  [layout] wide band: left={wide_left}\", width={wide_w:.3f}\"")
+
+    overflow_slides = _audit_image_overflow_slides(
+        slides, assets_dir, estimate_code_height_inches=estimate_code_height_inches
+    )
+    if overflow_slides:
+        print("  [layout] Исправлен выход за правый край на слайдах:")
+        for entry in overflow_slides:
+            print(
+                f"    слайд {entry['slide']} ({entry['layout']}): "
+                f"было right={entry['old_right']:.3f}\", "
+                f"теперь {entry['new_dims']}"
+            )
+
+    layout_errors = _verify_slide_layouts(
+        slides, assets_dir, estimate_code_height_inches=estimate_code_height_inches
+    )
+    if layout_errors:
+        for err in layout_errors:
+            print(f"  [layout] {err}")
+        print("  [layout] Обнаружены проблемы вёрстки — проверьте pptx_builder.py")
+    else:
+        visual_slides = sum(
+            1
+            for s in slides
+            if s.get("type") != "references"
+            and any(v.get("output") for v in s.get("visuals", []))
+        )
+        two_col_slides = [
+            i + 1
+            for i, s in enumerate(slides)
+            if s.get("type") != "references"
+            and any(v.get("output") for v in s.get("visuals", []))
+            and _use_two_column_bullets(s.get("bullets", []), True)
+        ]
+        print(f"  [layout] OK: {visual_slides} слайдов с иллюстрациями, без пересечений")
+        if two_col_slides:
+            print(f"  [layout] Двухколоночные буллеты: слайды {two_col_slides}")
+
+    build_presentation(slides, lesson_dir / "presentation.pptx", assets_dir, lesson_dir)
     print("Откройте presentation.pptx для проверки (JSON править не обязательно).")
 
 

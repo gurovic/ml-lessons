@@ -2,8 +2,9 @@
 Рецензент урока: проверка JSON-слайдов до сборки presentation.pptx.
 
 Формирует промпт для AI-рецензента (фактология, логика, понятность,
-лаконичность, полнота). Отчёт сохраняется в review.md.
-Автор проверяет готовый pptx; JSON правят агенты по замечаниям (см. docs/pipeline.md).
+лаконичность, полнота). Отчёт сохраняется в review.md (перезаписываемый).
+Замечания автора после проверки pptx — в author_feedback.md (не трогается этим агентом).
+JSON правят агенты по замечаниям (см. docs/pipeline.md).
 
 Использование:
     python agents/lesson_reviewer.py <lesson_dir>
@@ -197,6 +198,10 @@ def main():
     print(build_prompt(lesson_dir))
     print(f"\n---\nСохранить: python agents/lesson_reviewer.py {lesson_dir} --save review.md")
     print(f"  (или передать ответ через stdin: ... | python agents/lesson_reviewer.py {lesson_dir} --save)")
+    print(
+        f"Замечания автора после проверки pptx — в {lesson_dir / 'author_feedback.md'} "
+        "(не перезаписываются --save)."
+    )
 
 
 if __name__ == "__main__":

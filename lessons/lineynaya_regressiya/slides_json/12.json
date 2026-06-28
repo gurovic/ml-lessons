@@ -9,7 +9,7 @@
   "notes": "Показать хороший и плохой residual plot рядом.",
   "visuals": [
     {
-      "description": "Два subplot residual plot: слева хаотичное облако вокруг 0 (good), справа воронка или парабола (bad). matplotlib.",
+      "description": "Три subplot residual plot: облако вокруг 0 (good), воронка (bad), U-образная форма — нелинейность не учтена (bad). matplotlib.",
       "output": "residual_diagnostics.png"
     }
   ]
