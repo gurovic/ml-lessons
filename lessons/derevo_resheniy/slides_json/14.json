@@ -10,7 +10,7 @@
   "visuals": [],
   "code_examples": [
     {
-      "source": "from sklearn.tree import DecisionTreeRegressor\nreg = DecisionTreeRegressor(max_depth=4, random_state=42)\nreg.fit(X_train, y_train)\nreg.predict(X_test)",
+      "source": "reg = DecisionTreeRegressor(max_depth=4, random_state=42)\nreg.fit(X_train, y_train)\nreg.predict(X_test)",
       "caption": "DecisionTreeRegressor"
     }
   ]

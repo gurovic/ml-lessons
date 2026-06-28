@@ -46,6 +46,19 @@
 - Название папки урока — транслитерация латиницей с подчеркиваниями.
 - Название урока (русское) — в README.md.
 
+## Стиль кода в примерах
+
+Единые правила для `code_examples` в slides_json, `code.ipynb` и `project.ipynb`:
+
+1. **Максимальная лаконичность** — минимум строк, без boilerplate; простые конструкции sklearn/pandas вместо многословных паттернов.
+2. **Импорты и настройки один раз** — в ноутбуке: первая code-ячейка `# Setup` с импортами, `np.random.seed(42)`, `%matplotlib inline`; в последующих ячейках не повторять. На слайдах: импорты только в **первом** слайде урока с `code_examples`; дальше — фрагменты, предполагающие импорты из предыдущих слайдов.
+3. **Длина фрагмента на слайде** — 3–5 строк в `source`; без `%matplotlib inline`.
+4. **Базовый синтаксис** — без walrus, сложных comprehensions и лишней обработки ошибок; комментарии на русском, кратко.
+5. **pandas/numpy по справочнику** — во всех ноутбуках предпочитать базовые конструкции из **docs/pandas_numpy_basics.md**; более сложный API использовать только если этого требует тема урока.
+6. **Связность** — `project.ipynb` передаёт `df`, `X_train` и т.д. между этапами; `code.ipynb` — самодостаточен после setup.
+
+Подробнее: **docs/pandas_numpy_basics.md**, **docs/slide_code_agent.md**, **docs/notebook_agent.md**, **docs/project_notebook.md**.
+
 ## Состав папки урока
 
 - plan.md — создаётся пользователем
@@ -121,8 +134,11 @@
 - Пакетно: python agents/apply_all_link_checks.py
 
 ### Мини-проект (project.ipynb)
-- Сквозной сценарий на реальных данных — docs/project_notebook.md
-- Шаблоны: python agents/build_project_notebooks.py
+- Сквозной **непрерывный** сценарий на реальных данных — docs/project_notebook.md
+- **Не изолированные демо:** EDA → решение → следующий шаг использует результат (очищенный `df`, выбранная модель); один test-set на весь ноутбук
+- Явные markdown-ячейки «**Решение:** …» между этапами; после сравнения вариантов — переменная `final_model` / `final_pipe`
+- Шаблоны: `python agents/build_project_notebooks.py`, `python agents/build_pandas_viz_notebooks.py`
+- Промпт для ручной сборки: agents/prompts/build_project_notebooks.md
 
 ## Порядок работы над уроком
 

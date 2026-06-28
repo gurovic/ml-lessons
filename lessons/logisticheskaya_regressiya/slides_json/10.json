@@ -23,7 +23,7 @@
   },
   "code_examples": [
     {
-      "source": "from sklearn.metrics import roc_curve, auc\nfpr, tpr, _ = roc_curve(y_test, y_score)\nroc_auc = auc(fpr, tpr)\nprint(f'AUC-ROC = {roc_auc:.3f}')",
+      "source": "fpr, tpr, _ = roc_curve(y_test, y_score)\nroc_auc = auc(fpr, tpr)\nprint(f'AUC-ROC = {roc_auc:.3f}')",
       "caption": "ROC-кривая"
     }
   ]
