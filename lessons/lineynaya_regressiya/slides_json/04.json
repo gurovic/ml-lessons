@@ -1,11 +1,10 @@
 {
   "title": "Как компьютер ищет минимум?",
   "bullets": [
-    "Аналитическое решение (МНК): производная по весам → система линейных уравнений → $\\hat{w}=(X^TX)^{-1}X^Ty$",
-    "`LinearRegression` в sklearn по умолчанию решает так (solver `linalg`) — быстро и точно для умеренных матриц",
-    "При очень больших $X$ или нехватке памяти — итеративные методы: SGD, `sag`, `lsqr`",
-    "Градиентный спуск: шаг против градиента функции потерь; `SGDRegressor` в sklearn",
-    "На практике для линейной регрессии чаще используют не «чистый» SGD, а стабильные solver'ы (`lbfgs`, `sag` в Ridge/Lasso)"
+    "Аналитическое решение (МНК): $\\hat{w}=(X^TX)^{-1}X^Ty$ — быстро для умеренных матриц",
+    "`LinearRegression` в sklearn использует solver `linalg` без итераций",
+    "При огромных данных — итеративные методы: SGD, `SGDRegressor`",
+    "Градиентный спуск: шаг против градиента функции потерь"
   ],
   "notes": "Уточнить: при $p \\gg n$ или вырожденной $X^TX$ нужна регуляризация или псевдообратная.",
   "visuals": [
@@ -22,7 +21,7 @@
   },
   "code_examples": [
     {
-      "source": "from sklearn.linear_model import LinearRegression\nmodel = LinearRegression()  # solver='linalg' по умолчанию\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)",
+      "source": "from sklearn.linear_model import LinearRegression\nmodel = LinearRegression().fit(X_train, y_train)\ny_pred = model.predict(X_test)",
       "caption": "МНК через LinearRegression"
     }
   ]

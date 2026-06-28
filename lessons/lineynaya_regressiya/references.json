@@ -4,6 +4,13 @@
   "references": [
     {
       "kind": "paper",
+      "title": "Least Squares Estimation of Linear Models",
+      "authors": "Markov A.A.",
+      "year": 1900,
+      "url": "https://old.maa.org/press/periodicals/convergence/a-selection-of-problems-from-aa-markov-s-calculus-of-probabilities-markovs-book"
+    },
+    {
+      "kind": "paper",
       "title": "Ridge Regression: Biased Estimation for Nonorthogonal Problems",
       "authors": "Hoerl A.E., Kennard R.W.",
       "year": 1970,
@@ -15,13 +22,6 @@
       "authors": "Tibshirani R.",
       "year": 1996,
       "url": "https://sites.stat.washington.edu/courses/stat527/s14/readings/j_royal_stat_soc_b1996.pdf"
-    },
-    {
-      "kind": "paper",
-      "title": "Least Squares Estimation of Linear Models",
-      "authors": "Markov A.A.",
-      "year": 1900,
-      "url": "https://old.maa.org/press/periodicals/convergence/a-selection-of-problems-from-aa-markov-s-calculus-of-probabilities-markovs-book"
     }
   ],
   "bullets": [],
