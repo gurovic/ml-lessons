@@ -1,0 +1,23 @@
+{
+  "title": "Histogram и box plot",
+  "bullets": [
+    "`ax.hist(data, bins=30)` — распределение одной переменной",
+    "Box plot: медиана, IQR, whiskers, точки-выбросы — `ax.boxplot` или `sns.boxplot`",
+    "Hist + KDE (seaborn) — форма пика и хвостов",
+    "Разное число bins меняет впечатление — пробуй несколько значений"
+  ],
+  "notes": "Остатки модели — hist; Fare Titanic — box по Pclass.",
+  "visuals": [
+    {
+      "description": "Панели: hist остатков + boxplot Fare по 3 классам.",
+      "output": "hist_box_combo.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "hist и sns.boxplot."
+  }
+}

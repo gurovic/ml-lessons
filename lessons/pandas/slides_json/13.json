@@ -1,0 +1,22 @@
+{
+  "title": "Работа с текстом: стринговый аксессор `.str`",
+  "bullets": [
+    "`.str` — векторизованные операции над строками (база NLP-препроцессинга)",
+    "`.str.len()`, `.str.lower()`, `.str.contains()`, `.str.replace()`",
+    "`.str.extract(regex)` — извлечение в DataFrame; `.str.split().str[0]`",
+    "Работает с `object` и `string[pyarrow]`"
+  ],
+  "visuals": [
+    {
+      "description": "Пример Series email-адресов: до/после .str.extract домена. Таблица 5 строк.",
+      "output": "str_extract.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "str.len, contains, extract regex"
+  }
+}

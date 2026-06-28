@@ -85,6 +85,140 @@ def _add_picture_fit(slide, img_path: Path, left, top, box_w, box_h):
     slide.shapes.add_picture(str(img_path), Inches(x), Inches(y), width=Inches(width))
 
 
+def _add_hyperlink_run(paragraph, text: str, url: str, font_size, link_rgb):
+    from pptx.dml.color import RGBColor
+
+    run = paragraph.add_run()
+    run.text = text
+    run.font.size = font_size
+    run.font.color.rgb = RGBColor(*link_rgb)
+    run.hyperlink.address = url
+
+
+def _render_references_slide(
+    slide,
+    slide_data: dict,
+    assets_dir: Path,
+    slide_num: int,
+    *,
+    set_paragraph_content,
+    Pt,
+    Inches,
+    body_rgb,
+    link_rgb,
+):
+    """Слайд type=references: литература слева, QR для Colab справа."""
+    from pptx.dml.color import RGBColor
+    from pptx.enum.text import PP_ALIGN
+
+    from references_utils import format_paper_bullet, generate_qr_png
+
+    refs = slide_data.get("references", [])
+    papers = [r for r in refs if r.get("kind") == "paper"]
+    colabs = [r for r in refs if r.get("kind") == "colab"]
+
+    body_left, body_top = 0.7, 1.45
+    body_width = 7.2
+    y_cursor = body_top
+
+    def add_section_heading(text: str):
+        nonlocal y_cursor
+        box = slide.shapes.add_textbox(
+            Inches(body_left), Inches(y_cursor), Inches(body_width), Inches(0.35)
+        )
+        p = box.text_frame.paragraphs[0]
+        p.text = text
+        p.font.size = Pt(18)
+        p.font.bold = True
+        p.font.color.rgb = RGBColor(*body_rgb)
+        y_cursor += 0.38
+
+    def add_text_line(height: float = 0.55):
+        nonlocal y_cursor
+        box = slide.shapes.add_textbox(
+            Inches(body_left), Inches(y_cursor), Inches(body_width), Inches(height)
+        )
+        tf = box.text_frame
+        tf.word_wrap = True
+        y_cursor += height
+        return tf.paragraphs[0]
+
+    if papers:
+        add_section_heading("Литература")
+        for ref in papers:
+            p = add_text_line(0.62)
+            p.space_after = Pt(4)
+            bullet_text = format_paper_bullet(ref)
+            url = ref.get("url")
+            if url:
+                for w in set_paragraph_content(
+                    p, "• ", font_size=Pt(16), color=body_rgb
+                ):
+                    print(f"  [warn] Слайд {slide_num}, литература: {w}")
+                _add_hyperlink_run(p, bullet_text, url, Pt(16), link_rgb)
+            else:
+                for w in set_paragraph_content(
+                    p, f"• {bullet_text}", font_size=Pt(16), color=body_rgb
+                ):
+                    print(f"  [warn] Слайд {slide_num}, литература: {w}")
+
+    if colabs:
+        add_section_heading("Практика в Colab")
+        for entry in colabs:
+            url = entry.get("url", "")
+            label = entry.get("label") or entry.get("title", "Colab")
+            p = add_text_line(0.5)
+            for w in set_paragraph_content(
+                p, f"• {label}: ", font_size=Pt(15), color=body_rgb
+            ):
+                print(f"  [warn] Слайд {slide_num}, Colab: {w}")
+            if url:
+                _add_hyperlink_run(p, url, url, Pt(14), link_rgb)
+
+    bullets = slide_data.get("bullets", [])
+    if bullets:
+        y_cursor += 0.1
+        for bullet in bullets:
+            p = add_text_line(0.45)
+            for w in set_paragraph_content(
+                p, f"• {bullet}", font_size=Pt(15), color=body_rgb
+            ):
+                print(f"  [warn] Слайд {slide_num}, буллет: {w}")
+
+    qr_size = 1.15
+    qr_gap = 0.25
+    qr_left = 9.0
+    qr_top_start = 1.6
+    for i, entry in enumerate(colabs):
+        url = entry.get("url", "")
+        if not url:
+            continue
+        label = entry.get("label") or entry.get("title", "Colab")
+        top = qr_top_start + i * (qr_size + qr_gap + 0.35)
+        try:
+            qr_path = assets_dir / f"_qr_ref_{slide_num}_{i}.png"
+            generate_qr_png(url, qr_path)
+            slide.shapes.add_picture(
+                str(qr_path), Inches(qr_left), Inches(top), width=Inches(qr_size)
+            )
+            qr_path.unlink(missing_ok=True)
+        except ImportError:
+            print("  [warn] Установи qrcode: pip install qrcode[pil]")
+            break
+
+        cap = slide.shapes.add_textbox(
+            Inches(qr_left - 0.1),
+            Inches(top + qr_size + 0.02),
+            Inches(qr_size + 0.4),
+            Inches(0.3),
+        )
+        cp = cap.text_frame.paragraphs[0]
+        cp.text = label
+        cp.font.size = Pt(10)
+        cp.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
+        cp.alignment = PP_ALIGN.CENTER
+
+
 def _place_visuals(slide, visuals: list[dict], assets_dir: Path, slide_num: int):
     paths = []
     for visual_obj in visuals:
@@ -202,57 +336,63 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
 
         visuals = slide_data.get("visuals", [])
         has_visuals = any(v.get("output") for v in visuals)
-        body_width = Inches(7.5) if has_visuals else Inches(12.3)
+        is_references = slide_data.get("type") == "references"
 
-        bullets = slide_data.get("bullets", [])
-        if bullets:
-            body = slide.shapes.add_textbox(Inches(0.7), Inches(1.5), body_width, Inches(5.5))
-            tf2 = body.text_frame
-            tf2.word_wrap = True
-            for j, bullet in enumerate(bullets):
-                p = tf2.paragraphs[0] if j == 0 else tf2.add_paragraph()
-                p.space_after = Pt(8)
+        if is_references:
+            _render_references_slide(
+                slide,
+                slide_data,
+                assets_dir,
+                i,
+                set_paragraph_content=set_paragraph_content,
+                Pt=Pt,
+                Inches=Inches,
+                body_rgb=body_rgb,
+                link_rgb=link_rgb,
+            )
+        else:
+            body_width = Inches(7.5) if has_visuals else Inches(12.3)
+
+            bullets = slide_data.get("bullets", [])
+            if bullets:
+                body = slide.shapes.add_textbox(Inches(0.7), Inches(1.5), body_width, Inches(5.5))
+                tf2 = body.text_frame
+                tf2.word_wrap = True
+                for j, bullet in enumerate(bullets):
+                    p = tf2.paragraphs[0] if j == 0 else tf2.add_paragraph()
+                    p.space_after = Pt(8)
+                    for w in set_paragraph_content(
+                        p, bullet, font_size=Pt(20), color=body_rgb
+                    ):
+                        print(f"  [warn] Слайд {i}, буллет {j + 1}: {w}")
+
+            _place_visuals(slide, visuals, assets_dir, i)
+
+            # Ссылка и QR-код
+            link = slide_data.get("link")
+            if link and link.get("url"):
+                url = link["url"]
+                label = link.get("label", url)
+
+                link_box = slide.shapes.add_textbox(Inches(0.7), Inches(6.5), Inches(6), Inches(0.5))
+                tf_link = link_box.text_frame
+                tf_link.word_wrap = True
+                p_link = tf_link.paragraphs[0]
                 for w in set_paragraph_content(
-                    p, bullet, font_size=Pt(20), color=body_rgb
+                    p_link, f"{label}: ", font_size=Pt(14), color=link_rgb
                 ):
-                    print(f"  [warn] Слайд {i}, буллет {j + 1}: {w}")
+                    print(f"  [warn] Слайд {i}, ссылка: {w}")
+                _add_hyperlink_run(p_link, url, url, Pt(14), link_rgb)
 
-        _place_visuals(slide, visuals, assets_dir, i)
+                try:
+                    from references_utils import generate_qr_png
 
-        # Ссылка и QR-код
-        link = slide_data.get("link")
-        if link and link.get("url"):
-            url = link["url"]
-            label = link.get("label", url)
-
-            # Текст ссылки (кликабельный)
-            link_box = slide.shapes.add_textbox(Inches(0.7), Inches(6.5), Inches(6), Inches(0.5))
-            tf_link = link_box.text_frame
-            tf_link.word_wrap = True
-            p_link = tf_link.paragraphs[0]
-            for w in set_paragraph_content(
-                p_link, f"{label}: ", font_size=Pt(14), color=link_rgb
-            ):
-                print(f"  [warn] Слайд {i}, ссылка: {w}")
-            run = p_link.add_run()
-            run.text = url
-            run.font.size = Pt(14)
-            run.font.color.rgb = RGBColor(*link_rgb)
-            run.hyperlink.address = url
-
-            # Генерация QR-кода
-            try:
-                import qrcode
-                qr_path = assets_dir / "_qr_temp.png"
-                qr = qrcode.QRCode(box_size=10, border=1)
-                qr.add_data(url)
-                qr.make(fit=True)
-                img = qr.make_image(fill_color="black", back_color="white")
-                img.save(str(qr_path))
-                slide.shapes.add_picture(str(qr_path), Inches(11.5), Inches(4.5), width=Inches(1.5))
-                qr_path.unlink()  # удаляем временный файл
-            except ImportError:
-                print("  [warn] Установи qrcode: pip install qrcode[pil]")
+                    qr_path = assets_dir / "_qr_temp.png"
+                    generate_qr_png(url, qr_path, box_size=10)
+                    slide.shapes.add_picture(str(qr_path), Inches(11.5), Inches(4.5), width=Inches(1.5))
+                    qr_path.unlink(missing_ok=True)
+                except ImportError:
+                    print("  [warn] Установи qrcode: pip install qrcode[pil]")
 
         notes = slide_data.get("notes")
         if notes:

@@ -1,0 +1,27 @@
+{
+  "title": "Быстрый Feature Engineering: условия, биннинг и отсечение",
+  "bullets": [
+    "`np.where` — векторизованные условия, в сотни раз быстрее `apply`",
+    "`pd.cut` — равные интервалы; `pd.qcut` — равное число объектов в корзинах",
+    "`clip` / Winsorization: `df['x'].clip(upper=quantile(0.99))` — спасает от выбросов без удаления строк",
+    "Линейным моделям помогает биннинг; деревьям — проще разбиения"
+  ],
+  "visuals": [
+    {
+      "description": "Две панели: scatter с выбросом + clip до 99-го перцентиля (до/после). Гистограмма income.",
+      "output": "clip_outliers.png"
+    },
+    {
+      "description": "Гистограмма с вертикальными линиями границ pd.cut (5 бинов) — равные интервалы.",
+      "output": "cut_bins.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example",
+      "experiment"
+    ],
+    "hint": "np.where, cut/qcut, clip"
+  }
+}

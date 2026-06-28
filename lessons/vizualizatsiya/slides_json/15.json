@@ -1,0 +1,23 @@
+{
+  "title": "Визуализация для ML: ROC и PR",
+  "bullets": [
+    "ROC: TPR vs FPR при смене порога; площадь AUC — ранжирование",
+    "PR-кривая важнее при **дисбалансе** классов",
+    "sklearn: `RocCurveDisplay.from_predictions`, `PrecisionRecallDisplay`",
+    "Добавляй диагональ случайного классификатора на ROC для ориентира"
+  ],
+  "notes": "Связь с уроком логистической регрессии.",
+  "visuals": [
+    {
+      "description": "Панели ROC и PR одной модели, AUC/AP в заголовке.",
+      "output": "roc_pr_curves.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "RocCurveDisplay и PR на синтетике."
+  }
+}

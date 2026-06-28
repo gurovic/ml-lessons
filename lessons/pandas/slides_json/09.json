@@ -1,0 +1,22 @@
+{
+  "title": "GroupBy: две операции, которые должен знать ML-инженер",
+  "bullets": [
+    "`agg()` — схлопывает группы в одну строку (среднее по группе)",
+    "`transform()` — результат **того же размера**, что вход",
+    "Пример: `df['dev'] = df['income'] - df.groupby('city')['income'].transform('mean')`",
+    "Без `transform` нельзя создать контекстный признак без потери гранулярности"
+  ],
+  "visuals": [
+    {
+      "description": "Две панели: agg (3 группы → 3 строки) vs transform (исходный размер, новый столбец отклонения). Bar/line наглядно.",
+      "output": "agg_vs_transform.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "groupby agg и transform для контекстного признака"
+  }
+}

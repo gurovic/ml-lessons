@@ -1,0 +1,26 @@
+{
+  "title": "Базовая аналитика: `value_counts()`, `nunique()`, `corr()`",
+  "bullets": [
+    "`value_counts()` — частоты категорий, дисбаланс классов, мусорные категории",
+    "`nunique()` — кардинальность: 100k уникальных из 100k строк → признак-ID, удалить",
+    "`corr()` — мультиколлинеарность (корреляция $> 0.9$) перед линейными моделями",
+    "`describe(include='all')` — числа и категории в одном отчёте"
+  ],
+  "visuals": [
+    {
+      "description": "Heatmap корреляций 4 числовых признаков: две пары с corr>0.9 выделены. annot=True, RdBu_r.",
+      "output": "corr_heatmap.png"
+    },
+    {
+      "description": "Bar chart value_counts для категории с явным дисбалансом 90/10.",
+      "output": "value_counts_bar.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "value_counts, nunique, corr, describe"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "title": "Время как признак: аксессор `.dt`",
+  "bullets": [
+    "Модель не понимает timestamp — нужны **смысловые** признаки",
+    "`.dt.dayofweek`, `.dt.hour`, `.dt.is_month_end` — события и циклы",
+    "Час и месяц кодируют через $\\sin$, $\\cos$ для цикличности (23:00 близко к 00:00)",
+    "Всегда приводите к `datetime64` перед `.dt`"
+  ],
+  "visuals": [
+    {
+      "description": "Линейный график sin/cos для часа 0-23 — 23 и 0 близки на круге. Подпись циклического кодирования.",
+      "output": "dt_cyclic_hour.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "pd.to_datetime, dt.hour, sin/cos"
+  }
+}

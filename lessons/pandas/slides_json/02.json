@@ -1,0 +1,23 @@
+{
+  "title": "Индекс — это не «номер строки», а ключ",
+  "bullets": [
+    "Позиция ($0, 1, 2\\ldots$) и **метка индекса** — разные вещи",
+    "После фильтрации, merge или сортировки индексы становятся «рваными»",
+    "`reset_index(drop=True)` — базовая операция после трансформации",
+    "sklearn игнорирует индексы, но при склейке в pandas несовпадение даст неожиданные NaN"
+  ],
+  "notes": "Демо: filter → ragged index → reset_index.",
+  "visuals": [
+    {
+      "description": "Две панели: слева DataFrame с индексом 0..4; справа после фильтра индекс 1,3,7 — красные пропуски. Стрелка reset_index → 0..N. seed 42.",
+      "output": "index_ragged_reset.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "set_index, ragged index после фильтра, reset_index"
+  }
+}

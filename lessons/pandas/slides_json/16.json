@@ -1,0 +1,26 @@
+{
+  "title": "Опасности склейки таблиц: merge и concat",
+  "bullets": [
+    "**Cartesian product** в merge: неуникальный ключ в B размножает строки A",
+    "Всегда проверяйте уникальность ключей перед join",
+    "`pd.concat([df1, df2], axis=1)` склеивает **по индексу**, не по порядку",
+    "После `train_test_split` — `reset_index(drop=True)` перед concat по столбцам"
+  ],
+  "visuals": [
+    {
+      "description": "Схема merge: таблица A (3 строки) + B с дублями ключа → 5+ строк (раздувание). Красные стрелки.",
+      "output": "merge_cartesian.png"
+    },
+    {
+      "description": "concat axis=1: рваные индексы → NaN в результате. До/после reset_index.",
+      "output": "concat_index_trap.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "merge с дублями, concat после split"
+  }
+}
