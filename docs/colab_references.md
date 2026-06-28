@@ -104,11 +104,11 @@ python agents/references_agent.py lessons/lineynaya_regressiya --apply
 
 ## Порядок в пайплайне
 
-После **notebook_generator** / **project.ipynb** (когда `.ipynb` существуют):
+После сборки и **проверки** `presentation.pptx` (см. **docs/pipeline.md**), затем **notebook_generator** / **project.ipynb** (когда `.ipynb` существуют):
 
 1. `references_agent --prompt` → AI → `--save`
 2. `references_agent --apply` (или `--apply` сразу, если статьи уже в JSON)
-3. Проверить `presentation.pptx`
+3. Снова проверить **`presentation.pptx`** (основная human QA; JSON править не обязательно)
 
 См. обновлённый раздел в **RULES.md**.
 
@@ -117,7 +117,7 @@ python agents/references_agent.py lessons/lineynaya_regressiya --apply
 1. **Публичный GitHub-репозиторий** с закоммиченными `.ipynb`.
 2. Запушить ветку, с которой работаете (Colab открывает файл с этой ветки).
 3. При нестандартном remote — задать `github` в `project_config.json`.
-4. Для приватного репо — вручную подставить Colab-URL в JSON или сделать репо публичным.
+4. Для приватного репо — попросить агента подставить Colab-URL в JSON или сделать репо публичным (автор не правит JSON вручную).
 
 ## Миграция
 

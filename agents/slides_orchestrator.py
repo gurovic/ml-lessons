@@ -170,6 +170,7 @@ def main():
 
     if current_num > len(plan_lines):
         print(f"Все слайды сгенерированы. Запусти: python agents/pptx_builder.py {lesson_dir}")
+        print("После сборки откройте presentation.pptx для проверки (JSON править не обязательно).")
         return
 
     slide_topic = plan_lines[current_num - 1]

@@ -537,6 +537,7 @@ def main():
 
     print(f"Загружено слайдов: {len(slides)}")
     build_presentation(slides, lesson_dir / "presentation.pptx", lesson_dir / "assets", lesson_dir)
+    print("Откройте presentation.pptx для проверки (JSON править не обязательно).")
 
 
 if __name__ == "__main__":
