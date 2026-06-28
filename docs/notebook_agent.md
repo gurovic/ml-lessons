@@ -104,6 +104,11 @@ type response.json | python agents/notebook_generator.py lessons/derevo_resheniy
 
 Выход: `lessons/<урок>/code.ipynb`.
 
+## project.ipynb (мини-проект)
+
+Сквозной end-to-end сценарий на реальных данных — см. **docs/project_notebook.md**.  
+Сборка шаблонов: `python agents/build_project_notebooks.py` (пока для lineynaya и logisticheskaya).
+
 ## Отвергнутые альтернативы
 
 | Альтернатива | Почему нет |

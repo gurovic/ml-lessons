@@ -52,7 +52,8 @@
 - assets/
 - slides_json/ — JSON-слайды с последовательной нумерацией: 01.json, 02.json, … (независимо от номеров в plan.md)
 - review.md — отчёт агента-рецензента (после ручной правки слайдов)
-- code.ipynb
+- code.ipynb — короткие примеры по слайдам (см. docs/notebook_agent.md)
+- project.ipynb — сквозной мини-проект на реальных данных (см. docs/project_notebook.md)
 - info.json — тема, автор (email, Telegram), продолжительность
 
 ## Агенты
@@ -87,6 +88,10 @@
 - --list — показать отобранные слайды
 - --save [file] — собрать ноутбук из JSON-ответа AI (файл или stdin)
 
+### Мини-проект (project.ipynb)
+- Сквозной сценарий на реальных данных — docs/project_notebook.md
+- Шаблоны: python agents/build_project_notebooks.py
+
 ## Порядок работы над уроком
 
 1. Создать plan.md.
@@ -97,6 +102,7 @@
 6. Только после рецензии: --visuals → промпты → AI → --save-script (генерация диаграмм).
 7. pptx_builder (сборка презентации).
 8. **notebook_generator** → промпт → AI → --save → `code.ipynb` (см. docs/notebook_agent.md).
+9. **project.ipynb** — мини-проект end-to-end по docs/project_notebook.md (вручную или отдельным промптом).
 
 ## Формат взаимодействия
 
