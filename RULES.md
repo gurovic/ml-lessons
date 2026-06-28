@@ -121,8 +121,11 @@
 - Пакетно: python agents/apply_all_link_checks.py
 
 ### Мини-проект (project.ipynb)
-- Сквозной сценарий на реальных данных — docs/project_notebook.md
-- Шаблоны: python agents/build_project_notebooks.py
+- Сквозной **непрерывный** сценарий на реальных данных — docs/project_notebook.md
+- **Не изолированные демо:** EDA → решение → следующий шаг использует результат (очищенный `df`, выбранная модель); один test-set на весь ноутбук
+- Явные markdown-ячейки «**Решение:** …» между этапами; после сравнения вариантов — переменная `final_model` / `final_pipe`
+- Шаблоны: `python agents/build_project_notebooks.py`, `python agents/build_pandas_viz_notebooks.py`
+- Промпт для ручной сборки: agents/prompts/build_project_notebooks.md
 
 ## Порядок работы над уроком
 
