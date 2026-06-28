@@ -14,7 +14,7 @@
   ],
   "code_examples": [
     {
-      "source": "import pandas as pd\nimp = pd.Series(clf.feature_importances_, index=feature_names)\nimp.sort_values(ascending=False).head()",
+      "source": "imp = pd.Series(clf.feature_importances_, index=feature_names)\nimp.sort_values(ascending=False).head()",
       "caption": "feature_importances_"
     }
   ]

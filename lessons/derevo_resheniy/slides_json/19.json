@@ -12,7 +12,7 @@
   "visuals": [],
   "code_examples": [
     {
-      "source": "from sklearn.tree import DecisionTreeClassifier\n# масштабирование не обязательно\nclf = DecisionTreeClassifier(random_state=42)\nclf.fit(X_raw, y)  # можно на исходных признаках",
+      "source": "# масштабирование не обязательно\nclf = DecisionTreeClassifier(random_state=42)\nclf.fit(X_raw, y)  # можно на исходных признаках",
       "caption": "Без StandardScaler"
     }
   ]

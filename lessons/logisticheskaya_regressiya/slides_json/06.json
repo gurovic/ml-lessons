@@ -23,7 +23,7 @@
   },
   "code_examples": [
     {
-      "source": "from sklearn.metrics import log_loss\ny_true = [0, 1, 1, 0]\ny_prob = [0.1, 0.9, 0.8, 0.3]\nloss = log_loss(y_true, y_prob)\nprint(f'LogLoss = {loss:.3f}')",
+      "source": "y_true = [0, 1, 1, 0]\ny_prob = [0.1, 0.9, 0.8, 0.3]\nloss = log_loss(y_true, y_prob)\nprint(f'LogLoss = {loss:.3f}')",
       "caption": "Штраф за уверенные ошибки"
     }
   ]

@@ -10,7 +10,7 @@
   "visuals": [],
   "code_examples": [
     {
-      "source": "from sklearn.tree import DecisionTreeClassifier\nclf = DecisionTreeClassifier(max_depth=3, random_state=42)\nclf.fit(X_train, y_train)\nclf.predict(X_test)",
+      "source": "clf = DecisionTreeClassifier(max_depth=3, random_state=42)\nclf.fit(X_train, y_train)\nclf.predict(X_test)",
       "caption": "DecisionTreeClassifier"
     }
   ]

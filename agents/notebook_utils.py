@@ -174,10 +174,11 @@ def _make_cell(cell_type: str, source: str | list[str]) -> dict:
 
 def default_setup_cell() -> dict:
     source = """\
-# Практика к уроку — выполняйте ячейки по порядку
+# Setup
 %matplotlib inline
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 np.random.seed(42)

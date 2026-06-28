@@ -88,8 +88,16 @@
 
 - `slide_title` — **точно** как `title` в JSON слайда (для связи с презентацией).
 - `source` — массив строк или одна строка; переносы через `\n`.
-- В начале ноутбука — одна setup-ячейка `# Setup` (импорты, `np.random.seed(42)`, `%matplotlib inline`). В секциях не повторять setup-импорты и seed.
+- В начале ноутбука — **одна** setup-ячейка `# Setup` (импорты, `np.random.seed(42)`, `%matplotlib inline`). Сборщик добавляет её автоматически; в секциях — **без повторных** импортов и seed.
 - Pandas/numpy-фрагменты держать в стиле **docs/pandas_numpy_basics.md**.
+
+### Стиль ячеек
+
+- **Setup один раз:** `# Setup` → импорты (`numpy`, `pandas`, `matplotlib`, частые sklearn) → `np.random.seed(42)` → `%matplotlib inline`.
+- **Последующие ячейки:** только код слайда/этапа; импорт локально — только если модуль ещё не был в setup и редок для урока.
+- **Лаконичность:** 3–10 строк на пример; простые sklearn/pandas one-liner'ы; комментарии — только где неочевидно.
+- **pandas/numpy:** сначала выбирать базовые конструкции из **docs/pandas_numpy_basics.md**.
+- **Без продвинутого Python:** walrus, сложные comprehensions, лишний boilerplate.
 
 ## CLI
 
