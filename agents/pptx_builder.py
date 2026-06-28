@@ -37,14 +37,43 @@ def _image_aspect(img_path: Path) -> float:
     return w / h if h else 1.0
 
 
-def _visual_layout_slots(n: int, col_left: float, col_w: float, top: float, bottom: float):
+def _visual_size_hint(visual_obj: dict) -> str:
+    """Размер из JSON: large | default | compact."""
+    size = visual_obj.get("size", "default")
+    if size not in ("large", "default", "compact"):
+        return "default"
+    return size
+
+
+def _visual_layout_slots(
+    n: int,
+    col_left: float,
+    col_w: float,
+    top: float,
+    bottom: float,
+    *,
+    aspects: list[float] | None = None,
+    size_hints: list[str] | None = None,
+):
     """Координаты ячеек (left, top, width, height) в дюймах для 1–4 картинок."""
-    gap = 0.08
+    gap = 0.06
     h_avail = bottom - top
+    aspects = aspects or []
+    size_hints = size_hints or []
 
     if n <= 0:
         return []
     if n == 1:
+        aspect = aspects[0] if aspects else 1.0
+        hint = size_hints[0] if size_hints else "default"
+        if hint == "large" or aspect >= 1.55:
+            # Широкая dual-panel PNG: полоса под буллетами, ~78% ширины слайда
+            wide_left = 5.0
+            wide_w = 7.9
+            band_top = 4.05
+            band_bottom = 6.85 if bottom >= 6.3 else bottom
+            band_h = band_bottom - band_top
+            return [(wide_left, band_top, wide_w, band_h)]
         return [(col_left, top, col_w, h_avail)]
     if n == 2:
         slot_h = (h_avail - gap) / 2
@@ -363,24 +392,36 @@ def _render_code_examples(
 
 
 def _place_visuals(slide, visuals: list[dict], assets_dir: Path, slide_num: int):
-    paths = []
+    items: list[tuple[Path, dict]] = []
     for visual_obj in visuals:
         output = visual_obj.get("output", "")
         if not output:
             continue
         img_path = assets_dir / output
         if img_path.exists():
-            paths.append(img_path)
+            items.append((img_path, visual_obj))
         else:
             print(f"  [warn] Слайд {slide_num}: нет файла {img_path.name}")
 
-    if not paths:
+    if not items:
         return
 
-    col_left, col_w = 8.35, 4.75
+    paths = [p for p, _ in items]
+    size_hints = [_visual_size_hint(v) for _, v in items]
+    aspects = [_image_aspect(p) for p in paths]
+
+    col_left, col_w = 7.95, 5.5
     top, bottom = 1.45, 6.35
-    slots = _visual_layout_slots(len(paths), col_left, col_w, top, bottom)
-    for img_path, (left, slot_top, w, h) in zip(paths, slots):
+    slots = _visual_layout_slots(
+        len(paths),
+        col_left,
+        col_w,
+        top,
+        bottom,
+        aspects=aspects,
+        size_hints=size_hints,
+    )
+    for (img_path, _), (left, slot_top, w, h) in zip(items, slots):
         try:
             _add_picture_fit(slide, img_path, left, slot_top, w, h)
         except Exception as e:
@@ -496,7 +537,7 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
         else:
             from slide_code_utils import estimate_code_height_inches
 
-            body_width_in = 7.5 if has_visuals else 12.3
+            body_width_in = 7.2 if has_visuals else 12.3
             body_width = Inches(body_width_in)
 
             code_examples = slide_data.get("code_examples", [])

@@ -21,9 +21,11 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "agents"))
 from viz_style import (  # noqa: E402
     BG_BOX,
+    FIGSIZE_DUAL,
+    FIGSIZE_SINGLE,
+    FIGSIZE_TRIPLE,
     TEXT_DARK,
     apply_matplotlib_slide_style,
-    heatmap_text_color,
     save_slide_figure,
     style_axes,
 )
@@ -35,7 +37,7 @@ RNG = np.random.default_rng(42)
 def fig_mse_vs_mae():
     apply_matplotlib_slide_style()
     e = np.linspace(-3, 3, 300)
-    fig, ax = plt.subplots(figsize=(5, 3.5))
+    fig, ax = plt.subplots(figsize=FIGSIZE_SINGLE)
     style_axes(ax)
     ax.plot(e, e**2, label="MSE: $e^2$", color="#1f77b4", lw=2)
     ax.plot(e, np.abs(e), label="MAE: $|e|$", color="#ff7f0e", lw=2)
@@ -57,7 +59,7 @@ def fig_gradient_descent():
     Z = (W0 - 1.2) ** 2 + 2 * (W1 - 0.8) ** 2
     path = np.array([[2.5, 2.5], [2.0, 1.9], [1.6, 1.5], [1.35, 1.1], [1.2, 0.8]])
 
-    fig, ax = plt.subplots(figsize=(5, 3.5))
+    fig, ax = plt.subplots(figsize=FIGSIZE_SINGLE)
     style_axes(ax)
     ax.contour(W0, W1, Z, levels=12, colors="#aaaaaa", linewidths=0.8)
     ax.plot(path[:, 0], path[:, 1], "o-", color="#d62728", lw=2, markersize=6, label="градиентный спуск")
@@ -80,7 +82,7 @@ def fig_hyperplane():
     g1, g2 = np.meshgrid(np.linspace(0, 5, 10), np.linspace(0, 5, 10))
     gy = 2.0 * g1 + 0.5 * g2 + 1.0
 
-    fig = plt.figure(figsize=(5, 3.8), facecolor="white")
+    fig = plt.figure(figsize=(FIGSIZE_SINGLE[0], FIGSIZE_SINGLE[1] + 0.3), facecolor="white")
     ax = fig.add_subplot(111, projection="3d", facecolor="white")
     ax.scatter(x1, x2, y, c="#1f77b4", s=22, alpha=0.9)
     ax.plot_surface(g1, g2, gy, alpha=0.35, color="#ff7f0e", edgecolor="none")
@@ -102,7 +104,7 @@ def fig_scaling():
     lr_raw = LinearRegression().fit(X, price)
     lr_scaled = LinearRegression().fit(StandardScaler().fit_transform(X), price)
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    fig, axes = plt.subplots(1, 2, figsize=FIGSIZE_DUAL)
     for ax, coefs, title in [
         (axes[0], lr_raw.coef_, "без масштабирования"),
         (axes[1], lr_scaled.coef_, "после StandardScaler"),
@@ -129,17 +131,14 @@ def fig_multicollinearity():
         idx = RNG.choice(n, n, replace=True)
         coefs.append(LinearRegression().fit(X[idx], y[idx]).coef_)
     coefs = np.array(coefs)
-    corr = np.corrcoef(x1, x2)[0, 1]
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
-    im = axes[0].imshow([[1, corr], [corr, 1]], cmap="Blues", vmin=0, vmax=1)
+    fig, axes = plt.subplots(1, 2, figsize=FIGSIZE_DUAL)
     style_axes(axes[0])
-    axes[0].set_xticks([0, 1], labels=["$x_1$", "$x_2$"])
-    axes[0].set_yticks([0, 1], labels=["$x_1$", "$x_2$"])
-    axes[0].set_title("корреляция ≈ 1")
-    for (i, j), val in [((0, 1), corr), ((1, 0), corr), ((0, 0), 1.0), ((1, 1), 1.0)]:
-        axes[0].text(j, i, f"{val:.2f}", ha="center", va="center", color=heatmap_text_color(val))
-    fig.colorbar(im, ax=axes[0], fraction=0.046)
+    axes[0].scatter(x1, x2, c="#1f77b4", s=28, alpha=0.75)
+    axes[0].plot([-3, 3], [-3, 3], "r--", lw=1.5, alpha=0.7)
+    axes[0].set_xlabel("$x_1$ (площадь, м²)")
+    axes[0].set_ylabel("$x_2$ (площадь, ft²)")
+    axes[0].set_title("признаки почти дубли")
 
     style_axes(axes[1])
     bp = axes[1].boxplot([coefs[:, 0], coefs[:, 1]], tick_labels=["$w_1$", "$w_2$"], patch_artist=True)
@@ -170,7 +169,7 @@ def fig_train_test():
     r2_tr = r2(y_train, m.predict(x_train.reshape(-1, 1)))
     r2_te = r2(y_test, m.predict(x_test.reshape(-1, 1)))
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    fig, axes = plt.subplots(1, 2, figsize=FIGSIZE_DUAL)
     for ax, xs, ys, title in [(axes[0], x_train, y_train, "train"), (axes[1], x_test, y_test, "test")]:
         style_axes(ax)
         ax.scatter(xs, ys, c="#1f77b4", s=28)
@@ -193,7 +192,7 @@ def fig_metrics():
     rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
     r2 = 1 - np.sum((y_true - y_pred) ** 2) / np.sum((y_true - np.mean(y_true)) ** 2)
 
-    fig, ax = plt.subplots(figsize=(5, 3.5))
+    fig, ax = plt.subplots(figsize=FIGSIZE_SINGLE)
     style_axes(ax)
     bars = ax.bar(["MAE", "RMSE", "$R^2$"], [mae, rmse, r2], color=["#1f77b4", "#ff7f0e", "#2ca02c"])
     ax.set_ylabel("значение")
@@ -208,7 +207,7 @@ def fig_weights_interpretation():
     apply_matplotlib_slide_style()
     features = ["площадь", "этаж", "район_A", "район_B"]
     weights = [0.85, 0.42, -0.15, 0.10]
-    fig, ax = plt.subplots(figsize=(5, 3.5))
+    fig, ax = plt.subplots(figsize=FIGSIZE_SINGLE)
     style_axes(ax)
     ax.barh(features, weights, color=["#2ca02c" if w >= 0 else "#d62728" for w in weights])
     ax.axvline(0, color="#444444", lw=0.8)
@@ -220,7 +219,9 @@ def fig_weights_interpretation():
 
 def fig_pipeline():
     apply_matplotlib_slide_style(compact=True)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.2), facecolor="white")
+    label_fs = 20
+    title_fs = 22
+    fig, axes = plt.subplots(1, 2, figsize=(FIGSIZE_DUAL[0], FIGSIZE_DUAL[1] - 0.6), facecolor="white")
     for ax, title, steps, bad in [
         (axes[0], "утечка (плохо)", ["scale\n(все данные)", "split", "fit"], True),
         (axes[1], "Pipeline (хорошо)", ["split", "Pipeline:\nscale+fit", "predict test"], False),
@@ -229,14 +230,14 @@ def fig_pipeline():
         ax.set_xlim(0, 10)
         ax.set_ylim(0, 3)
         ax.axis("off")
-        ax.set_title(title, color="#d62728" if bad else "#2ca02c")
+        ax.set_title(title, color="#d62728" if bad else "#2ca02c", fontsize=title_fs)
         xs = [1.5, 5, 8.5]
         for i, (x, label) in enumerate(zip(xs, steps)):
             ax.add_patch(FancyBboxPatch((x - 1.1, 1.0), 2.2, 1.0, boxstyle="round,pad=0.05", fc=BG_BOX, ec="#333333"))
-            ax.text(x, 1.5, label, ha="center", va="center", color=TEXT_DARK)
+            ax.text(x, 1.5, label, ha="center", va="center", color=TEXT_DARK, fontsize=label_fs)
             if i < len(steps) - 1:
-                ax.add_patch(FancyArrowPatch((x + 1.1, 1.5), (xs[i + 1] - 1.1, 1.5), arrowstyle="->", mutation_scale=12, color="#444444"))
-    fig.suptitle("Data leakage vs Pipeline", color=TEXT_DARK)
+                ax.add_patch(FancyArrowPatch((x + 1.1, 1.5), (xs[i + 1] - 1.1, 1.5), arrowstyle="->", mutation_scale=14, color="#444444"))
+    fig.suptitle("Data leakage vs Pipeline", color=TEXT_DARK, fontsize=24)
     plt.tight_layout()
     save_slide_figure(fig, ASSETS / "pipeline_leakage.png")
 
@@ -250,7 +251,7 @@ def fig_leverage_x():
     m_all = LinearRegression().fit(x.reshape(-1, 1), y)
     xx = np.linspace(0, 15, 100).reshape(-1, 1)
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    fig, axes = plt.subplots(1, 2, figsize=FIGSIZE_DUAL)
     for ax, model, title, highlight in [
         (axes[0], m_clean, "без leverage-точки", False),
         (axes[1], m_all, "leverage по $x$", True),
@@ -276,7 +277,7 @@ def fig_residuals_hist():
     y = 1.5 * x + 2 + RNG.normal(0, 1.5, 50)
     resid = y - LinearRegression().fit(x.reshape(-1, 1), y).predict(x.reshape(-1, 1))
 
-    fig, ax = plt.subplots(figsize=(5, 3.5))
+    fig, ax = plt.subplots(figsize=FIGSIZE_SINGLE)
     style_axes(ax)
     ax.hist(resid, bins=12, color="#1f77b4", edgecolor="white")
     ax.axvline(0, color="#d62728", lw=1.5, label="среднее ≈ 0")
@@ -286,6 +287,35 @@ def fig_residuals_hist():
     ax.legend()
     plt.tight_layout()
     save_slide_figure(fig, ASSETS / "residuals_histogram.png")
+
+
+def fig_ridge_alpha_cv():
+    apply_matplotlib_slide_style()
+    from sklearn.model_selection import cross_val_score
+
+    X, y = make_regression(n_samples=80, n_features=8, n_informative=4, noise=12.0, random_state=42)
+    X[:, 3] = X[:, 2] + RNG.normal(0, 0.05, 80)
+    alphas = np.logspace(-2, 3, 25)
+    means, stds = [], []
+    for a in alphas:
+        scores = cross_val_score(Ridge(alpha=a), X, y, cv=5, scoring="neg_mean_squared_error")
+        means.append(-scores.mean())
+        stds.append(scores.std())
+    means = np.array(means)
+    stds = np.array(stds)
+    best_i = int(np.argmin(means))
+
+    fig, ax = plt.subplots(figsize=FIGSIZE_SINGLE)
+    style_axes(ax)
+    ax.semilogx(alphas, means, "o-", color="#1f77b4", lw=2, label="CV-MSE")
+    ax.fill_between(alphas, means - stds, means + stds, color="#1f77b4", alpha=0.15)
+    ax.axvline(alphas[best_i], color="#d62728", ls="--", lw=1.5, label=f"α*={alphas[best_i]:.2g}")
+    ax.set_xlabel("$\\alpha$ (Ridge)")
+    ax.set_ylabel("CV-MSE")
+    ax.set_title("Выбор $\\alpha$ по cross-validation")
+    ax.legend()
+    plt.tight_layout()
+    save_slide_figure(fig, ASSETS / "ridge_alpha_cv.png")
 
 
 def fig_regularization():
@@ -303,7 +333,7 @@ def fig_regularization():
         pipe.fit(X, y)
         coefs[name] = list(pipe.named_steps.values())[-1].coef_
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.2))
+    fig, axes = plt.subplots(1, 2, figsize=(FIGSIZE_DUAL[0], FIGSIZE_DUAL[1] - 0.3))
     ax = axes[0]
     style_axes(ax)
     t = np.linspace(0, 2 * np.pi, 300)
@@ -321,7 +351,7 @@ def fig_regularization():
     ax.set_xlabel("$w_1$")
     ax.set_ylabel("$w_2$")
     ax.set_title("Штраф сжимает веса")
-    ax.legend(fontsize=11)
+    ax.legend(fontsize=18)
 
     ax = axes[1]
     style_axes(ax)
@@ -352,7 +382,7 @@ def fig_intro_scatter():
     m = LinearRegression().fit(x.reshape(-1, 1), y)
     xx = np.linspace(0, 10, 100)
 
-    fig, ax = plt.subplots(figsize=(5, 3.5))
+    fig, ax = plt.subplots(figsize=FIGSIZE_SINGLE)
     style_axes(ax)
     ax.scatter(x, y, c="#1f77b4", s=35)
     ax.plot(xx, m.predict(xx.reshape(-1, 1)), "r-", lw=2, label="$\\hat{y}=kx+b$")
@@ -370,14 +400,23 @@ def fig_residuals_vertical():
     y = 2 * x + 1 + RNG.normal(0, 1, 20)
     m = LinearRegression().fit(x.reshape(-1, 1), y)
     y_hat = m.predict(x.reshape(-1, 1))
+    intercept = float(m.intercept_)
 
-    fig, ax = plt.subplots(figsize=(5, 3.5))
+    fig, ax = plt.subplots(figsize=FIGSIZE_SINGLE)
     style_axes(ax)
     ax.scatter(x, y, c="#1f77b4", s=40)
     xx = np.linspace(0, 10, 100)
     ax.plot(xx, m.predict(xx.reshape(-1, 1)), "r-", lw=2)
-    for i in range(0, len(x), 3):
-        ax.vlines(x[i], y_hat[i], y[i], colors="#888888", linestyles="dashed", lw=1.5)
+    for xi, yi, yhi in zip(x, y, y_hat):
+        ax.vlines(xi, yhi, yi, colors="#555555", linestyles=(0, (4, 3)), lw=2.5)
+    ax.axhline(intercept, color="#2ca02c", lw=1.2, linestyle=":", alpha=0.9)
+    ax.annotate(
+        f"intercept $b$={intercept:.1f}",
+        xy=(0.3, intercept),
+        xytext=(1.2, intercept + 2.5),
+        color=TEXT_DARK,
+        arrowprops=dict(arrowstyle="->", color="#2ca02c", lw=1.2),
+    )
     ax.set_xlabel("$x$")
     ax.set_ylabel("$y$")
     ax.set_title("Вертикальные остатки")
@@ -386,31 +425,60 @@ def fig_residuals_vertical():
 
 
 def fig_outlier_y():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     x = np.linspace(1, 10, 22)
     y = 2 * x + 1 + RNG.normal(0, 0.6, 22)
-    x_all = np.append(x, 11.0)
-    y_all = np.append(y, 32.0)  # сильный выброс в y
+    x_all = np.append(x, 12.0)
+    y_all = np.append(y, 38.0)  # сильный выброс в y
     m0 = LinearRegression().fit(x.reshape(-1, 1), y)
     m1 = LinearRegression().fit(x_all.reshape(-1, 1), y_all)
-    xx = np.linspace(0, 12, 100).reshape(-1, 1)
+    xx = np.linspace(0, 13, 100).reshape(-1, 1)
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
-    for ax, xs, ys, model, title in [
-        (axes[0], x, y, m0, "без выброса"),
-        (axes[1], x_all, y_all, m1, "с выбросом в $y$"),
-    ]:
-        style_axes(ax)
-        ax.scatter(xs, ys, c="#1f77b4", s=35)
-        if title.startswith("с"):
-            ax.scatter([11], [32], c="#ff7f0e", s=120, zorder=5)
-        ax.plot(xx, model.predict(xx), "r-", lw=2)
-        ax.set_title(title)
-        ax.set_xlabel("$x$")
-        ax.set_ylabel("$y$")
-    fig.suptitle("MSE чувствительна к выбросу в $y$", color=TEXT_DARK)
+    fig, ax = plt.subplots(figsize=FIGSIZE_SINGLE)
+    style_axes(ax)
+    ax.scatter(x, y, c="#1f77b4", s=35, label="данные")
+    ax.scatter([12.0], [38.0], c="#ff7f0e", s=160, zorder=5, label="выброс в $y$")
+    ax.plot(xx, m0.predict(xx), color="#2ca02c", lw=2.5, label="без выброса")
+    ax.plot(xx, m1.predict(xx), color="#d62728", lw=2.5, linestyle="--", label="с выбросом (MSE)")
+    ax.set_xlabel("$x$")
+    ax.set_ylabel("$y$")
+    ax.set_title("Один выброс сильно сдвигает линию")
+    ax.legend()
     plt.tight_layout()
     save_slide_figure(fig, ASSETS / "outlier_y_effect.png")
+
+
+def fig_outlier_scatter_boxplot():
+    apply_matplotlib_slide_style(compact=True)
+    x = np.linspace(1, 10, 24)
+    y = 2 * x + 1 + RNG.normal(0, 0.7, 24)
+    x_all = np.append(x, 12.0)
+    y_all = np.append(y, 36.0)
+    m = LinearRegression().fit(x_all.reshape(-1, 1), y_all)
+    resid = y_all - m.predict(x_all.reshape(-1, 1))
+
+    fig, axes = plt.subplots(1, 2, figsize=FIGSIZE_DUAL)
+    style_axes(axes[0])
+    axes[0].scatter(x, y, c="#1f77b4", s=35)
+    axes[0].scatter([12.0], [36.0], c="#ff7f0e", s=140, zorder=5)
+    xx = np.linspace(0, 13, 100).reshape(-1, 1)
+    axes[0].plot(xx, m.predict(xx), "r-", lw=2)
+    axes[0].set_xlabel("признак $x$")
+    axes[0].set_ylabel("$y$")
+    axes[0].set_title("scatter: выброс виден")
+
+    style_axes(axes[1])
+    bp = axes[1].boxplot(resid, vert=True, patch_artist=True, widths=0.5)
+    bp["boxes"][0].set_facecolor("#1f77b4")
+    axes[1].scatter([1], [resid[-1]], c="#ff7f0e", s=120, zorder=5, label="выброс")
+    axes[1].axhline(0, color="#444444", lw=0.8)
+    axes[1].set_ylabel("остаток")
+    axes[1].set_title("boxplot остатков")
+    axes[1].set_xticks([1], labels=["остатки"])
+    axes[1].legend()
+    fig.suptitle("Диагностика выбросов", color=TEXT_DARK)
+    plt.tight_layout()
+    save_slide_figure(fig, ASSETS / "outlier_scatter_boxplot.png")
 
 
 def fig_residual_diagnostics():
@@ -428,20 +496,33 @@ def fig_residual_diagnostics():
     pred_good = LinearRegression().fit(x_good.reshape(-1, 1), y_good).predict(x_good.reshape(-1, 1))
     resid_good = y_good - pred_good
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    # плохо: U-образная форма — нелинейность
+    x_u = np.linspace(-3, 3, n)
+    y_u = x_u**2 + RNG.normal(0, 0.6, n)
+    pred_u = LinearRegression().fit(x_u.reshape(-1, 1), y_u).predict(x_u.reshape(-1, 1))
+    resid_u = y_u - pred_u
+
+    fig, axes = plt.subplots(1, 3, figsize=FIGSIZE_TRIPLE)
     style_axes(axes[0])
-    axes[0].scatter(pred_bad, resid_bad, c="#1f77b4", s=28, alpha=0.75)
+    axes[0].scatter(pred_good, resid_good, c="#1f77b4", s=24, alpha=0.75)
     axes[0].axhline(0, color="#444444", lw=0.8)
     axes[0].set_xlabel("$\\hat{y}$")
     axes[0].set_ylabel("остаток")
-    axes[0].set_title("«воронка» — плохо")
+    axes[0].set_title("облако — хорошо")
 
     style_axes(axes[1])
-    axes[1].scatter(pred_good, resid_good, c="#1f77b4", s=28, alpha=0.75)
+    axes[1].scatter(pred_bad, resid_bad, c="#1f77b4", s=24, alpha=0.75)
     axes[1].axhline(0, color="#444444", lw=0.8)
     axes[1].set_xlabel("$\\hat{y}$")
     axes[1].set_ylabel("остаток")
-    axes[1].set_title("облако — хорошо")
+    axes[1].set_title("«воронка» — плохо")
+
+    style_axes(axes[2])
+    axes[2].scatter(pred_u, resid_u, c="#1f77b4", s=24, alpha=0.75)
+    axes[2].axhline(0, color="#444444", lw=0.8)
+    axes[2].set_xlabel("$\\hat{y}$")
+    axes[2].set_ylabel("остаток")
+    axes[2].set_title("U-форма — плохо")
     fig.suptitle("Диагностика остатков", color=TEXT_DARK)
     plt.tight_layout()
     save_slide_figure(fig, ASSETS / "residual_diagnostics.png")
@@ -453,7 +534,7 @@ def fig_nonlinear():
     y = x**2 + RNG.normal(0, 0.8, 80)
     m = LinearRegression().fit(x.reshape(-1, 1), y)
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    fig, axes = plt.subplots(1, 2, figsize=FIGSIZE_DUAL)
     style_axes(axes[0])
     axes[0].scatter(x, y, c="#1f77b4", s=25)
     axes[0].plot(x, m.predict(x.reshape(-1, 1)), "r-", lw=2)
@@ -485,9 +566,11 @@ def main():
     fig_leverage_x()
     fig_residuals_hist()
     fig_regularization()
+    fig_ridge_alpha_cv()
     fig_intro_scatter()
     fig_residuals_vertical()
     fig_outlier_y()
+    fig_outlier_scatter_boxplot()
     fig_residual_diagnostics()
     fig_nonlinear()
     print(f"Generated {len(list(ASSETS.glob('*.png')))} PNG in {ASSETS}")
