@@ -7,7 +7,12 @@
     "Для градиентного спуска и регуляризации масштабирование **обязательно** — иначе медленная или неверная сходимость"
   ],
   "notes": "Показать, как вес «этаж» и «площадь» несопоставимы без scaler.",
-  "visuals": [],
+  "visuals": [
+    {
+      "description": "Два bar chart весов «площадь» и «этаж»: слева без scaler, справа после StandardScaler.",
+      "output": "scaling_weights_compare.png"
+    }
+  ],
   "notebook": {
     "include": true,
     "kinds": [

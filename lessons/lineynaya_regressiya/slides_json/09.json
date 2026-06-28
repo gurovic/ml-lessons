@@ -7,7 +7,12 @@
     "`train_test_split`: train — подбор весов, test — финальная проверка"
   ],
   "notes": "Пример: R²=0.99 на train и 0.3 на test.",
-  "visuals": [],
+  "visuals": [
+    {
+      "description": "Два scatter train/test с одной линией; в заголовке R² train vs test (train выше).",
+      "output": "train_test_split.png"
+    }
+  ],
   "notebook": {
     "include": true,
     "kinds": [

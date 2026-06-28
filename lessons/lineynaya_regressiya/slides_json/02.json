@@ -11,6 +11,10 @@
     {
       "description": "Scatter с линией регрессии и вертикальными пунктирными отрезками от нескольких точек до линии (остатки). matplotlib.",
       "output": "residuals_vertical.png"
+    },
+    {
+      "description": "Гистограмма остатков модели; вертикальная линия x=0; подпись «среднее ≈ 0».",
+      "output": "residuals_histogram.png"
     }
   ]
 }

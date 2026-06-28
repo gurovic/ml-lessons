@@ -7,7 +7,12 @@
     "Pipeline.fit на train; transform+predict на test — без утечки"
   ],
   "notes": "Показать разницу R² с утечкой и без на синтетике.",
-  "visuals": [],
+  "visuals": [
+    {
+      "description": "Две схемы: scale до split (утечка) vs split + Pipeline (правильно); стрелки.",
+      "output": "pipeline_leakage.png"
+    }
+  ],
   "notebook": {
     "include": true,
     "kinds": [

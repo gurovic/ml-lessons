@@ -1,0 +1,16 @@
+{
+  "title": "Мультикласс: Softmax",
+  "bullets": [
+    "Для K классов: $p_k = \\frac{e^{z_k}}{\\sum_{j=1}^K e^{z_j}}$ — сумма вероятностей равна 1",
+    "Softmax — обобщение сигмоиды на многомерный случай",
+    "Потери: **Categorical Cross-Entropy** — многоклассовый аналог LogLoss",
+    "В sklearn: `multi_class='multinomial'`; альтернатива — One-vs-Rest (K независимых бинарных классификаторов)"
+  ],
+  "notes": "Iris: три класса, multinomial vs ovr.",
+  "visuals": [
+    {
+      "description": "2D scatter трёх классов (iris-подобные blob'ы, seed 42), линейные границы softmax (multinomial LogReg) — три области; bar chart predict_proba для одной точки: три столбца суммой 1. Эффект: softmax даёт разбиение на K зон и нормированные вероятности. Белый фон.",
+      "output": "softmax_three_classes.png"
+    }
+  ]
+}
