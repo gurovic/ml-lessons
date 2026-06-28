@@ -27,13 +27,13 @@
       "kind": "colab",
       "title": "code.ipynb",
       "label": "Примеры по слайдам",
-      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/feature/references-and-slide-code/lessons/derevo_resheniy/code.ipynb"
+      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/derevo_resheniy/code.ipynb"
     },
     {
       "kind": "colab",
       "title": "project.ipynb",
       "label": "Мини-проект",
-      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/feature/references-and-slide-code/lessons/derevo_resheniy/project.ipynb"
+      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/derevo_resheniy/project.ipynb"
     }
   ],
   "bullets": [],
