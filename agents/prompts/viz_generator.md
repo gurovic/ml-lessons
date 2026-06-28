@@ -45,12 +45,15 @@ from viz_style import (
     heatmap_text_color,
     TEXT_DARK,
     BG_BOX,
+    FIGSIZE_SINGLE,
+    FIGSIZE_DUAL,
+    FIGSIZE_TRIPLE,
 )
 
 apply_matplotlib_slide_style()          # одна панель на колонку
 apply_matplotlib_slide_style(compact=True)  # subplots(1,2) или 2×2 на слайде
 
-fig, ax = plt.subplots(figsize=(5, 3.5))
+fig, ax = plt.subplots(figsize=FIGSIZE_SINGLE)
 style_axes(ax)
 # ... рисуем ...
 plt.tight_layout()
@@ -63,9 +66,12 @@ save_slide_figure(fig, "assets/example.png")
 - Heatmap: для подписи в ячейке — `heatmap_text_color(value)` или светлая colormap.
 - После `style_axes(ax)` не задавай светлый текст на светлом фоне.
 
-### Размер шрифта
-- Не указывай `fontsize=8` / `fontsize=9` — используй rcParams из `viz_style`.
-- Для multi-panel — `compact=True`.
+### Размер шрифта (минимумы)
+- Текст на диаграмме **сопоставим с 18–20 pt на слайде** (буллеты 20 pt).
+- Одиночная панель: оси ≥16 pt, заголовок ≥18 pt, деления ≥14 pt — через rcParams `viz_style`.
+- Multi-panel — `compact=True` (исходник 20–24 pt, компенсация сжатия в PPTX).
+- **Запрещено:** `fontsize=8` / `9` / `10` — используй rcParams из `viz_style`.
+- `figsize`: только константы `FIGSIZE_SINGLE`, `FIGSIZE_DUAL`, `FIGSIZE_TRIPLE` из `viz_style`.
 
 ## Типы визуализаций
 
