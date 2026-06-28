@@ -56,11 +56,35 @@ IMG_COL_W = 5.5
 VISUAL_TOP = 1.45
 TEXT_IMG_GAP = 0.12
 WIDE_BAND_LEFT = 0.7
-WIDE_BAND_W = 12.0
+WIDE_BAND_W = 7.9
 MIN_WIDE_BAND_H = 0.85
 MAX_WIDE_BAND_H = 2.45
 WIDE_ASPECT_THRESHOLD = 1.55
 TWO_COL_MIN_BULLETS = 3
+SLIDE_WIDTH = 13.333
+SLIDE_HEIGHT = 7.5
+SLIDE_RIGHT_MARGIN = 0.5
+
+
+def _max_image_right(slide_width: float = SLIDE_WIDTH) -> float:
+    return slide_width - SLIDE_RIGHT_MARGIN
+
+
+def _clamp_image_width(
+    left: float, width: float, *, max_right: float | None = None
+) -> float:
+    limit = max_right if max_right is not None else _max_image_right()
+    return min(width, max(limit - left, 0.0))
+
+
+def _image_column_dims(*, max_right: float | None = None) -> tuple[float, float]:
+    col_w = _clamp_image_width(IMG_COL_LEFT, IMG_COL_W, max_right=max_right)
+    return IMG_COL_LEFT, col_w
+
+
+def _wide_band_dims(*, max_right: float | None = None) -> tuple[float, float]:
+    wide_w = _clamp_image_width(WIDE_BAND_LEFT, WIDE_BAND_W, max_right=max_right)
+    return WIDE_BAND_LEFT, wide_w
 
 
 def _split_bullets(bullets: list[str]) -> tuple[list[str], list[str]]:
@@ -245,9 +269,8 @@ def _visual_layout_slots(
     if n == 1:
         use_wide = layout.get("wide_band") and layout.get("band_top") is not None
         if use_wide and layout.get("band_h"):
-            return [
-                (WIDE_BAND_LEFT, layout["band_top"], WIDE_BAND_W, layout["band_h"]),
-            ]
+            wide_left, wide_w = _wide_band_dims()
+            return [(wide_left, layout["band_top"], wide_w, layout["band_h"])]
         slot_bottom = layout.get("visual_bottom", bottom)
         slot_h = max(0.5, slot_bottom - top)
         return [(col_left, top, col_w, slot_h)]
@@ -637,10 +660,11 @@ def _collect_visual_rects(
     paths = [p for p, _ in items]
     aspects = [_image_aspect(p) for p in paths]
     size_hints = [_visual_size_hint(v) for _, v in items]
+    col_left, col_w = _image_column_dims()
     slots = _visual_layout_slots(
         len(paths),
-        IMG_COL_LEFT,
-        IMG_COL_W,
+        col_left,
+        col_w,
         VISUAL_TOP,
         layout["content_bottom"],
         aspects=aspects,
@@ -679,13 +703,73 @@ def _verify_slide_layouts(
         )
         text_rects = _bullet_text_rects(layout)
         image_rects = _collect_visual_rects(visuals, assets_dir, layout)
+        max_right = _max_image_right()
         for t_rect in text_rects:
             for img_rect in image_rects:
                 if _rects_intersect(t_rect, img_rect):
                     errors.append(
                         f"Слайд {i}: пересечение текста {t_rect} и картинки {img_rect}"
                     )
+        for img_rect in image_rects:
+            x, _y, w, _h = img_rect
+            right = x + w
+            if right > max_right + 1e-3:
+                errors.append(
+                    f"Слайд {i}: картинка выходит за правый край "
+                    f"(right={right:.3f}\" > {max_right:.3f}\") rect={img_rect}"
+                )
     return errors
+
+
+def _audit_image_overflow_slides(
+    slides: list[dict],
+    assets_dir: Path,
+    *,
+    estimate_code_height_inches,
+) -> list[dict]:
+    """Слайды, у которых старые размеры колонки выходили за правый край."""
+    max_right = _max_image_right()
+    old_col_right = IMG_COL_LEFT + IMG_COL_W
+    col_left, col_w = _image_column_dims()
+    wide_left, wide_w = _wide_band_dims()
+    fixed: list[dict] = []
+
+    for i, slide_data in enumerate(slides, 1):
+        if slide_data.get("type") == "references":
+            continue
+        visuals = slide_data.get("visuals", [])
+        if not any(v.get("output") for v in visuals):
+            continue
+
+        layout = _compute_slide_layout(
+            slide_data.get("bullets", []),
+            slide_data.get("code_examples", []),
+            visuals,
+            assets_dir,
+            has_visuals=True,
+            has_link=bool(slide_data.get("link", {}).get("url")),
+            estimate_code_height_inches=estimate_code_height_inches,
+        )
+        if layout.get("wide_band"):
+            old_right = WIDE_BAND_LEFT + 12.0
+            new_dims = f"wide left={wide_left}\", w={wide_w:.3f}\""
+            overflow = old_right > max_right + 1e-3
+        else:
+            old_right = old_col_right
+            new_dims = f"col left={col_left}\", w={col_w:.3f}\""
+            overflow = old_col_right > max_right + 1e-3
+
+        if overflow:
+            fixed.append(
+                {
+                    "slide": i,
+                    "layout": "wide_band" if layout.get("wide_band") else "column",
+                    "old_right": old_right,
+                    "max_right": max_right,
+                    "new_dims": new_dims,
+                }
+            )
+    return fixed
 
 
 def _place_visuals(
@@ -714,7 +798,7 @@ def _place_visuals(
     size_hints = [_visual_size_hint(v) for _, v in items]
     aspects = [_image_aspect(p) for p in paths]
 
-    col_left, col_w = IMG_COL_LEFT, IMG_COL_W
+    col_left, col_w = _image_column_dims()
     top, bottom = VISUAL_TOP, layout["content_bottom"]
     slots = _visual_layout_slots(
         len(paths),
@@ -749,8 +833,8 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
     link_rgb = (0x33, 0x66, 0xCC)
 
     prs = Presentation()
-    prs.slide_width = Inches(13.333)
-    prs.slide_height = Inches(7.5)
+    prs.slide_width = Inches(SLIDE_WIDTH)
+    prs.slide_height = Inches(SLIDE_HEIGHT)
 
     # Титульный слайд
     project_config = load_config(Path(__file__).parent.parent)
@@ -940,13 +1024,33 @@ def main():
     from slide_code_utils import estimate_code_height_inches
 
     assets_dir = lesson_dir / "assets"
+    col_left, col_w = _image_column_dims()
+    wide_left, wide_w = _wide_band_dims()
+    print(
+        f"  [layout] image column: left={col_left}\", width={col_w:.3f}\" "
+        f"(max right={_max_image_right():.3f}\")"
+    )
+    print(f"  [layout] wide band: left={wide_left}\", width={wide_w:.3f}\"")
+
+    overflow_slides = _audit_image_overflow_slides(
+        slides, assets_dir, estimate_code_height_inches=estimate_code_height_inches
+    )
+    if overflow_slides:
+        print("  [layout] Исправлен выход за правый край на слайдах:")
+        for entry in overflow_slides:
+            print(
+                f"    слайд {entry['slide']} ({entry['layout']}): "
+                f"было right={entry['old_right']:.3f}\", "
+                f"теперь {entry['new_dims']}"
+            )
+
     layout_errors = _verify_slide_layouts(
         slides, assets_dir, estimate_code_height_inches=estimate_code_height_inches
     )
     if layout_errors:
         for err in layout_errors:
             print(f"  [layout] {err}")
-        print("  [layout] Обнаружены пересечения — проверьте pptx_builder.py")
+        print("  [layout] Обнаружены проблемы вёрстки — проверьте pptx_builder.py")
     else:
         visual_slides = sum(
             1
