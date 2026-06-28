@@ -22,7 +22,8 @@
    - `pptx_builder` → **`presentation.pptx`**;
    - `notebook_generator` → `code.ipynb`;
    - `project.ipynb` (вручную или по шаблону);
-   - `references_agent` → слайд «Источники и практика» + пересборка pptx.
+   - `references_agent` → слайд «Источники и практика» + пересборка pptx;
+   - `link_checker_agent` → проверка URL (после references, до финальной QA pptx).
 3. **Пользователь проверяет и правит `presentation.pptx` в PowerPoint** — не JSON.
 4. Если после проверки pptx нужны **содержательные** изменения:
    - описать правки в чате с ассистентом **или** обновить `plan.md`;
@@ -72,14 +73,14 @@ presentation.pptx (pptx_builder)
     ↓
 [опционально] plan.md / чат → агенты → JSON → pptx (перезапись!)
     ↓
-code.ipynb, project.ipynb, references (агенты)
+code.ipynb, project.ipynb, references, link_checker (агенты)
 ```
 
 ## Связанные документы
 
 - **RULES.md** — краткий порядок шагов и состав папки урока
 - **docs/reviewer_agent.md** — рецензент до pptx (опционально)
-- **docs/notebook_agent.md**, **docs/slide_code_agent.md**, **docs/colab_references.md** — шаги после/вокруг pptx
+- **docs/notebook_agent.md**, **docs/slide_code_agent.md**, **docs/colab_references.md**, **docs/link_checker_agent.md** — шаги после/вокруг pptx
 - **docs/formulas.md**, **docs/visuals.md** — как JSON рендерится в pptx
 
 ## Отвергнутые альтернативы
