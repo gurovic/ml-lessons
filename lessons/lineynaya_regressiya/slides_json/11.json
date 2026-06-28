@@ -21,8 +21,8 @@
   },
   "code_examples": [
     {
-      "source": "mae = mean_absolute_error(y_te, y_pred)\nr2 = r2_score(y_te, y_pred)\nprint(f'MAE={mae:.2f}, R²={r2:.3f}')",
-      "caption": "MAE и R²"
+      "source": "mae = mean_absolute_error(y_te, y_pred)\nrmse = mean_squared_error(y_te, y_pred, squared=False)\nr2 = r2_score(y_te, y_pred)\nprint(f'MAE={mae:.2f}, RMSE={rmse:.2f}, R²={r2:.3f}')",
+      "caption": "MAE, RMSE и R²"
     }
   ]
 }
