@@ -170,12 +170,25 @@ def apply_response_to_slides(
     return updated, warnings
 
 
-def count_code_lines(source: str) -> int:
-    return len([ln for ln in source.split("\n") if ln.strip()])
+def code_block_height_inches(source: str, *, has_caption: bool = False) -> float:
+    """Высота одного блока кода в дюймах — совпадает с pptx_builder._render_code_examples."""
+    if not source:
+        return 0.0
+    n_lines = max(len(source.split("\n")), 1)
+    block_h = 0.19 * n_lines + 0.12
+    total = block_h + 0.06
+    if has_caption:
+        total += 0.24
+    total += 0.04
+    return total
 
 
 def estimate_code_height_inches(examples: list[dict]) -> float:
-    """Грубая оценка высоты блока кода в дюймах для pptx."""
-    total_lines = sum(count_code_lines(ex.get("source", "")) for ex in examples)
-    captions = sum(1 for ex in examples if ex.get("caption"))
-    return 0.22 * total_lines + 0.18 * len(examples) + 0.12 * captions + 0.15
+    """Суммарная высота всех code_examples на слайде (дюймы)."""
+    total = 0.0
+    for ex in examples:
+        source = ex.get("source", "")
+        if not source:
+            continue
+        total += code_block_height_inches(source, has_caption=bool(ex.get("caption")))
+    return total

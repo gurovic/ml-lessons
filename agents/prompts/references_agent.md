@@ -35,7 +35,7 @@
       "title": "Название работы",
       "authors": "Фамилия И.О., ...",
       "year": 1970,
-      "url": "https://doi.org/..."
+      "url": "https://example.org/paper.pdf"
     }
   ],
   "bullets": [],
@@ -48,7 +48,12 @@
 - `kind` — всегда `"paper"` (Colab не добавляй).
 - `authors` — кратко, как в библиографии.
 - `year` — число.
-- `url` — предпочтительно DOI (`https://doi.org/...`) или стабильная ссылка на PDF/arXiv. Если надёжной ссылки нет — опусти `url`.
+- `url` — **ссылка на бесплатный полный текст** (PDF/HTML статьи), а не paywall или только abstract. Приоритет источников:
+  1. arXiv, PMC/PubMed Central, открытые журналы (JSS, JMLR, JOSS, SciPy proceedings и т.п.)
+  2. PDF на сайте автора или университета (stat.berkeley.edu, vita.had.co.nz, …)
+  3. Zenodo / официальная open-access страница для software papers
+  - **Не использовать** `doi.org`, JSTOR, Springer/Wiley/Taylor & Francis landing pages, если они ведут на платный доступ.
+  - Если надёжной бесплатной ссылки на полный текст нет — **опусти** `url` (лучше без ссылки, чем paywall).
 - `bullets` — 0–2 коротких тезиса (например, «Дополнительно: sklearn User Guide — Linear Models») или пустой массив.
 - `notes` — опционально, для докладчика.
 

@@ -1,4 +1,5 @@
 python-pptx
+pygments
 latex2mathml
 lxml
 matplotlib

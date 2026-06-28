@@ -7,21 +7,21 @@
       "title": "Ridge Regression: Biased Estimation for Nonorthogonal Problems",
       "authors": "Hoerl A.E., Kennard R.W.",
       "year": 1970,
-      "url": "https://doi.org/10.2307/1271436"
+      "url": "https://www.stat.cmu.edu/technometrics/90-00/vol-42-01/v4201080.pdf"
     },
     {
       "kind": "paper",
       "title": "Regression Shrinkage and Selection via the Lasso",
       "authors": "Tibshirani R.",
       "year": 1996,
-      "url": "https://doi.org/10.1111/j.2517-6161.1996.tb00880.x"
+      "url": "https://sites.stat.washington.edu/courses/stat527/s14/readings/j_royal_stat_soc_b1996.pdf"
     },
     {
       "kind": "paper",
       "title": "Least Squares Estimation of Linear Models",
       "authors": "Markov A.A.",
       "year": 1900,
-      "url": "https://doi.org/10.2307/2332423"
+      "url": "https://digital.fandm.edu/_flysystem/fedora/2022-07/Levine_CalculusOfProbabilities.pdf"
     }
   ],
   "bullets": [],
