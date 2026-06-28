@@ -9,16 +9,8 @@
   "notes": "Демо: одна точка с огромным y сдвигает MSE-линию.",
   "visuals": [
     {
-      "description": "Один scatter: облако + выброс в y; две линии на одном графике — синяя без выброса, красная с выбросом (сдвиг наклона заметен). matplotlib.",
-      "output": "outlier_y_effect.png"
-    },
-    {
-      "description": "Два subplot: leverage-точка далеко по x меняет наклон линии при нормальном y.",
-      "output": "outlier_leverage_x.png"
-    },
-    {
-      "description": "Scatter признак vs y с выделенным выбросом + boxplot остатков с точкой-выбросом за whiskers.",
-      "output": "outlier_scatter_boxplot.png"
+      "description": "Две панели друг под другом: (1) выброс в y — две линии MSE; (2) leverage по x — две линии на одном scatter. Одна картинка на всю колонку.",
+      "output": "outlier_effects.png"
     }
   ]
 }

@@ -170,25 +170,26 @@ def apply_response_to_slides(
     return updated, warnings
 
 
-def code_block_height_inches(source: str, *, has_caption: bool = False) -> float:
-    """Высота одного блока кода в дюймах — совпадает с pptx_builder._render_code_examples."""
-    if not source:
-        return 0.0
-    n_lines = max(len(source.split("\n")), 1)
-    block_h = 0.19 * n_lines + 0.12
-    total = block_h + 0.06
-    if has_caption:
-        total += 0.24
-    total += 0.04
+def count_code_lines(source: str) -> int:
+    return len([ln for ln in source.split("\n") if ln.strip()])
+
+
+def measure_code_block_height_inches(examples: list[dict]) -> float:
+    """Высота блока кода в дюймах — совпадает с _render_code_examples в pptx_builder."""
+    total = 0.0
+    for block in examples:
+        source = block.get("source", "")
+        if not source:
+            continue
+        n_lines = max(len(source.split("\n")), 1)
+        total += 0.17 * n_lines + 0.10 + 0.06
+        if block.get("caption"):
+            total += 0.24
+        total += 0.04
     return total
 
 
 def estimate_code_height_inches(examples: list[dict]) -> float:
-    """Суммарная высота всех code_examples на слайде (дюймы)."""
-    total = 0.0
-    for ex in examples:
-        source = ex.get("source", "")
-        if not source:
-            continue
-        total += code_block_height_inches(source, has_caption=bool(ex.get("caption")))
-    return total
+    """Оценка высоты блока кода в дюймах для pptx."""
+    h = measure_code_block_height_inches(examples)
+    return h if h else 0.0

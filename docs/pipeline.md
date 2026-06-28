@@ -17,7 +17,7 @@
 2. **Агенты** генерируют контент:
    - `slides_orchestrator` → `slides_json/` (по одному слайду из plan.md);
    - опционально `lesson_reviewer` → `review.md` → правки через агентов в JSON (см. ниже);
-   - `--visuals` → PNG в `assets/`;
+   - **`visuals_pipeline`** (или `--visuals` оркестратора) → PNG в `assets/`; программная проверка; опционально AI-рецензия (`--review`);
    - `slide_code_agent` → `code_examples` в JSON;
    - `pptx_builder` → **`presentation.pptx`**;
    - `notebook_generator` → `code.ipynb`;
@@ -84,6 +84,19 @@ code.ipynb, project.ipynb, references, link_checker (агенты)
 - **docs/reviewer_agent.md** — рецензент до pptx (опционально)
 - **docs/notebook_agent.md**, **docs/slide_code_agent.md**, **docs/colab_references.md**, **docs/link_checker_agent.md** — шаги после/вокруг pptx
 - **docs/formulas.md**, **docs/visuals.md** — как JSON рендерится в pptx
+- **agents/visuals_pipeline.py**, **agents/prompts/visuals_reviewer.md** — генерация PNG, автопроверка, AI-рецензия иллюстраций
+
+### Иллюстрации (visuals_pipeline)
+
+Если в уроке есть `assets/generate_visuals.py`:
+
+```bash
+python agents/visuals_pipeline.py lessons/<slug>              # generate + check + pptx
+python agents/visuals_pipeline.py lessons/<slug> --check-only
+python agents/visuals_pipeline.py lessons/<slug> --review     # промпт для AI-рецензии PNG
+```
+
+Шаги: (1) запуск `generate_visuals.py`; (2) проверка — missing/orphan PNG, aspect для правой колонки, слайды без visuals; (3) пересборка pptx. Рецензия **PNG** (педагогика, контраст, подписи) — отдельно от `lesson_reviewer` (текст JSON).
 
 ## Отвергнутые альтернативы
 

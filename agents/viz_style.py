@@ -16,10 +16,16 @@ from PIL import Image
 SLIDE_BODY_PT = 20
 SLIDE_TITLE_PT = 32
 
-# Минимумы для читаемости на слайде (см. docs/visuals.md)
-MIN_LABEL_PT = 16
-MIN_TITLE_PT = 18
-MIN_TICK_PT = 14
+# Единая шкала шрифтов для всех иллюстраций (см. docs/visuals.md).
+# Чуть выше pt слайда: PNG масштабируется в правой колонке (~5.5″).
+FONT_LABEL = 18
+FONT_TITLE = 20
+FONT_TICK = 14
+FONT_LEGEND = 14
+FONT_ANNOT = 14  # подписи на графике, annotate, bar labels
+FONT_HEATMAP = 12  # текст в ячейках heatmap (мало места)
+FONT_DIAGRAM = 16  # блоки block-схем, graphviz-узлы
+FONT_SYMBOL = 22  # крупные символы ✓/✗ на схемах
 
 TEXT_DARK = "#1a1a1a"
 BG_LIGHT = "#ffffff"
@@ -28,32 +34,43 @@ BG_BOX = "#eef2ff"
 DPI = 200
 
 # Физический размер фигуры в дюймах (до savefig)
+#
+# Правая колонка PPTX (~5.5″): одна панель или multi-panel в столбик (2,1) / (3,1).
+# Полоса под текстом на всю ширину: панели в ряд (1,2) / (1,3) или FIGSIZE_WIDE_SINGLE.
+
 FIGSIZE_SINGLE = (5.5, 4.0)
-FIGSIZE_DUAL = (11.0, 4.5)
-FIGSIZE_TRIPLE = (11.0, 4.0)
+
+# Multi-panel в правой колонке: subplots(2, 1) / (3, 1) — умеренная высота, меньше сжатия в PPTX
+FIGSIZE_DUAL_COL = (5.5, 5.8)
+FIGSIZE_TRIPLE_COL = (5.5, 7.8)
+COL_HSPACE = 0.55
+
+# Multi-panel на всю ширину под текстом: subplots(1, 2) / (1, 3)
+FIGSIZE_DUAL_ROW = (11.5, 3.6)
+FIGSIZE_TRIPLE_ROW = (11.5, 3.3)
+ROW_WSPACE = 0.32
+FIGSIZE_WIDE_SINGLE = (11.5, 3.6)
+
+# Обратная совместимость (алиасы старых имён)
+FIGSIZE_DUAL = FIGSIZE_DUAL_ROW
+FIGSIZE_DUAL_STACK = FIGSIZE_DUAL_COL
+STACK_HSPACE = COL_HSPACE
+FIGSIZE_TRIPLE = FIGSIZE_TRIPLE_ROW
 FIGSIZE_GRID2X2 = (10.0, 8.0)
 
-# Одна картинка на всю колонку (~5.5″ на слайде)
-FONT_SINGLE = {
-    "font.size": MIN_LABEL_PT,
-    "axes.titlesize": MIN_TITLE_PT,
-    "axes.labelsize": MIN_LABEL_PT,
-    "xtick.labelsize": MIN_TICK_PT,
-    "ytick.labelsize": MIN_TICK_PT,
-    "legend.fontsize": MIN_TICK_PT,
-    "figure.titlesize": MIN_TITLE_PT + 1,
+FONT_SLIDE = {
+    "font.size": FONT_LABEL,
+    "axes.titlesize": FONT_TITLE,
+    "axes.labelsize": FONT_LABEL,
+    "xtick.labelsize": FONT_TICK,
+    "ytick.labelsize": FONT_TICK,
+    "legend.fontsize": FONT_LEGEND,
+    "figure.titlesize": FONT_TITLE,
 }
 
-# subplots(1, 2+) или 2×2 — сильнее сжимаются в PPTX → крупнее в исходнике
-FONT_COMPACT = {
-    "font.size": 20,
-    "axes.titlesize": 22,
-    "axes.labelsize": 20,
-    "xtick.labelsize": 18,
-    "ytick.labelsize": 18,
-    "legend.fontsize": 18,
-    "figure.titlesize": 24,
-}
+# Алиасы (deprecated names — те же значения, что FONT_SLIDE)
+FONT_SINGLE = FONT_SLIDE
+FONT_COMPACT = FONT_SLIDE
 
 CONTRAST = {
     "figure.facecolor": BG_LIGHT,
@@ -69,10 +86,25 @@ CONTRAST = {
 }
 
 
+def legend_kwargs(**extra) -> dict:
+    """Стандартные kwargs для ax.legend() на слайдах."""
+    return {
+        "fontsize": FONT_LEGEND,
+        "framealpha": 0.92,
+        "borderpad": 0.35,
+        "labelspacing": 0.35,
+        "handlelength": 1.4,
+        **extra,
+    }
+
+
 def apply_matplotlib_slide_style(*, compact: bool = False) -> None:
-    """Применить rcParams: крупный шрифт + светлый фон + тёмный текст."""
-    fonts = FONT_COMPACT if compact else FONT_SINGLE
-    plt.rcParams.update({**fonts, **CONTRAST})
+    """Применить rcParams: единый шрифт + светлый фон + тёмный текст.
+
+    Аргумент ``compact`` сохранён для обратной совместимости и не меняет шрифты.
+    """
+    _ = compact
+    plt.rcParams.update({**FONT_SLIDE, **CONTRAST})
     plt.rcParams["figure.dpi"] = DPI
     plt.rcParams["savefig.dpi"] = DPI
 
@@ -93,9 +125,14 @@ def heatmap_text_color(value: float, vmin: float = 0.0, vmax: float = 1.0) -> st
     return "#ffffff" if t > 0.55 else TEXT_DARK
 
 
-def save_slide_figure(fig, path: Path | str) -> None:
+def save_slide_figure(fig, path: Path | str, *, tight: bool = True) -> None:
     """Сохранить PNG: белый непрозрачный фон, RGB."""
     path = Path(path)
-    fig.savefig(path, dpi=DPI, facecolor=BG_LIGHT, bbox_inches="tight")
+    fig.savefig(
+        path,
+        dpi=DPI,
+        facecolor=BG_LIGHT,
+        bbox_inches="tight" if tight else None,
+    )
     plt.close(fig)
     Image.open(path).convert("RGB").save(path)

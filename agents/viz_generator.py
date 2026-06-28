@@ -35,7 +35,6 @@ def main():
 Путь для сохранения: {assets_dir}/
 
 Сгенерируй Python-скрипт.
-Обязательно: белый непрозрачный фон (см. docs/visuals.md).
 """
 
     print(f"{system_prompt}\n\n{user_prompt}")

@@ -83,12 +83,18 @@
 ### Сборщик презентации (agents/pptx_builder.py)
 - Из JSON собирает presentation.pptx с титульным слайдом из info.json.
 - Формулы в `$...$` в тексте рендерятся как native Equation (см. docs/formulas.md, agents/rich_text.py).
+- **Буллеты:** маркер `•` добавляется автоматически при сборке (см. раздел «Значки буллетов»); в `slides_json` писать текст **без** маркера.
 - До 4 иллюстраций на слайд — сетка/столбик в правой колонке (см. docs/visuals.md).
 - Использование: python agents/pptx_builder.py <lesson_dir>
 
 ### Генератор визуализаций (agents/viz_generator.py)
 - Промпт: agents/prompts/viz_generator.md
 - Формирует промпт для генерации Python-скрипта диаграммы.
+
+### Пайплайн иллюстраций (agents/visuals_pipeline.py)
+- Запуск `assets/generate_visuals.py` (если есть), программная проверка PNG, пересборка pptx.
+- AI-рецензия качества картинок: `--review` → промпт `agents/prompts/visuals_reviewer.md`.
+- Использование: `python agents/visuals_pipeline.py <lesson_dir>` | `--check-only` | `--generate-only` | `--review`
 
 ### Рецензент урока (agents/lesson_reviewer.py)
 - Опционально до сборки pptx: фактология, логика, понятность, лаконичность, полнота по JSON; замечания вносят агенты в slides_json/, не автор вручную.
@@ -148,9 +154,9 @@
 1. Создать plan.md (и info.json).
 2. Оркестратор → промпт → AI → сохранить JSON в slides_json/ (повторить для каждого слайда).
 3. **Опционально:** рецензент → review.md → агенты правят JSON по замечаниям (можно пропустить и перейти к сборке pptx).
-4. --visuals → промпты → AI → --save-script (генерация диаграмм в assets/).
+4. **visuals_pipeline** (или `--visuals` оркестратора): `generate_visuals.py` → проверка PNG → при необходимости `--review` (AI-рецензия) → правки в `generate_visuals.py` / JSON.
 5. **slide_code_agent** → --apply или --prompt → --save → `code_examples` в JSON (см. docs/slide_code_agent.md).
-6. **pptx_builder** → `presentation.pptx`.
+6. **pptx_builder** (или `visuals_pipeline` без флагов — generate + check + pptx) → `presentation.pptx`.
 7. **Проверка и правка пользователем в PowerPoint** — не JSON. Ручные правки pptx не синхронизируются с JSON; повторный pptx_builder перезаписывает файл. Замечания по слайдам фиксировать в **author_feedback.md** (чеклисты по слайдам).
 8. При содержательных правках после pptx: **author_feedback.md** и/или чат → агенты правят JSON и пересобирают pptx (указать, что сохранить из ручных правок, или сделать backup).
 9. **notebook_generator** → промпт → AI → --save → `code.ipynb` (см. docs/notebook_agent.md).
@@ -179,6 +185,7 @@
 ## Что должно быть на слайде
 - Заголовок как в plan.md (но без Слайд X), в редких случаях его можно отредактировать
 - Тезисно материал по теме, взятый как из plan.md, так и подготовленный AI RULES.md
+- **Буллеты** — массив `bullets[]` в JSON; маркер в pptx добавляет `pptx_builder` (см. «Значки буллетов»)
 - Формулы — inline в тексте через `$...$` (см. docs/formulas.md)
 - **Иллюстрации** — по политике docs/visuals.md: по умолчанию ≥1 график/схема на слайд; 2–4 где несколько наглядных идей; `visuals[]` с `description`, `output`, опционально `size: "large"`; шрифт на диаграмме ≥18 pt эквивалент на слайде (`agents/viz_style.py`)
 - При необходимости - ссылка и QR-код на внешний ресурс (поле `link`; см. docs/references_slide.md для слайда литературы + Colab)
@@ -190,6 +197,18 @@
   ```json
   "code_examples": [{ "source": "import pandas as pd\n...", "caption": "..." }]
   ```
+
+## Значки буллетов
+
+- **В JSON** (`slides_json/*.json`, поле `bullets[]`) — только текст тезиса, **без** маркера в начале строки (не писать `•`, `-`, `*`).
+- **При сборке pptx** (`agents/pptx_builder.py`) к каждому буллету автоматически добавляется символ **`•`** (U+2022) через `_format_bullet_text()`.
+- **Где применяется:** обычные слайды (20 pt), слайд `type=references` — литература, Colab и доп. тезисы (15–16 pt).
+- **Пересборка** после правок JSON или изменения стиля маркера:
+  ```bash
+  python agents/pptx_builder.py lessons/<имя_урока>
+  ```
+- Если в JSON случайно остался маркер — сборщик снимает его, чтобы не было двойного `•`.
+- Ручные правки маркеров в PowerPoint **не** синхронизируются с JSON; повторный `pptx_builder` перезапишет pptx.
 
 ## Отсылки к слайдам
 
