@@ -19,7 +19,6 @@ def _pandas_code_sections() -> list[dict]:
                 {
                     "type": "code",
                     "source": """\
-import pandas as pd
 from sklearn.datasets import fetch_openml
 
 raw = fetch_openml("titanic", version=1, as_frame=True, parser="auto")
@@ -175,8 +174,6 @@ print("Ordinal codes:", cat.cat.codes.head())
                 {
                     "type": "code",
                     "source": """\
-import numpy as np
-
 df_fe = df.copy()
 df_fe["is_expensive"] = np.where(df_fe["Fare"] > df_fe["Fare"].median(), 1, 0)
 df_fe["fare_bin"] = pd.qcut(df_fe["Fare"].fillna(0), q=4, labels=["Q1", "Q2", "Q3", "Q4"])
@@ -441,10 +438,6 @@ def _viz_code_sections() -> list[dict]:
                 {
                     "type": "code",
                     "source": """\
-%matplotlib inline
-import matplotlib.pyplot as plt
-import numpy as np
-
 fig, ax = plt.subplots(figsize=(6, 4))
 x = np.linspace(0, 2 * np.pi, 100)
 ax.plot(x, np.sin(x))
@@ -532,7 +525,6 @@ plt.show()
                     "type": "code",
                     "source": """\
 import seaborn as sns
-import pandas as pd
 from sklearn.datasets import fetch_openml
 
 raw = fetch_openml("titanic", version=1, as_frame=True, parser="auto")
@@ -705,7 +697,6 @@ def _pandas_project_sections() -> list[dict]:
 def _viz_project_sections() -> list[dict]:
     return sections_viz()
 
-
 def build_all() -> None:
     jobs = [
         (ROOT / "lessons" / "pandas", "Pandas", _pandas_code_sections(), _pandas_project_sections(), "Pandas — мини-проект"),
@@ -715,7 +706,7 @@ def build_all() -> None:
         code_nb = build_ipynb(code_sections, topic=topic)
         if lesson_dir.name == "pandas":
             code_nb["cells"][1]["source"] = [
-                "# Практика к уроку — выполняйте ячейки по порядку\n",
+                "# Setup\n",
                 "%matplotlib inline\n",
                 "\n",
                 "import numpy as np\n",
