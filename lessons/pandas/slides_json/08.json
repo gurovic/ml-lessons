@@ -1,0 +1,23 @@
+{
+  "title": "groupby и агрегации",
+  "bullets": [
+    "«Разбить по ключу → применить функцию → собрать» — `df.groupby('Pclass')`",
+    "`.agg({'Age':'mean', 'Fare':'sum'})` — разные функции по столбцам",
+    "`.mean()`, `.size()`, `.count()` — частые сокращения",
+    "Несколько ключей: `groupby(['Pclass','Sex'])` — вложенные группы"
+  ],
+  "notes": "Средний Fare по классу — наглядный пример.",
+  "visuals": [
+    {
+      "description": "Bar chart: средний Fare по Pclass (1>2>3 заметно).",
+      "output": "groupby_fare_pclass.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "groupby Pclass, agg mean Fare и count."
+  }
+}

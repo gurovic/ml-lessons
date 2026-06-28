@@ -1,0 +1,23 @@
+{
+  "title": "Pandas и sklearn Pipeline",
+  "bullets": [
+    "Pandas — EDA и подготовка; sklearn — `fit`/`predict` на NumPy",
+    "`ColumnTransformer` + `Pipeline`: imputer/scaler/encoder внутри пайплайна",
+    "`df[feature_cols].to_numpy()` или `Pipeline` с `FunctionTransformer`",
+    "Сохраняй согласованность имён столбцов между train и test"
+  ],
+  "notes": "Показать SimpleImputer в Pipeline после split.",
+  "visuals": [
+    {
+      "description": "Block-схема: DataFrame → split → Pipeline(Imputer, OHE, Model).",
+      "output": "pandas_sklearn_pipeline.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "Pipeline с imputer на Titanic numeric cols."
+  }
+}

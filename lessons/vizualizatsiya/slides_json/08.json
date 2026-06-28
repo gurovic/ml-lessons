@@ -1,0 +1,23 @@
+{
+  "title": "Подписи, легенды и цвет",
+  "bullets": [
+    "Оси: `set_xlabel`, `set_ylabel`, `set_title` — **на русском** в наших ноутбуках",
+    "`legend()` — подписи серий; `loc='best'` или явное место",
+    "Цвет: colorblind-friendly палитры (`tab10`, `colorblind` в seaborn)",
+    "Не полагайся только на цвет — добавь маркер/ linestyle для различия серий"
+  ],
+  "notes": "Доступность: color + marker.",
+  "visuals": [
+    {
+      "description": "Две серии: разный цвет И маркер (o vs s), legend.",
+      "output": "legend_color_marker.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "legend, title, colorblind palette."
+  }
+}

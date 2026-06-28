@@ -1,0 +1,23 @@
+{
+  "title": "merge и join",
+  "bullets": [
+    "`pd.merge(left, right, on='key', how='inner|left|right|outer')` — SQL-подобное соединение",
+    "how='left' — все строки левой таблицы; пропуски где нет совпадения",
+    "`.join()` — по индексу; для merge ключи часто приводят к одному типу",
+    "Дубликаты ключей → декартово умножение строк — проверяй `len` до и после"
+  ],
+  "notes": "Пример: таблица пассажиров + справочник портов.",
+  "visuals": [
+    {
+      "description": "Venn inner/left merge двух маленьких таблиц с ключом id.",
+      "output": "merge_diagram.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "merge двух DataFrame по ключу."
+  }
+}

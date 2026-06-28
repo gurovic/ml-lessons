@@ -1,0 +1,23 @@
+{
+  "title": "apply и transform",
+  "bullets": [
+    "`.apply(func, axis=0|1)` — функция по столбцу или строке; медленнее векторизации",
+    "`.map(dict)` на Series — замена значений по словарю",
+    "`.transform('mean')` после groupby — результат той же длины, что и исходник",
+    "Предпочитай встроенные методы (`str`, `dt`, NumPy) — apply для сложной логики"
+  ],
+  "notes": "map для Embarked кодов.",
+  "visuals": [
+    {
+      "description": "Series до map и после: S→0, C→1, Q→2.",
+      "output": "apply_map_transform.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "map Embarked, groupby transform mean."
+  }
+}

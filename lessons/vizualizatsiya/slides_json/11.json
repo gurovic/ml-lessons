@@ -1,0 +1,23 @@
+{
+  "title": "Категориальные графики",
+  "bullets": [
+    "`sns.countplot(data=df, x='col')` — частоты категорий",
+    "`sns.barplot(x=, y=, estimator='mean')` — агрегат по категории",
+    "Violin / stripplot — распределение внутри категории",
+    "Порядок категорий на оси X задавай явно (`order=`) для читаемости"
+  ],
+  "notes": "Survived по Sex — countplot.",
+  "visuals": [
+    {
+      "description": "countplot Sex + barplot mean Fare by Pclass.",
+      "output": "categorical_plots.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "countplot и barplot seaborn."
+  }
+}

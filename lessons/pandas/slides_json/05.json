@@ -1,0 +1,23 @@
+{
+  "title": "Индексы строк и столбцов",
+  "bullets": [
+    "Индекс — «метки» строк; по умолчанию 0…n−1, но может быть id, дата, код",
+    "`set_index('col')` — сделать столбец индексом; `reset_index()` — вернуть в столбец",
+    "`df.loc[label]` — по метке; `df['col']` — столбец (Series)",
+    "Дубликаты индекса допустимы, но усложняют выборку — лучше уникальный ключ"
+  ],
+  "notes": "Пример: PassengerId как индекс Titanic.",
+  "visuals": [
+    {
+      "description": "DataFrame до/после set_index: индекс слева выделен.",
+      "output": "index_set_reset.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "set_index и reset_index."
+  }
+}

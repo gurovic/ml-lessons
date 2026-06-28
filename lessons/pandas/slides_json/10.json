@@ -1,0 +1,23 @@
+{
+  "title": "Пропуски: isna, fillna, dropna",
+  "bullets": [
+    "`isna()` / `notna()` — маска пропусков; `df.isna().sum()` — счёт по столбцам",
+    "`fillna(value)` или `fillna(df['col'].median())` — заполнение",
+    "`dropna(subset=['Age'])` — удалить строки с пропуском в Age",
+    "Стратегия зависит от задачи: удалить vs impute; для ML — только на **train**"
+  ],
+  "notes": "Age в Titanic — классический пример.",
+  "visuals": [
+    {
+      "description": "Bar chart пропусков по столбцам Titanic (Cabin много, Age меньше).",
+      "output": "missing_counts.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "experiment"
+    ],
+    "hint": "isna().sum(), fillna median Age."
+  }
+}

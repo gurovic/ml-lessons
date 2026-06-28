@@ -1,0 +1,23 @@
+{
+  "title": "Базовая производительность",
+  "bullets": [
+    "Векторизация NumPy/Pandas **быстрее** цикла Python и построчного apply",
+    "`.values` / `.to_numpy()` — массив для sklearn без копий где возможно",
+    "category и правильные dtypes уменьшают память на больших таблицах",
+    "Чтение: `usecols`, `dtype`, `chunksize` — для файлов на миллионы строк"
+  ],
+  "notes": "Микро-бенчмарк apply vs vectorized — опционально в ноутбуке.",
+  "visuals": [
+    {
+      "description": "Bar chart: время apply vs vectorized (vectorized в 10–50× быстрее).",
+      "output": "perf_vectorized.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "experiment"
+    ],
+    "hint": "Сравнить apply и векторизацию по времени."
+  }
+}

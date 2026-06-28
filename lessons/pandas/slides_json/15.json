@@ -1,0 +1,16 @@
+{
+  "title": "Типичные ошибки в Pandas",
+  "bullets": [
+    "**SettingWithCopyWarning** — цепочка срезов; используй `.loc` или `.copy()`",
+    "Изменение среза не меняет исходник — нужен явный assign или loc",
+    "merge без проверки дубликатов ключей → раздувание строк",
+    "fillna/dropna **до** train_test_split — утечка информации из test"
+  ],
+  "notes": "Связь с data leakage из урока линейной регрессии.",
+  "visuals": [
+    {
+      "description": "Схема leakage: impute на всём df до split — красная стрелка «утечка».",
+      "output": "pandas_leakage.png"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Чтение данных",
+  "bullets": [
+    "`pd.read_csv(path)` — основной формат; параметры `sep`, `encoding`, `parse_dates`",
+    "`pd.read_excel` — листы через `sheet_name`; для OpenML — `fetch_openml(..., as_frame=True)`",
+    "После чтения: `df.head()`, `df.info()`, `df.describe()` — быстрый осмотр",
+    "Сохранение: `df.to_csv(..., index=False)` — индекс в файл обычно не пишем"
+  ],
+  "notes": "OpenML Titanic как пример в project.ipynb.",
+  "visuals": [
+    {
+      "description": "Скрин-схема: read_csv → DataFrame с подписью n_rows × n_cols.",
+      "output": "read_csv_flow.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "read_csv из StringIO или fetch_openml titanic."
+  }
+}

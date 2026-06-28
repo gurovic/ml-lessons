@@ -1,0 +1,23 @@
+{
+  "title": "Line plot",
+  "bullets": [
+    "`ax.plot(x, y)` — тренды во времени, learning curve, validation curve",
+    "Маркеры `marker='o'` помогают при малом числе точек",
+    "Несколько линий на одном axes — разные `label` + `ax.legend()`",
+    "Не соединяй линией категории без порядка — line для упорядоченной оси X"
+  ],
+  "notes": "Learning curve как ML-пример.",
+  "visuals": [
+    {
+      "description": "Две линии train/test score vs число примеров (переобучение видно).",
+      "output": "line_learning_curve.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "plot двух линий с legend."
+  }
+}

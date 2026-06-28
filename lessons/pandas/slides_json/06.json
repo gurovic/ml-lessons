@@ -1,0 +1,24 @@
+{
+  "title": "loc и iloc: две системы адресации",
+  "bullets": [
+    "**loc** — по меткам (label-based): `df.loc[3, 'Age']`, срезы включают конец",
+    "**iloc** — по позициям (integer): `df.iloc[0:5, 1:3]`, как NumPy",
+    "Срезы: `loc['a':'c']` включает 'c'; `iloc[0:3]` — не включает 3",
+    "Булевы маски работают с **loc**: `df.loc[df['Age'] > 30, ['Name','Age']]`"
+  ],
+  "notes": "Классическая ловушка — путать loc и iloc.",
+  "visuals": [
+    {
+      "description": "Сетка 4×4: loc выделяет блок по меткам B–D, iloc — по позициям 1:3.",
+      "output": "loc_vs_iloc.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example",
+      "experiment"
+    ],
+    "hint": "Сравнить loc и iloc на одном DataFrame."
+  }
+}

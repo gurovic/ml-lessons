@@ -1,0 +1,23 @@
+{
+  "title": "Первичный осмотр таблицы",
+  "bullets": [
+    "`head(n)` / `tail(n)` — первые и последние строки",
+    "`info()` — типы, пропуски, память; `describe()` — статистики числовых столбцов",
+    "`value_counts()` для категорий — баланс классов, частые значения",
+    "`.sample(n, random_state=42)` — случайная подвыборка для ручной проверки"
+  ],
+  "notes": "Связать describe с EDA перед моделью.",
+  "visuals": [
+    {
+      "description": "Мини-таблица describe(): count, mean, std, min, max для 3 столбцов.",
+      "output": "describe_snapshot.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "info(), describe(), value_counts на Titanic."
+  }
+}

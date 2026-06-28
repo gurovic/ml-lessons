@@ -1,0 +1,23 @@
+{
+  "title": "Series и DataFrame",
+  "bullets": [
+    "**Series** — одномерный массив с индексом: `s['a']`, `s.iloc[0]`",
+    "**DataFrame** — таблица: столбцы — Series с общим индексом строк",
+    "Создание: `pd.DataFrame({'col': [...]})`, из dict/list, из NumPy",
+    "`.shape`, `.columns`, `.dtypes` — первые вопросы к любой таблице"
+  ],
+  "notes": "Показать в ноутбуке создание из dict.",
+  "visuals": [
+    {
+      "description": "Схема: Series (индекс+значения) и DataFrame как набор столбцов-Series.",
+      "output": "series_dataframe_schema.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "Создать Series и DataFrame из dict, вывести shape и dtypes."
+  }
+}

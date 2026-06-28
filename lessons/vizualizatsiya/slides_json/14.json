@@ -1,0 +1,23 @@
+{
+  "title": "Визуализация для ML: остатки",
+  "bullets": [
+    "Residual plot: ось X — $\\hat{y}$, ось Y — $y - \\hat{y}$",
+    "Идеал — случайное облако вокруг нуля без «воронки» или U-образного паттерна",
+    "Histogram остатков — близость к симметрии (не строгая нормальность)",
+    "Тот же приём, что в уроке линейной регрессии — единый язык диагностики"
+  ],
+  "notes": "Синтетика с heteroscedastic funnel vs good.",
+  "visuals": [
+    {
+      "description": "2 panel: хорошие остатки vs воронка (heteroscedastic).",
+      "output": "residuals_good_vs_funnel.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "scatter y_hat vs residual."
+  }
+}

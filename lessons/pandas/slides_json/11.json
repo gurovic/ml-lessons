@@ -1,0 +1,23 @@
+{
+  "title": "Типы данных",
+  "bullets": [
+    "object — строки; int64/float64 — числа; category — экономия памяти для повторов",
+    "`astype({'col': 'category'})` — явное приведение",
+    "`pd.to_datetime(df['date'])` — даты; `.dt.year`, `.dt.month` — компоненты",
+    "Неверный dtype ломает sort и merge — смотри `df.dtypes` после чтения"
+  ],
+  "notes": "Sex → category на Titanic.",
+  "visuals": [
+    {
+      "description": "До/после: object Sex vs category — memory_usage меньше.",
+      "output": "dtype_category.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "astype category, to_datetime demo."
+  }
+}
