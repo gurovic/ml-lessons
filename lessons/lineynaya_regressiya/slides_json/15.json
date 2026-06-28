@@ -10,7 +10,8 @@
   "visuals": [
     {
       "description": "Scatter нелинейных данных (например y=x^2 + noise) с наложенной прямой (плохое приближение) и кривой (хорошее). matplotlib.",
-      "output": "nonlinear_vs_linear.png"
+      "output": "nonlinear_vs_linear.png",
+      "size": "large"
     }
   ]
 }

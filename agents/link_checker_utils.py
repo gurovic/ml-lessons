@@ -48,6 +48,11 @@ FREE_HOSTS = (
     "colab.research.google.com",
 )
 
+# Sites that block automated HEAD/GET (403) but work in a browser.
+BOT_BLOCKING_HOSTS = (
+    "akinator.com",
+)
+
 
 class Severity(str, Enum):
     OK = "OK"
@@ -120,6 +125,14 @@ def _host(url: str) -> str:
 
 def _path(url: str) -> str:
     return urlparse(url).path.lower()
+
+
+def is_bot_blocking_host(url: str) -> bool:
+    host = _host(url)
+    for pattern in BOT_BLOCKING_HOSTS:
+        if host == pattern or host.endswith("." + pattern):
+            return True
+    return False
 
 
 def is_likely_paywall(url: str) -> str | None:
@@ -197,6 +210,13 @@ def http_check(url: str, timeout: float = 15.0, online: bool = True) -> list[Lin
             if method == "HEAD" and e.code in (405, 501, 403):
                 continue
             if e.code >= 400:
+                if e.code == 403 and is_bot_blocking_host(url):
+                    return [
+                        LinkIssue(
+                            Severity.WARN,
+                            "Сайт блокирует автоматические запросы (403); URL оставлен",
+                        )
+                    ]
                 return [LinkIssue(Severity.FAIL, f"HTTP {e.code}")]
         except urllib.error.URLError as e:
             if method == "GET":

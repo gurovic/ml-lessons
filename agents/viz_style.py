@@ -1,7 +1,7 @@
 """Стиль matplotlib для иллюстраций на слайдах PPTX.
 
 Согласован с pptx_builder: буллеты Pt(20), заголовок Pt(32).
-Иллюстрация в правой колонке (~4.75″) или в ячейке сетки 2×2 (~2.3″) —
+Иллюстрация в правой колонке (~5.5″) или в широкой полосе (~7.8″) —
 шрифт в PNG задаём так, чтобы после масштабирования читалось сравнимо с текстом слайда.
 """
 
@@ -16,30 +16,43 @@ from PIL import Image
 SLIDE_BODY_PT = 20
 SLIDE_TITLE_PT = 32
 
+# Минимумы для читаемости на слайде (см. docs/visuals.md)
+MIN_LABEL_PT = 16
+MIN_TITLE_PT = 18
+MIN_TICK_PT = 14
+
 TEXT_DARK = "#1a1a1a"
 BG_LIGHT = "#ffffff"
 BG_BOX = "#eef2ff"
 
-# Одна картинка на всю колонку
+DPI = 200
+
+# Физический размер фигуры в дюймах (до savefig)
+FIGSIZE_SINGLE = (5.5, 4.0)
+FIGSIZE_DUAL = (11.0, 4.5)
+FIGSIZE_TRIPLE = (11.0, 4.0)
+FIGSIZE_GRID2X2 = (10.0, 8.0)
+
+# Одна картинка на всю колонку (~5.5″ на слайде)
 FONT_SINGLE = {
-    "font.size": 14,
-    "axes.titlesize": 15,
-    "axes.labelsize": 14,
-    "xtick.labelsize": 13,
-    "ytick.labelsize": 13,
-    "legend.fontsize": 13,
-    "figure.titlesize": 16,
+    "font.size": MIN_LABEL_PT,
+    "axes.titlesize": MIN_TITLE_PT,
+    "axes.labelsize": MIN_LABEL_PT,
+    "xtick.labelsize": MIN_TICK_PT,
+    "ytick.labelsize": MIN_TICK_PT,
+    "legend.fontsize": MIN_TICK_PT,
+    "figure.titlesize": MIN_TITLE_PT + 1,
 }
 
-# subplots(1, 2) или 2×2 на слайде — сильнее сжимаются → крупнее в исходнике
+# subplots(1, 2+) или 2×2 — сильнее сжимаются в PPTX → крупнее в исходнике
 FONT_COMPACT = {
-    "font.size": 15,
-    "axes.titlesize": 16,
-    "axes.labelsize": 15,
-    "xtick.labelsize": 14,
-    "ytick.labelsize": 14,
-    "legend.fontsize": 14,
-    "figure.titlesize": 17,
+    "font.size": 20,
+    "axes.titlesize": 22,
+    "axes.labelsize": 20,
+    "xtick.labelsize": 18,
+    "ytick.labelsize": 18,
+    "legend.fontsize": 18,
+    "figure.titlesize": 24,
 }
 
 CONTRAST = {
@@ -60,8 +73,8 @@ def apply_matplotlib_slide_style(*, compact: bool = False) -> None:
     """Применить rcParams: крупный шрифт + светлый фон + тёмный текст."""
     fonts = FONT_COMPACT if compact else FONT_SINGLE
     plt.rcParams.update({**fonts, **CONTRAST})
-    plt.rcParams["figure.dpi"] = 150
-    plt.rcParams["savefig.dpi"] = 150
+    plt.rcParams["figure.dpi"] = DPI
+    plt.rcParams["savefig.dpi"] = DPI
 
 
 def style_axes(ax, *, facecolor: str = BG_LIGHT) -> None:
@@ -83,6 +96,6 @@ def heatmap_text_color(value: float, vmin: float = 0.0, vmax: float = 1.0) -> st
 def save_slide_figure(fig, path: Path | str) -> None:
     """Сохранить PNG: белый непрозрачный фон, RGB."""
     path = Path(path)
-    fig.savefig(path, dpi=150, facecolor=BG_LIGHT, bbox_inches="tight")
+    fig.savefig(path, dpi=DPI, facecolor=BG_LIGHT, bbox_inches="tight")
     plt.close(fig)
     Image.open(path).convert("RGB").save(path)
