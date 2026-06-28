@@ -19,5 +19,11 @@
       "experiment"
     ],
     "hint": "сравнить fillna до и после split"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.model_selection import train_test_split\ntrain, test = train_test_split(df, random_state=42)\nmu = train['x'].mean()  # статистика только с train\ntest['x'] = test['x'].fillna(mu)",
+      "caption": "Impute после split"
+    }
+  ]
 }

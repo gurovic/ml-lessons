@@ -22,5 +22,11 @@
       "example"
     ],
     "hint": "value_counts, nunique, corr, describe"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "df['category'].value_counts()\ndf['user_id'].nunique()\ndf[numeric_cols].corr()['target'].sort_values()",
+      "caption": "Частоты и корреляции"
+    }
+  ]
 }

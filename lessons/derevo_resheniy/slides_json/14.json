@@ -7,5 +7,11 @@
     "Выбросы в y: чувствительны при MSE; в sklearn — DecisionTreeRegressor(criterion='absolute_error') или чистка данных"
   ],
   "notes": "Показать кусочно-постоянную аппроксимацию на одномерном примере: ступеньки разной высоты.",
-  "visuals": []
+  "visuals": [],
+  "code_examples": [
+    {
+      "source": "from sklearn.tree import DecisionTreeRegressor\nreg = DecisionTreeRegressor(max_depth=4, random_state=42)\nreg.fit(X_train, y_train)\nreg.predict(X_test)",
+      "caption": "DecisionTreeRegressor"
+    }
+  ]
 }

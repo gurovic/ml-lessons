@@ -23,5 +23,11 @@
       "experiment"
     ],
     "hint": "np.where, cut/qcut, clip"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "df['bucket'] = pd.cut(df['age'], bins=[0, 18, 65, 100])\ndf['flag'] = (df['score'] > 0.5).astype(int)\ndf = df[df['amount'] > 0]",
+      "caption": "cut и условия"
+    }
+  ]
 }

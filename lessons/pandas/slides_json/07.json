@@ -23,5 +23,11 @@
       "experiment"
     ],
     "hint": "isnull, Int64 vs float64 при пропусках"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "df['col'].isna().sum()          # число пропусков\ndf['col'].fillna(df['col'].median())\ndf = df.dropna(subset=['target'])",
+      "caption": "isna / fillna / dropna"
+    }
+  ]
 }

@@ -20,5 +20,11 @@
       "viz"
     ],
     "hint": "построить σ(z) и predict_proba на 2D scatter"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "import numpy as np\ndef sigmoid(z):\n    return 1 / (1 + np.exp(-z))\nz = np.linspace(-6, 6, 100)\np = sigmoid(z)  # всегда в (0, 1)",
+      "caption": "Функция сигмоиды"
+    }
+  ]
 }

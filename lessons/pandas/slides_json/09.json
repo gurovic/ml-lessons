@@ -18,5 +18,11 @@
       "example"
     ],
     "hint": "groupby agg и transform для контекстного признака"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "df.groupby('city')['sales'].agg(['mean', 'count'])\ndf.groupby('date')['amount'].sum().reset_index()",
+      "caption": "groupby + agg"
+    }
+  ]
 }

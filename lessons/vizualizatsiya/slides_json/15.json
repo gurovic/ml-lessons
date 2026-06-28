@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "RocCurveDisplay и PR на синтетике."
-  }
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.metrics import RocCurveDisplay\nRocCurveDisplay.from_predictions(y_test, y_score)\nplt.title('ROC')",
+      "caption": "RocCurveDisplay"
+    }
+  ]
 }

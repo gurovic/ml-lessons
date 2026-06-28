@@ -18,5 +18,11 @@
       "example"
     ],
     "hint": "str.len, contains, extract regex"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "df['email'].str.lower()\ndf['name'].str.contains('ivan', case=False)\ndf['phone'].str.replace('-', '', regex=False)",
+      "caption": "Аксессор .str"
+    }
+  ]
 }

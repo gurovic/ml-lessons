@@ -18,5 +18,11 @@
     "kinds": [
       "example"
     ]
-  }
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.preprocessing import StandardScaler, OneHotEncoder\nfrom sklearn.compose import ColumnTransformer\nprep = ColumnTransformer([\n    ('num', StandardScaler(), num_cols),\n    ('cat', OneHotEncoder(), cat_cols),\n])\nX_scaled = prep.fit_transform(X_train)",
+      "caption": "Числа + категории"
+    }
+  ]
 }

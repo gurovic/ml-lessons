@@ -18,5 +18,11 @@
       "experiment"
     ],
     "hint": "замер apply vs vectorized"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "df['x'] * 2              # векторизация — быстро\n# for i in range(len(df)): ...  # цикл — медленно",
+      "caption": "Векторизация vs цикл"
+    }
+  ]
 }

@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "set_index, ragged index после фильтра, reset_index"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "import pandas as pd\ndf = pd.DataFrame({'a': [1, 2]}, index=['x', 'y'])\ndf.loc['x']      # по метке\ndf.iloc[0]       # по позиции",
+      "caption": "Метка vs позиция"
+    }
+  ]
 }

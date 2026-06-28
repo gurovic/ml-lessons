@@ -6,5 +6,11 @@
     "export_text — текстовое представление: правила вида X[0] <= 2.5 → class=1"
   ],
   "notes": "Показать все три варианта в Jupyter. Объяснить, как читать дерево: в каждом узле — условие, impurity, число объектов, класс.",
-  "visuals": []
+  "visuals": [],
+  "code_examples": [
+    {
+      "source": "from sklearn.tree import plot_tree\nimport matplotlib.pyplot as plt\nplot_tree(clf, feature_names=names, filled=True)\nplt.show()",
+      "caption": "plot_tree"
+    }
+  ]
 }

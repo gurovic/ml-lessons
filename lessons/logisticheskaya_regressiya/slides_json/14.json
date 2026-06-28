@@ -20,5 +20,11 @@
       "experiment"
     ],
     "hint": "сравнить balanced vs default и пороги на make_classification"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "clf = LogisticRegression(\n    class_weight='balanced', random_state=42\n)\nclf.fit(X_train, y_train)\n# веса классов подобраны автоматически",
+      "caption": "class_weight='balanced'"
+    }
+  ]
 }

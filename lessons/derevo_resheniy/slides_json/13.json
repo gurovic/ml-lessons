@@ -11,5 +11,11 @@
       "description": "Горизонтальная столбчатая диаграмма важности признаков: по оси Y названия признаков, по оси X — importance (0-1). Использовать matplotlib, barh, сортировка по убыванию.",
       "output": "feature_importance.png"
     }
+  ],
+  "code_examples": [
+    {
+      "source": "import pandas as pd\nimp = pd.Series(clf.feature_importances_, index=feature_names)\nimp.sort_values(ascending=False).head()",
+      "caption": "feature_importances_"
+    }
   ]
 }

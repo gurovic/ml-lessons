@@ -20,5 +20,11 @@
       "experiment"
     ],
     "hint": "обучить LinearRegression на бинарных метках, показать predict вне [0,1] и влияние одного выброса"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.linear_model import LinearRegression\nlr = LinearRegression().fit(X, y_binary)\npred = lr.predict(X_new)\nprint(pred.min(), pred.max())  # часто вне [0, 1]",
+      "caption": "МНК на классах 0/1"
+    }
+  ]
 }

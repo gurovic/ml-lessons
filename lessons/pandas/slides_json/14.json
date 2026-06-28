@@ -18,5 +18,11 @@
       "example"
     ],
     "hint": "pd.to_datetime, dt.hour, sin/cos"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "df['ts'] = pd.to_datetime(df['ts'])\ndf['hour'] = df['ts'].dt.hour\ndf['weekday'] = df['ts'].dt.dayofweek",
+      "caption": "Аксессор .dt"
+    }
+  ]
 }

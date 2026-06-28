@@ -18,5 +18,11 @@
       "example"
     ],
     "hint": "groupby с MultiIndex и reset_index"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "g = df.groupby(['city', 'year'])['sales'].mean()\ng.loc['MSK']          # срез по первому уровню\ng.reset_index()       # обратно в таблицу",
+      "caption": "MultiIndex после groupby"
+    }
+  ]
 }

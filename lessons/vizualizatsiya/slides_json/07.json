@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "scatterplot и histplot seaborn."
-  }
+  },
+  "code_examples": [
+    {
+      "source": "import seaborn as sns\nsns.scatterplot(data=df, x='x', y='y', hue='class')\nsns.regplot(data=df, x='x', y='y', scatter_kws={'alpha': 0.5})",
+      "caption": "scatterplot / regplot"
+    }
+  ]
 }

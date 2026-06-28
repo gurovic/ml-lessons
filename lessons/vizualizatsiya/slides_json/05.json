@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "bar и barh сравнение категорий."
-  }
+  },
+  "code_examples": [
+    {
+      "source": "ax.bar(categories, values, color='steelblue')\nax.set_ylabel('count')\nplt.xticks(rotation=45)",
+      "caption": "Столбчатая диаграмма"
+    }
+  ]
 }

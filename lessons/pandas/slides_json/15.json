@@ -18,5 +18,11 @@
       "example"
     ],
     "hint": "to_numpy, select_dtypes"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "arr = df[['x', 'y']].to_numpy()   # DataFrame → ndarray\ndf2 = pd.DataFrame(arr, columns=['x', 'y'])\ndf.values  # устаревший alias",
+      "caption": "to_numpy()"
+    }
+  ]
 }

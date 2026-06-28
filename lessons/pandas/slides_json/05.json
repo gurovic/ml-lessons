@@ -18,5 +18,11 @@
       "experiment"
     ],
     "hint": "воспроизвести SettingWithCopyWarning и исправить через .copy()/.loc"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "df2 = df[df['active']].copy()  # явная копия\ndf2.loc[:, 'score'] = 0        # без предупреждения\n# без .copy() — риск записи во view",
+      "caption": "copy() перед присваиванием"
+    }
+  ]
 }

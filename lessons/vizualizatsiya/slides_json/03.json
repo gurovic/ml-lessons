@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "plot двух линий с legend."
-  }
+  },
+  "code_examples": [
+    {
+      "source": "ax.plot(x, y, label='train', color='C0')\nax.plot(x, y_test, label='test', linestyle='--')\nax.legend()",
+      "caption": "Несколько линий"
+    }
+  ]
 }

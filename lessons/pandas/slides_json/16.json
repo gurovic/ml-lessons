@@ -22,5 +22,11 @@
       "example"
     ],
     "hint": "merge с дублями, concat после split"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "out = pd.merge(users, orders, on='user_id', how='left')\nwide = pd.concat([df_a, df_b], axis=1)",
+      "caption": "merge и concat"
+    }
+  ]
 }

@@ -18,5 +18,11 @@
       "example"
     ],
     "hint": "to_parquet/read_parquet, сравнить dtypes"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "df.to_parquet('data.parquet', index=False)\ndf = pd.read_parquet('data.parquet')\n# типы и сжатие сохраняются",
+      "caption": "Parquet вместо CSV"
+    }
+  ]
 }

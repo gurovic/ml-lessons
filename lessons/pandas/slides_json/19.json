@@ -18,5 +18,11 @@
       "example"
     ],
     "hint": "to_numpy float32, torch.from_numpy vs torch.tensor"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "import torch\nX_t = torch.tensor(df[cols].to_numpy(), dtype=torch.float32)\ny_t = torch.tensor(df['y'].to_numpy())",
+      "caption": "DataFrame → tensor"
+    }
+  ]
 }

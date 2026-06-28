@@ -18,5 +18,11 @@
       "example"
     ],
     "hint": "merge_asof на синтетических timestamp"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "pd.merge_asof(\n    quotes.sort_values('time'),\n    trades.sort_values('time'),\n    on='time', direction='backward',\n)",
+      "caption": "Ближайшее прошлое событие"
+    }
+  ]
 }

@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "hist и sns.boxplot."
-  }
+  },
+  "code_examples": [
+    {
+      "source": "ax.hist(data, bins=30, edgecolor='white')\nax.boxplot(data, vert=True)\nax.set_title('Распределение')",
+      "caption": "hist + boxplot"
+    }
+  ]
 }

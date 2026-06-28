@@ -13,5 +13,11 @@
       "description": "Двумерное пространство признаков (x₁, x₂) с точками двух классов (круги и треугольники). Показать оси-параллельные прямоугольники — результат работы дерева глубины 2. Использовать matplotlib, scatter plot, прямоугольники через Rectangle.",
       "output": "binary_classification_rectangles.png"
     }
+  ],
+  "code_examples": [
+    {
+      "source": "from sklearn.datasets import load_iris\nX, y = load_iris(return_X_y=True)\nX, y = X[y != 2], (y[y != 2] == 0).astype(int)\n# бинарная задача: setosa vs остальные",
+      "caption": "Два класса из iris"
+    }
   ]
 }

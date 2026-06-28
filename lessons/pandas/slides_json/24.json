@@ -18,5 +18,11 @@
       "example"
     ],
     "hint": "memory_usage deep=True, category, downcast"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "df['small_int'] = pd.to_numeric(df['small_int'], downcast='integer')\ndf['category'] = df['category'].astype('category')",
+      "caption": "Меньше байт на ячейку"
+    }
+  ]
 }

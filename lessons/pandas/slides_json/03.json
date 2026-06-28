@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "булева маска, составные условия со скобками"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "mask = df['age'] > 18\nadults = df[mask]           # фильтр булевой маской\ndf.loc[df['city'] == 'MSK'] # то же через loc",
+      "caption": "Фильтрация строк"
+    }
+  ]
 }

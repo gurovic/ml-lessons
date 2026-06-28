@@ -18,5 +18,11 @@
       "example"
     ],
     "hint": "get_dummies, astype category, cat.codes"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "df['color'] = df['color'].astype('category')\ndf['color'].cat.codes   # целые коды\npd.get_dummies(df, columns=['color'])",
+      "caption": "category и get_dummies"
+    }
+  ]
 }

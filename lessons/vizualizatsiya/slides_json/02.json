@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "subplots, plot на ax, labels."
-  }
+  },
+  "code_examples": [
+    {
+      "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 4))\nax.plot([1, 2, 3], [1, 4, 9])\nax.set_xlabel('x'); ax.set_ylabel('y')",
+      "caption": "OO-стиль matplotlib"
+    }
+  ]
 }

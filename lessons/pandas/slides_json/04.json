@@ -18,5 +18,11 @@
       "example"
     ],
     "hint": "loc vs iloc на DataFrame с кастомным индексом"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "col = df['price']          # столбец\ncell = df.loc[10, 'price'] # по метке индекса\ncell = df.iloc[0, 2]       # по позиции (0, 2)",
+      "caption": "[] / loc / iloc"
+    }
+  ]
 }

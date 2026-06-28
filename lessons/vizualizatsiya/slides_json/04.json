@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "scatter с цветом по y."
-  }
+  },
+  "code_examples": [
+    {
+      "source": "ax.scatter(X[:, 0], X[:, 1], c=y, cmap='viridis', alpha=0.7)\nax.set_xlabel('feature 1'); ax.set_ylabel('feature 2')",
+      "caption": "Классы цветом"
+    }
+  ]
 }

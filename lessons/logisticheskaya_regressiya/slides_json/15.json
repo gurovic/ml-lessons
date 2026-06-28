@@ -20,5 +20,11 @@
       "viz"
     ],
     "hint": "calibration_curve для LogisticRegression и DecisionTreeClassifier"
-  }
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.calibration import CalibratedClassifierCV\ncal = CalibratedClassifierCV(clf, cv=3)\ncal.fit(X_train, y_train)\np_cal = cal.predict_proba(X_test)[:, 1]",
+      "caption": "Калибровка вероятностей"
+    }
+  ]
 }

@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "scatter y_hat vs residual."
-  }
+  },
+  "code_examples": [
+    {
+      "source": "residuals = y_test - y_pred\nax.scatter(y_pred, residuals, alpha=0.6)\nax.axhline(0, color='red', linestyle='--')",
+      "caption": "Остатки vs предсказание"
+    }
+  ]
 }

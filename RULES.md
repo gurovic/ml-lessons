@@ -48,10 +48,10 @@
 ## Состав папки урока
 
 - plan.md — создаётся пользователем
-- presentation.pptx
+- **presentation.pptx** — **основной артефакт для автора**: проверка и правка слайдов в PowerPoint (см. docs/pipeline.md)
 - assets/
-- slides_json/ — JSON-слайды с последовательной нумерацией: 01.json, 02.json, … (независимо от номеров в plan.md)
-- review.md — отчёт агента-рецензента (после ручной правки слайдов)
+- slides_json/ — JSON-слайды (01.json, 02.json, …); **редактируют агенты**, не автор вручную; источник для пересборки pptx
+- review.md — опциональный отчёт агента-рецензента (до сборки pptx)
 - code.ipynb — короткие примеры по слайдам (см. docs/notebook_agent.md)
 - project.ipynb — сквозной мини-проект на реальных данных (см. docs/project_notebook.md)
 - info.json — тема, автор (email, Telegram), продолжительность
@@ -76,7 +76,7 @@
 - Формирует промпт для генерации Python-скрипта диаграммы.
 
 ### Рецензент урока (agents/lesson_reviewer.py)
-- После ручной правки JSON-слайдов: фактология, логика, понятность, лаконичность, полнота.
+- Опционально до сборки pptx: фактология, логика, понятность, лаконичность, полнота по JSON; замечания вносят агенты в slides_json/, не автор вручную.
 - Промпт: agents/prompts/lesson_reviewer.md, описание: docs/reviewer_agent.md
 - Использование: python agents/lesson_reviewer.py <lesson_dir>
 - --save [file] — сохранить отчёт в review.md (из файла или stdin)
@@ -87,6 +87,17 @@
 - Использование: python agents/notebook_generator.py <lesson_dir>
 - --list — показать отобранные слайды
 - --save [file] — собрать ноутбук из JSON-ответа AI (файл или stdin)
+
+### Агент примеров кода на слайдах (agents/slide_code_agent.py)
+- Короткие фрагменты Python на слайдах с практикой (`code_examples` в JSON).
+- Описание: docs/slide_code_agent.md
+- Промпт: agents/prompts/slide_code_agent.md
+- Bootstrap: agents/slide_code_bootstrap.py
+- Использование: python agents/slide_code_agent.py <lesson_dir>
+- --list — кандидаты без code_examples
+- --prompt — промпт для AI
+- --save [file] — применить JSON-ответ к slides_json/
+- --apply — bootstrap-сниппеты для слайдов с notebook.include
 
 ### Агент «Источники и практика» (agents/references_agent.py)
 - Классические статьи (промпт для AI) + Colab-ссылки на `code.ipynb` / `project.ipynb` + QR на слайде.
@@ -104,16 +115,21 @@
 
 ## Порядок работы над уроком
 
-1. Создать plan.md.
-2. Оркестратор → промпт → AI → сохранить JSON.
-3. Повторить для каждого слайда.
-4. **Редактирование слайдов пользователем** — пользователь проверяет и правит все сохранённые JSON вручную.
-5. **Рецензент** → промпт → AI → сохранить review.md → правки JSON по замечаниям.
-6. Только после рецензии: --visuals → промпты → AI → --save-script (генерация диаграмм).
-7. pptx_builder (сборка презентации).
-8. **notebook_generator** → промпт → AI → --save → `code.ipynb` (см. docs/notebook_agent.md).
-9. **project.ipynb** — мини-проект end-to-end по docs/project_notebook.md (вручную или отдельным промптом).
-10. **references_agent** → --prompt → AI → --save → --apply (статьи + Colab + QR; см. docs/colab_references.md).
+Подробно: **docs/pipeline.md**. Кратко:
+
+1. Создать plan.md (и info.json).
+2. Оркестратор → промпт → AI → сохранить JSON в slides_json/ (повторить для каждого слайда).
+3. **Опционально:** рецензент → review.md → агенты правят JSON по замечаниям (можно пропустить и перейти к сборке pptx).
+4. --visuals → промпты → AI → --save-script (генерация диаграмм в assets/).
+5. **slide_code_agent** → --apply или --prompt → --save → `code_examples` в JSON (см. docs/slide_code_agent.md).
+6. **pptx_builder** → `presentation.pptx`.
+7. **Проверка и правка пользователем в PowerPoint** — не JSON. Ручные правки pptx не синхронизируются с JSON; повторный pptx_builder перезаписывает файл.
+8. При содержательных правках после pptx: описать в чате или обновить plan.md → агенты правят JSON и пересобирают pptx (указать, что сохранить из ручных правок, или сделать backup).
+9. **notebook_generator** → промпт → AI → --save → `code.ipynb` (см. docs/notebook_agent.md).
+10. **project.ipynb** — мини-проект end-to-end по docs/project_notebook.md (вручную или отдельным промптом).
+11. **references_agent** → --prompt → AI → --save → --apply (статьи + Colab + QR; см. docs/colab_references.md) → снова проверить presentation.pptx.
+
+Структурные изменения (новый слайд, порядок) — через plan.md и оркестратор, не только правкой pptx.
 
 ## Формат взаимодействия
 
@@ -140,6 +156,10 @@
 - Опционально — поле `notebook` для практики в code.ipynb (см. docs/notebook_agent.md):
   ```json
   "notebook": { "include": true, "kinds": ["example", "experiment"], "hint": "..." }
+  ```
+- Опционально — поле `code_examples` для кода на слайде (см. docs/slide_code_agent.md):
+  ```json
+  "code_examples": [{ "source": "import pandas as pd\n...", "caption": "..." }]
   ```
 
 ## Отсылки к слайдам

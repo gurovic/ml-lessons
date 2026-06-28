@@ -219,6 +219,89 @@ def _render_references_slide(
         cp.alignment = PP_ALIGN.CENTER
 
 
+def _render_code_examples(
+    slide,
+    code_examples: list[dict],
+    *,
+    left: float,
+    top: float,
+    width: float,
+    Inches,
+    body_rgb,
+):
+    """Моноширинный блок(и) кода под буллетами."""
+    from pptx.dml.color import RGBColor
+    from pptx.enum.text import MSO_AUTO_SIZE, PP_ALIGN
+    from pptx.util import Pt
+
+    if not code_examples:
+        return top
+
+    code_font = "Consolas"
+    code_size = Pt(11)
+    caption_size = Pt(10)
+    pad = 0.08
+    y = top
+
+    for block in code_examples:
+        source = block.get("source", "")
+        if not source:
+            continue
+        lines = source.split("\n")
+        n_lines = max(len(lines), 1)
+        block_h = 0.19 * n_lines + 0.12
+
+        bg = slide.shapes.add_shape(
+            1,
+            Inches(left),
+            Inches(y),
+            Inches(width),
+            Inches(block_h),
+        )
+        bg.fill.solid()
+        bg.fill.fore_color.rgb = RGBColor(0xF5, 0xF5, 0xF5)
+        bg.line.color.rgb = RGBColor(0xDD, 0xDD, 0xDD)
+
+        box = slide.shapes.add_textbox(
+            Inches(left + pad),
+            Inches(y + pad * 0.5),
+            Inches(width - 2 * pad),
+            Inches(block_h - pad),
+        )
+        tf = box.text_frame
+        tf.word_wrap = True
+        tf.auto_size = MSO_AUTO_SIZE.NONE
+        for j, line in enumerate(lines):
+            p = tf.paragraphs[0] if j == 0 else tf.add_paragraph()
+            p.text = line
+            p.font.name = code_font
+            p.font.size = code_size
+            p.font.color.rgb = RGBColor(*body_rgb)
+            p.space_after = Pt(0)
+
+        y += block_h + 0.06
+
+        caption = block.get("caption")
+        if caption:
+            cap_box = slide.shapes.add_textbox(
+                Inches(left),
+                Inches(y),
+                Inches(width),
+                Inches(0.22),
+            )
+            cp = cap_box.text_frame.paragraphs[0]
+            cp.text = caption
+            cp.font.size = caption_size
+            cp.font.italic = True
+            cp.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
+            cp.alignment = PP_ALIGN.LEFT
+            y += 0.24
+
+        y += 0.04
+
+    return y
+
+
 def _place_visuals(slide, visuals: list[dict], assets_dir: Path, slide_num: int):
     paths = []
     for visual_obj in visuals:
@@ -351,11 +434,29 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
                 link_rgb=link_rgb,
             )
         else:
-            body_width = Inches(7.5) if has_visuals else Inches(12.3)
+            from slide_code_utils import estimate_code_height_inches
 
+            body_width_in = 7.5 if has_visuals else 12.3
+            body_width = Inches(body_width_in)
+
+            code_examples = slide_data.get("code_examples", [])
+            code_h = (
+                estimate_code_height_inches(code_examples)
+                if code_examples
+                else 0.0
+            )
             bullets = slide_data.get("bullets", [])
+            n_bullets = len(bullets)
+            bullet_h = min(5.5, max(1.8, 0.42 * n_bullets + 0.3))
+            if code_h:
+                max_body = 6.0 if has_visuals else 6.2
+                bullet_h = min(bullet_h, max(1.5, max_body - code_h - 0.2))
+
+            bullet_top = 1.5
             if bullets:
-                body = slide.shapes.add_textbox(Inches(0.7), Inches(1.5), body_width, Inches(5.5))
+                body = slide.shapes.add_textbox(
+                    Inches(0.7), Inches(bullet_top), body_width, Inches(bullet_h)
+                )
                 tf2 = body.text_frame
                 tf2.word_wrap = True
                 for j, bullet in enumerate(bullets):
@@ -365,6 +466,18 @@ def build_presentation(slides: list[dict], output_path: Path, assets_dir: Path, 
                         p, bullet, font_size=Pt(20), color=body_rgb
                     ):
                         print(f"  [warn] Слайд {i}, буллет {j + 1}: {w}")
+
+            if code_examples:
+                code_top = bullet_top + bullet_h + 0.12
+                _render_code_examples(
+                    slide,
+                    code_examples,
+                    left=0.7,
+                    top=code_top,
+                    width=body_width_in - 0.1,
+                    Inches=Inches,
+                    body_rgb=body_rgb,
+                )
 
             _place_visuals(slide, visuals, assets_dir, i)
 

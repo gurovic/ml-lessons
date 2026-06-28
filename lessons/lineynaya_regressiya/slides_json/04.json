@@ -19,5 +19,11 @@
     "kinds": [
       "example"
     ]
-  }
+  },
+  "code_examples": [
+    {
+      "source": "from sklearn.linear_model import LinearRegression\nmodel = LinearRegression()  # solver='linalg' по умолчанию\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)",
+      "caption": "МНК через LinearRegression"
+    }
+  ]
 }

@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "legend, title, colorblind palette."
-  }
+  },
+  "code_examples": [
+    {
+      "source": "ax.set_title('ROC-кривая', fontsize=14)\nax.legend(loc='lower right')\nax.grid(True, alpha=0.3)",
+      "caption": "title / legend / grid"
+    }
+  ]
 }

@@ -19,5 +19,11 @@
       "example"
     ],
     "hint": "corr и sns.heatmap."
-  }
+  },
+  "code_examples": [
+    {
+      "source": "import seaborn as sns\ncorr = df.corr(numeric_only=True)\nsns.heatmap(corr, annot=True, cmap='coolwarm', vmin=-1, vmax=1)",
+      "caption": "heatmap корреляций"
+    }
+  ]
 }
