@@ -88,6 +88,16 @@
 - --list — показать отобранные слайды
 - --save [file] — собрать ноутбук из JSON-ответа AI (файл или stdin)
 
+### Агент «Источники и практика» (agents/references_agent.py)
+- Классические статьи (промпт для AI) + Colab-ссылки на `code.ipynb` / `project.ipynb` + QR на слайде.
+- Описание: docs/colab_references.md, формат слайда: docs/references_slide.md
+- Промпт: agents/prompts/references_agent.md
+- Использование: python agents/references_agent.py <lesson_dir>
+- --list — показать статьи и Colab-URL
+- --prompt — промпт для AI (список статей)
+- --save [file] — сохранить JSON слайда (файл или stdin)
+- --apply — вставить/обновить слайд в slides_json/ и пересобрать presentation.pptx
+
 ### Мини-проект (project.ipynb)
 - Сквозной сценарий на реальных данных — docs/project_notebook.md
 - Шаблоны: python agents/build_project_notebooks.py
@@ -103,6 +113,7 @@
 7. pptx_builder (сборка презентации).
 8. **notebook_generator** → промпт → AI → --save → `code.ipynb` (см. docs/notebook_agent.md).
 9. **project.ipynb** — мини-проект end-to-end по docs/project_notebook.md (вручную или отдельным промптом).
+10. **references_agent** → --prompt → AI → --save → --apply (статьи + Colab + QR; см. docs/colab_references.md).
 
 ## Формат взаимодействия
 
@@ -125,7 +136,7 @@
 - Тезисно материал по теме, взятый как из plan.md, так и подготовленный AI RULES.md
 - Формулы — inline в тексте через `$...$` (см. docs/formulas.md)
 - **Иллюстрации** — по политике docs/visuals.md: по умолчанию ≥1 график/схема на слайд; 2–4 где несколько наглядных идей; `visuals[]` с `description` и `output`
-- При необходимости - ссылка и QR-код на внешний ресурс (есть специальный инструмент)
+- При необходимости - ссылка и QR-код на внешний ресурс (поле `link`; см. docs/references_slide.md для слайда литературы + Colab)
 - Опционально — поле `notebook` для практики в code.ipynb (см. docs/notebook_agent.md):
   ```json
   "notebook": { "include": true, "kinds": ["example", "experiment"], "hint": "..." }
