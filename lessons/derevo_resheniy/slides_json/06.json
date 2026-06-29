@@ -16,7 +16,7 @@
   ],
   "code_examples": [
     {
-      "source": "from sklearn.tree import DecisionTreeClassifier\nclf = DecisionTreeClassifier(criterion='gini')\nclf_ent = DecisionTreeClassifier(criterion='entropy')\n# сравните деревья на одних данных",
+      "source": "clf = DecisionTreeClassifier(criterion='gini')\nclf_ent = DecisionTreeClassifier(criterion='entropy')\n# сравните деревья на одних данных",
       "caption": "Gini vs entropy"
     }
   ]

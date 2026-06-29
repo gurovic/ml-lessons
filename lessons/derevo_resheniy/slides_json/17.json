@@ -14,7 +14,7 @@
   ],
   "code_examples": [
     {
-      "source": "import numpy as np\nxx, yy = np.meshgrid(\n    np.linspace(x.min(), x.max(), 200),\n    np.linspace(y.min(), y.max(), 200),\n)\nZ = clf.predict(np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)",
+      "source": "xx, yy = np.meshgrid(\n    np.linspace(x.min(), x.max(), 200),\n    np.linspace(y.min(), y.max(), 200),\n)\nZ = clf.predict(np.c_[xx.ravel(),\n    yy.ravel()]).reshape(xx.shape)",
       "caption": "Сетка для границы"
     }
   ]

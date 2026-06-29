@@ -21,7 +21,7 @@
   },
   "code_examples": [
     {
-      "source": "df['small_int'] = pd.to_numeric(df['small_int'], downcast='integer')\ndf['category'] = df['category'].astype('category')",
+      "source": "df['small_int'] = pd.to_numeric(\n    df['small_int'],\n    downcast='integer')\ndf['category'] = df['category'].astype('category')",
       "caption": "Меньше байт на ячейку"
     }
   ]

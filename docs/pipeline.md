@@ -17,27 +17,29 @@
 2. **Агенты** генерируют контент:
    - `slides_orchestrator` → `slides_json/` (по одному слайду из plan.md);
    - опционально `lesson_reviewer` → `review.md` → правки через агентов в JSON (см. ниже);
-   - `--visuals` → PNG в `assets/`;
+   - **`visuals_pipeline`** (или `--visuals` оркестратора) → PNG в `assets/`; программная проверка; опционально AI-рецензия (`--review`);
    - `slide_code_agent` → `code_examples` в JSON;
    - `pptx_builder` → **`presentation.pptx`**;
    - `notebook_generator` → `code.ipynb`;
    - `project.ipynb` (вручную или по шаблону);
+   - **`notebook_reviewer`** — автопроверка + AI-рецензия `code.ipynb` / `project.ipynb` (`--check-only`, `--apply`);
    - `references_agent` → слайд «Источники и практика» + пересборка pptx;
    - `link_checker_agent` → проверка URL (после references, до финальной QA pptx).
-3. **Пользователь проверяет и правит `presentation.pptx` в PowerPoint** — не JSON.
+3. **Пользователь проверяет и правит `presentation.pptx` в PowerPoint** — не JSON. Замечания по слайдам — в **`author_feedback.md`** (чеклисты; файл не перезаписывается рецензентом).
 4. Если после проверки pptx нужны **содержательные** изменения:
-   - описать правки в чате с ассистентом **или** обновить `plan.md`;
+   - зафиксировать в **`author_feedback.md`**, описать в чате с ассистентом **или** обновить `plan.md`;
    - агенты правят `slides_json/` и пересобирают pptx;
    - **внимание:** повторный `pptx_builder` **перезаписывает** `presentation.pptx` — ручные правки в PowerPoint будут потеряны, если не указать, что сохранить (или не сделать резервную копию).
 5. Слайд литературы, `code_examples`, Colab/QR — добавляются агентами; результат виден в pptx.
 
-## Роль JSON и review.md
+## Роль JSON, review.md и author_feedback.md
 
 | Артефакт | Кто редактирует | Назначение |
 |----------|-----------------|------------|
 | `slides_json/*.json` | **только агенты** | машинный формат для генерации и пересборки |
 | `presentation.pptx` | **автор** | основная проверка и финальная правка текста, формул, вёрстки |
-| `review.md` | агент-рецензент | опциональный QA до сборки pptx; замечания вносятся в JSON агентами, не автором вручную |
+| `review.md` | агент-рецензент | опциональный QA **до** сборки pptx; перезаписывается при повторной рецензии; правки в JSON — агентами |
+| `author_feedback.md` | **автор** | замечания **после** проверки pptx (чеклисты по слайдам); persistent, не трогается lesson_reviewer |
 
 Рецензент (`lesson_reviewer`) полезен **до** первой сборки pptx: отчёт помогает поймать ошибки до визуализаций. Автор может **пропустить** JSON-рецензию и сразу собрать pptx, если доверяет черновику — тогда основная QA — просмотр презентации.
 
@@ -74,6 +76,8 @@ presentation.pptx (pptx_builder)
 [опционально] plan.md / чат → агенты → JSON → pptx (перезапись!)
     ↓
 code.ipynb, project.ipynb, references, link_checker (агенты)
+    ↓
+[опционально] notebook_reviewer — QA ноутбуков
 ```
 
 ## Связанные документы
@@ -83,6 +87,37 @@ code.ipynb, project.ipynb, references, link_checker (агенты)
 - **docs/reviewer_agent.md** — рецензент до pptx (опционально)
 - **docs/notebook_agent.md**, **docs/slide_code_agent.md**, **docs/colab_references.md**, **docs/link_checker_agent.md** — шаги после/вокруг pptx
 - **docs/formulas.md**, **docs/visuals.md** — как JSON рендерится в pptx
+- **agents/visuals_pipeline.py**, **agents/prompts/visuals_reviewer.md** — генерация PNG, автопроверка, AI-рецензия иллюстраций
+
+### Иллюстрации (visuals_pipeline)
+
+Если в уроке есть `assets/generate_visuals.py`:
+
+```bash
+python agents/visuals_pipeline.py --pilot                         # пилот: lineynaya_regressiya
+python agents/visuals_pipeline.py lessons/<slug>              # generate + check + pptx
+python agents/visuals_pipeline.py lessons/<slug> --check-only
+python agents/visuals_pipeline.py lessons/<slug> --review     # промпт для AI-рецензии PNG
+python agents/visuals_pipeline.py --all-lessons --generate-only  # все уроки (после одобрения пилота)
+```
+
+Шаги: (1) запуск `generate_visuals.py`; (2) проверка — missing/orphan PNG, aspect для правой колонки, слайды без visuals; (3) пересборка pptx. Рецензия **PNG** (педагогика, контраст, подписи) — отдельно от `lesson_reviewer` (текст JSON).
+
+**Пилот:** правки иллюстраций сначала в `lessons/lineynaya_regressiya`; остальные уроки — после одобрения pptx (см. docs/visuals.md).
+
+### Ноутбуки (notebook_reviewer)
+
+После `code.ipynb` и `project.ipynb`:
+
+```bash
+python agents/notebook_reviewer.py --pilot                         # пилот: lineynaya_regressiya
+python agents/notebook_reviewer.py lessons/<slug>              # check + промпт AI
+python agents/notebook_reviewer.py lessons/<slug> --check-only
+python agents/notebook_reviewer.py lessons/<slug> --save notebook_review.md
+python agents/notebook_reviewer.py lessons/<slug> --apply fixes.json
+```
+
+Шаги: (1) программная проверка — синтаксис, Setup, imports, покрытие слайдов, narrative; (2) промпт для AI-рецензии; (3) `--apply` — пересборка ipynb из JSON-ответа. Отчёт — `notebook_review.md` (не путать с `review.md` для JSON-слайдов).
 
 ## Отвергнутые альтернативы
 

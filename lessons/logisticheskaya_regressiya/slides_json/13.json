@@ -22,7 +22,7 @@
   },
   "code_examples": [
     {
-      "source": "from sklearn.linear_model import LogisticRegression\nclf = LogisticRegression(C=1.0, random_state=42)\nclf.fit(X_train, y_train)\ny_pred = clf.predict(X_test)",
+      "source": "clf = LogisticRegression(C=1.0, random_state=42)\nclf.fit(X_train, y_train)\ny_pred = clf.predict(X_test)",
       "caption": "Базовый классификатор"
     }
   ]

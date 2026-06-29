@@ -9,7 +9,7 @@
   "visuals": [],
   "code_examples": [
     {
-      "source": "from sklearn.tree import plot_tree\nimport matplotlib.pyplot as plt\nplot_tree(clf, feature_names=names, filled=True)\nplt.show()",
+      "source": "plot_tree(clf, feature_names=names, filled=True)\nplt.show()",
       "caption": "plot_tree"
     }
   ]

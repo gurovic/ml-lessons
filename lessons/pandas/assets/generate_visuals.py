@@ -1,4 +1,4 @@
-"""Генерация всех иллюстраций урока pandas (rebuild from plan.md)."""
+﻿"""Генерация всех иллюстраций урока pandas (rebuild from plan.md)."""
 from __future__ import annotations
 
 import sys
@@ -15,9 +15,16 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "agents"))
 from viz_style import (  # noqa: E402
     BG_BOX,
+    COL_HSPACE,
+    FIGSIZE_DUAL_COL,
+    FIGSIZE_TRIPLE_COL,
     TEXT_DARK,
+    FONT_ANNOT,
+    FONT_SYMBOL,
     apply_matplotlib_slide_style,
     heatmap_text_color,
+    legend_kwargs,
+    save_dual_col_figure,
     save_slide_figure,
     style_axes,
 )
@@ -31,7 +38,7 @@ def _box(ax, xy, w, h, text, fc=BG_BOX, ec="#444444"):
         xy, w, h, boxstyle="round,pad=0.02", fc=fc, ec=ec, lw=1.2
     )
     ax.add_patch(patch)
-    ax.text(xy[0] + w / 2, xy[1] + h / 2, text, ha="center", va="center", fontsize=11, color=TEXT_DARK)
+    ax.text(xy[0] + w / 2, xy[1] + h / 2, text, ha="center", va="center", fontsize=FONT_ANNOT, color=TEXT_DARK)
 
 
 def fig_pandas_numpy_schema():
@@ -48,12 +55,12 @@ def fig_pandas_numpy_schema():
     ax.annotate("", xy=(5.2, 4.0), xytext=(5.0, 4.0), arrowprops=dict(arrowstyle="->", color="#888"))
     ax.set_title("DataFrame = numpy + индексы + метаданные")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "pandas_numpy_schema.png")
+    save_slide_figure(fig, ASSETS / "pandas_numpy_schema.png", tight=False, axes=ax)
 
 
 def fig_index_ragged_reset():
-    apply_matplotlib_slide_style(compact=True)
-    fig, axes = plt.subplots(1, 3, figsize=(10, 3.2))
+    apply_matplotlib_slide_style()
+    fig, axes = plt.subplots(3, 1, figsize=FIGSIZE_TRIPLE_COL, gridspec_kw={"hspace": COL_HSPACE})
     idx_before = [0, 1, 2, 3, 4]
     ages = [22, 35, 28, 41, 33]
     for ax, title, idx in [
@@ -74,12 +81,12 @@ def fig_index_ragged_reset():
         ax.set_title(title)
     fig.suptitle("«Рваный» индекс после фильтрации", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "index_ragged_reset.png")
+    save_dual_col_figure(fig, axes, ASSETS / "index_ragged_reset.png")
 
 
 def fig_boolean_mask_flow():
-    apply_matplotlib_slide_style(compact=True)
-    fig, axes = plt.subplots(1, 3, figsize=(10, 3))
+    apply_matplotlib_slide_style()
+    fig, axes = plt.subplots(3, 1, figsize=FIGSIZE_TRIPLE_COL, gridspec_kw={"hspace": COL_HSPACE})
     ages = np.array([25, 40, 22, 38, 31])
     mask = ages > 30
     for ax, data, title, colors in [
@@ -93,7 +100,7 @@ def fig_boolean_mask_flow():
         ax.set_xticks(range(len(data)))
     fig.suptitle("Булева индексация: age → mask → строки", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "boolean_mask_flow.png")
+    save_dual_col_figure(fig, axes, ASSETS / "boolean_mask_flow.png")
 
 
 def fig_loc_vs_iloc():
@@ -119,10 +126,10 @@ def fig_loc_vs_iloc():
             cell.set_facecolor("#fff3cd")
         if r == 2 and c == 0:
             cell.set_facecolor("#d4edda")
-    ax.text(0.5, 0.92, "loc[20, 'A']=20 (жёлтый)  |  iloc[1,0]=20 (зелёный)", transform=ax.transAxes, ha="center", fontsize=11)
+    ax.text(0.5, 0.92, "loc[20, 'A']=20 (жёлтый)  |  iloc[1,0]=20 (зелёный)", transform=ax.transAxes, ha="center", fontsize=FONT_ANNOT)
     ax.set_title(".loc по метке vs .iloc по позиции")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "loc_vs_iloc.png")
+    save_slide_figure(fig, ASSETS / "loc_vs_iloc.png", tight=False, axes=ax)
 
 
 def fig_setting_with_copy():
@@ -140,12 +147,12 @@ def fig_setting_with_copy():
     _box(ax, (6.5, 1.5), 2.5, 1.2, ".copy() ✓\n.loc на df ✓", fc="#d4edda")
     ax.set_title("SettingWithCopyWarning")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "setting_with_copy.png")
+    save_slide_figure(fig, ASSETS / "setting_with_copy.png", tight=False, axes=ax)
 
 
 def fig_view_vs_copy():
-    apply_matplotlib_slide_style(compact=True)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.2))
+    apply_matplotlib_slide_style()
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     for ax, title, shared in [(axes[0], "View (общая память)", True), (axes[1], "Copy (независимо)", False)]:
         style_axes(ax)
         ax.set_xlim(0, 10)
@@ -163,7 +170,7 @@ def fig_view_vs_copy():
         ax.set_title(title)
     fig.suptitle("View vs Copy; CoW — копия при записи", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "view_vs_copy.png")
+    save_dual_col_figure(fig, axes, ASSETS / "view_vs_copy.png")
 
 
 def fig_missing_counts():
@@ -176,23 +183,23 @@ def fig_missing_counts():
     ax.set_ylabel("число пропусков")
     ax.set_title("df.isnull().sum() — диагностика")
     for b, v in zip(bars, counts):
-        ax.text(b.get_x() + b.get_width() / 2, v + 10, str(v), ha="center", fontsize=11)
+        ax.text(b.get_x() + b.get_width() / 2, v + 10, str(v), ha="center", fontsize=FONT_ANNOT)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "missing_counts.png")
+    save_slide_figure(fig, ASSETS / "missing_counts.png", tight=False, axes=ax)
 
 
 def fig_nullable_int_types():
-    apply_matplotlib_slide_style(compact=True)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.2))
+    apply_matplotlib_slide_style()
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     for ax, title, ok in [(axes[0], "int64 + NaN → float64", False), (axes[1], "Int64 + pd.NA", True)]:
         style_axes(ax)
         ax.axis("off")
         _box(ax, (1, 3), 3, 1.2, "int64" if not ok else "Int64", fc="#fff3cd")
         _box(ax, (1, 1.2), 3, 1.2, "np.nan / pd.NA", fc="#f8d7da" if not ok else "#d4edda")
-        ax.text(5, 3.6, "✗" if not ok else "✓", fontsize=28, color="#d62728" if not ok else "#2ca02c")
+        ax.text(5, 3.6, "✗" if not ok else "✓", fontsize=FONT_SYMBOL, color="#d62728" if not ok else "#2ca02c")
         ax.set_title(title)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "nullable_int_types.png")
+    save_dual_col_figure(fig, axes, ASSETS / "nullable_int_types.png")
 
 
 def fig_corr_heatmap():
@@ -211,7 +218,7 @@ def fig_corr_heatmap():
             ax.text(j, i, f"{corr[i, j]:.2f}", ha="center", va="center", color=heatmap_text_color(abs(corr[i, j])))
     ax.set_title("corr() — мультиколлинеарность x1–x2")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "corr_heatmap.png")
+    save_slide_figure(fig, ASSETS / "corr_heatmap.png", tight=False, axes=ax)
 
 
 def fig_value_counts_bar():
@@ -224,17 +231,17 @@ def fig_value_counts_bar():
     ax.set_ylabel("частота")
     ax.set_title("value_counts() — дисбаланс 90/10")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "value_counts_bar.png")
+    save_slide_figure(fig, ASSETS / "value_counts_bar.png", tight=False, axes=ax)
 
 
 def fig_agg_vs_transform():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     cities = ["M", "S", "P"]
     means = [55, 48, 62]
     incomes = np.array([50, 60, 45, 52, 70, 48, 55, 65, 58])
     city_labels = ["M", "M", "S", "S", "P", "P", "M", "P", "S"]
     dev = incomes - np.array([means[["M", "S", "P"].index(c)] for c in city_labels])
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.5))
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     style_axes(axes[0])
     axes[0].bar(cities, means, color="#1f77b4")
     axes[0].set_title("agg → 3 строки")
@@ -245,7 +252,7 @@ def fig_agg_vs_transform():
     axes[1].set_xlabel("строка")
     fig.suptitle("agg vs transform", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "agg_vs_transform.png")
+    save_dual_col_figure(fig, axes, ASSETS / "agg_vs_transform.png")
 
 
 def fig_multiindex_reset():
@@ -258,12 +265,12 @@ def fig_multiindex_reset():
     _box(ax, (5.3, 2), 4, 2.5, "reset_index()\nплоские столбцы", fc="#d4edda")
     ax.set_title("MultiIndex → reset_index")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "multiindex_reset.png")
+    save_slide_figure(fig, ASSETS / "multiindex_reset.png", tight=False, axes=ax)
 
 
 def fig_encoding_methods():
-    apply_matplotlib_slide_style(compact=True)
-    fig, axes = plt.subplots(1, 3, figsize=(10, 3.2))
+    apply_matplotlib_slide_style()
+    fig, axes = plt.subplots(3, 1, figsize=FIGSIZE_TRIPLE_COL, gridspec_kw={"hspace": COL_HSPACE})
     cats = ["low", "med", "high"]
     for ax, title, data in [
         (axes[0], "Ordinal", [0, 1, 2]),
@@ -280,14 +287,14 @@ def fig_encoding_methods():
             ax.bar(cats, data, color="#1f77b4")
         ax.set_title(title)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "encoding_methods.png")
+    save_dual_col_figure(fig, axes, ASSETS / "encoding_methods.png")
 
 
 def fig_clip_outliers():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     x = RNG.lognormal(3, 0.6, 200)
     x_clip = np.clip(x, None, np.quantile(x, 0.99))
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.5))
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     for ax, data, title in [(axes[0], x, "до clip"), (axes[1], x_clip, "после clip (99%)")]:
         style_axes(ax)
         ax.hist(data, bins=30, color="#1f77b4", edgecolor="white")
@@ -295,7 +302,7 @@ def fig_clip_outliers():
         ax.set_xlabel("income")
     fig.suptitle("Winsorization через clip", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "clip_outliers.png")
+    save_dual_col_figure(fig, axes, ASSETS / "clip_outliers.png")
 
 
 def fig_cut_bins():
@@ -310,7 +317,7 @@ def fig_cut_bins():
     ax.set_title("pd.cut — равные интервалы")
     ax.set_xlabel("значение")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "cut_bins.png")
+    save_slide_figure(fig, ASSETS / "cut_bins.png", tight=False, axes=ax)
 
 
 def fig_str_extract():
@@ -325,7 +332,7 @@ def fig_str_extract():
     table.scale(1, 1.6)
     ax.set_title(".str.extract / split домена")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "str_extract.png")
+    save_slide_figure(fig, ASSETS / "str_extract.png", tight=False, axes=ax)
 
 
 def fig_dt_cyclic_hour():
@@ -339,14 +346,14 @@ def fig_dt_cyclic_hour():
     ax.axvline(0, color="#2ca02c", ls=":", label="00:00")
     ax.set_xlabel("час")
     ax.set_title("Циклическое кодирование часа")
-    ax.legend(fontsize=9)
+    ax.legend(**legend_kwargs())
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "dt_cyclic_hour.png")
+    save_slide_figure(fig, ASSETS / "dt_cyclic_hour.png", tight=False, axes=ax)
 
 
 def fig_to_numpy_bridge():
-    apply_matplotlib_slide_style(compact=True)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.2))
+    apply_matplotlib_slide_style()
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     for ax, title, ok in [(axes[0], "только числа → float", True), (axes[1], "object + числа → object", False)]:
         style_axes(ax)
         ax.axis("off")
@@ -355,7 +362,7 @@ def fig_to_numpy_bridge():
         ax.annotate("", xy=(4.4, 2.8), xytext=(3.4, 2.8), arrowprops=dict(arrowstyle="->", color="#444"))
         ax.set_title(title)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "to_numpy_bridge.png")
+    save_dual_col_figure(fig, axes, ASSETS / "to_numpy_bridge.png")
 
 
 def fig_merge_cartesian():
@@ -371,12 +378,12 @@ def fig_merge_cartesian():
     ax.annotate("", xy=(4.9, 3), xytext=(2.6, 2.5), arrowprops=dict(arrowstyle="->", color="#d62728", lw=2))
     ax.set_title("merge: неуникальный ключ")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "merge_cartesian.png")
+    save_slide_figure(fig, ASSETS / "merge_cartesian.png", tight=False, axes=ax)
 
 
 def fig_concat_index_trap():
-    apply_matplotlib_slide_style(compact=True)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.2))
+    apply_matplotlib_slide_style()
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     for ax, title, nans in [(axes[0], "concat: рваные индексы", True), (axes[1], "после reset_index", False)]:
         style_axes(ax)
         if nans:
@@ -393,7 +400,7 @@ def fig_concat_index_trap():
         ax.set_xticks([0, 1])
         ax.set_xticklabels(["df1", "df2"])
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "concat_index_trap.png")
+    save_dual_col_figure(fig, axes, ASSETS / "concat_index_trap.png")
 
 
 def fig_merge_asof_timeline():
@@ -410,9 +417,9 @@ def fig_merge_asof_timeline():
     ax.set_xlabel("время")
     ax.set_ylabel("курс")
     ax.set_title("merge_asof backward")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "merge_asof_timeline.png")
+    save_slide_figure(fig, ASSETS / "merge_asof_timeline.png", tight=False, axes=ax)
 
 
 def fig_pandas_sklearn_pipeline():
@@ -429,12 +436,12 @@ def fig_pandas_sklearn_pipeline():
             ax.annotate("", xy=(x + 2.1, y + 0.6), xytext=(x + 1.9, y + 0.6), arrowprops=dict(arrowstyle="->", color="#444"))
     ax.set_title("pandas → sklearn Pipeline")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "pandas_sklearn_pipeline.png")
+    save_slide_figure(fig, ASSETS / "pandas_sklearn_pipeline.png", tight=False, axes=ax)
 
 
 def fig_pandas_pytorch_bridge():
-    apply_matplotlib_slide_style(compact=True)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.2))
+    apply_matplotlib_slide_style()
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     for ax, title, shared in [(axes[0], "from_numpy (shared)", True), (axes[1], "torch.tensor (copy)", False)]:
         style_axes(ax)
         ax.axis("off")
@@ -442,18 +449,18 @@ def fig_pandas_pytorch_bridge():
         _box(ax, (4.5, 2), 2, 1.2, "Tensor")
         if shared:
             ax.plot([3, 4.4], [2.6, 2.6], "g-", lw=2)
-            ax.text(3.7, 2.9, "shared", fontsize=10, color="#2ca02c")
+            ax.text(3.7, 2.9, "shared", fontsize=FONT_ANNOT, color="#2ca02c")
         else:
             ax.annotate("", xy=(4.4, 2.6), xytext=(2.9, 2.6), arrowprops=dict(arrowstyle="->", color="#1f77b4"))
-            ax.text(3.3, 2.9, "copy", fontsize=10)
+            ax.text(3.3, 2.9, "copy", fontsize=FONT_ANNOT)
         ax.set_title(title)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "pandas_pytorch_bridge.png")
+    save_dual_col_figure(fig, axes, ASSETS / "pandas_pytorch_bridge.png")
 
 
 def fig_pandas_leakage():
-    apply_matplotlib_slide_style(compact=True)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.2))
+    apply_matplotlib_slide_style()
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     for ax, title, leak in [(axes[0], "fillna до split ✗", True), (axes[1], "Imputer в Pipeline ✓", False)]:
         style_axes(ax)
         ax.set_xlim(0, 8)
@@ -466,7 +473,7 @@ def fig_pandas_leakage():
             _box(ax, (3, 1), 4, 1, "SimpleImputer fit on train", fc="#d4edda")
         ax.set_title(title)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "pandas_leakage.png")
+    save_dual_col_figure(fig, axes, ASSETS / "pandas_leakage.png")
 
 
 def fig_read_csv_chunks():
@@ -483,11 +490,11 @@ def fig_read_csv_chunks():
     _box(ax, (6.5, 2), 2.5, 2, "агрегаты\nв RAM", fc="#d4edda")
     ax.set_title("read_csv(chunksize=...)")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "read_csv_chunks.png")
+    save_slide_figure(fig, ASSETS / "read_csv_chunks.png", tight=False, axes=ax)
 
 
 def fig_profiling_report_mock():
-    apply_matplotlib_slide_style(compact=True)
+    apply_matplotlib_slide_style()
     fig = plt.figure(figsize=(5.5, 4))
     gs = fig.add_gridspec(2, 2, hspace=0.4, wspace=0.3)
     ax1 = fig.add_subplot(gs[0, 0])
@@ -526,7 +533,7 @@ def fig_perf_vectorized():
     ratio = t_apply / max(t_vec, 1e-9)
     ax.text(1, t_vec + t_apply * 0.05, f"{ratio:.0f}× быстрее", ha="center")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "perf_vectorized.png")
+    save_slide_figure(fig, ASSETS / "perf_vectorized.png", tight=False, axes=ax)
 
 
 def fig_dtype_memory():
@@ -544,12 +551,12 @@ def fig_dtype_memory():
     ax.set_ylabel("KiB")
     ax.set_title("Память столбца 100k строк")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "dtype_memory.png")
+    save_slide_figure(fig, ASSETS / "dtype_memory.png", tight=False, axes=ax)
 
 
 def fig_csv_vs_parquet():
-    apply_matplotlib_slide_style(compact=True)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.5))
+    apply_matplotlib_slide_style()
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     labels = ["CSV", "Parquet"]
     size_mb = [120, 18]
     read_s = [45, 3]
@@ -563,7 +570,7 @@ def fig_csv_vs_parquet():
     axes[1].set_title("скорость (схематично)")
     fig.suptitle("CSV vs Parquet", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "csv_vs_parquet.png")
+    save_dual_col_figure(fig, axes, ASSETS / "csv_vs_parquet.png")
 
 
 def fig_export_formats():
@@ -580,7 +587,7 @@ def fig_export_formats():
                     arrowprops=dict(arrowstyle="->", color="#888", connectionstyle="arc3,rad=0.1"))
     ax.set_title("Экспорт: index=False")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "export_formats.png")
+    save_slide_figure(fig, ASSETS / "export_formats.png", tight=False, axes=ax)
 
 
 def fig_alternatives_compare():
@@ -593,7 +600,7 @@ def fig_alternatives_compare():
     ax.set_xlabel("относительная скорость (схема)")
     ax.set_title("Альтернативы pandas")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "alternatives_compare.png")
+    save_slide_figure(fig, ASSETS / "alternatives_compare.png", tight=False, axes=ax)
 
 
 def fig_rapids_gpu_flow():
@@ -610,12 +617,12 @@ def fig_rapids_gpu_flow():
         ax.annotate("", xy=(x2, 2.8), xytext=(x1, 2.8), arrowprops=dict(arrowstyle="->", color="#444", lw=2))
     ax.set_title("RAM → VRAM: pandas не на GPU сам")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "rapids_gpu_flow.png")
+    save_slide_figure(fig, ASSETS / "rapids_gpu_flow.png", tight=False, axes=ax)
 
 
 def fig_jupyter_memory():
     apply_matplotlib_slide_style()
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.2))
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
     for ax, title, n_blocks in [(axes[0], "Jupyter OOM", 5), (axes[1], "del + gc.collect()", 2)]:
         style_axes(ax)
         ax.set_xlim(0, 10)
@@ -625,10 +632,10 @@ def fig_jupyter_memory():
         for i in range(n_blocks):
             _box(ax, (0.5 + i * 1.7, 2), 1.4, 1.5, f"df{i+1}", fc=colors[i % len(colors)])
         if n_blocks > 3:
-            ax.text(5, 4.2, "скрытые ссылки _", fontsize=10, color="#d62728")
+            ax.text(5, 4.2, "скрытые ссылки _", fontsize=FONT_ANNOT, color="#d62728")
         ax.set_title(title)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "jupyter_memory.png")
+    save_dual_col_figure(fig, axes, ASSETS / "jupyter_memory.png")
 
 
 def fig_pandas_ml_pipeline():
@@ -646,7 +653,7 @@ def fig_pandas_ml_pipeline():
                         arrowprops=dict(arrowstyle="->", color="#444"))
     ax.set_title("Ментальная модель ML-пайплайна")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "pandas_ml_pipeline.png")
+    save_slide_figure(fig, ASSETS / "pandas_ml_pipeline.png", tight=False, axes=ax)
 
 
 FUNCTIONS = [

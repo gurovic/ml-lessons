@@ -4,12 +4,13 @@
     "MAE — средняя ошибка в тех же единицах, что и $y$ (понятно бизнесу)",
     "RMSE = $\\sqrt{\\mathrm{MSE}}$ — сильнее штрафует крупные промахи",
     "$R^2$: 1 — идеал; 0 — не лучше константы $\\bar{y}$; $<0$ — хуже среднего (проверьте код/данные)",
+    "Пример: ошибки $[1,1,1,8,1]$ → MAE = 2.4, RMSE ≈ 3.3 (один промах 8 «тянет» RMSE)",
     "Для сравнения моделей на одной задаче смотрите MAE и RMSE вместе"
   ],
   "notes": "sklearn: mean_absolute_error, mean_squared_error, r2_score.",
   "visuals": [
     {
-      "description": "Bar chart MAE, RMSE и R² на одном наборе предсказаний; подписи значений.",
+      "description": "Две панели: bar y vs ŷ для 5 точек (промах #4); bar MAE vs RMSE с подписями значений — RMSE выше из-за крупного промаха.",
       "output": "regression_metrics_bar.png"
     }
   ],
@@ -21,8 +22,8 @@
   },
   "code_examples": [
     {
-      "source": "from sklearn.metrics import mean_absolute_error, r2_score\nmae = mean_absolute_error(y_te, y_pred)\nr2 = r2_score(y_te, y_pred)\nprint(f'MAE={mae:.2f}, R²={r2:.3f}')",
-      "caption": "MAE и R²"
+      "source": "from sklearn.metrics import (\n    mean_absolute_error,\n    mean_squared_error,\n    r2_score)\nmae = mean_absolute_error(y_te, y_pred)\nrmse = mean_squared_error(y_te, y_pred, squared=False)\nr2 = r2_score(y_te, y_pred)\nprint(f'MAE={mae:.2f}, RMSE={rmse:.2f}, R²={r2:.3f}')",
+      "caption": "MAE, RMSE и R²"
     }
   ]
 }

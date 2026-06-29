@@ -21,7 +21,7 @@
   },
   "code_examples": [
     {
-      "source": "del big_df\nimport gc; gc.collect()\ndf = df[['need', 'only', 'cols']].copy()",
+      "source": "del big_df\ndf = df[['need', 'only', 'cols']].copy()",
       "caption": "del + gc.collect()"
     }
   ]

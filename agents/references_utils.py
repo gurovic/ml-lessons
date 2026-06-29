@@ -141,7 +141,10 @@ def merge_colab_into_references(
 ) -> dict:
     """Обновляет colab-записи, сохраняя manual URL и paper-записи."""
     refs = slide.get("references", [])
-    papers = [r for r in refs if r.get("kind") == "paper"]
+    papers = sorted(
+        [r for r in refs if r.get("kind") == "paper"],
+        key=lambda r: (r.get("year") or 9999, r.get("title", "")),
+    )
     old_colab = {r.get("title"): r for r in refs if r.get("kind") == "colab"}
 
     merged_colab: list[dict] = []

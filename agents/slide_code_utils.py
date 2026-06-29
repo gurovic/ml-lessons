@@ -105,6 +105,7 @@ def normalize_code_example(item: dict) -> dict:
     source = source.strip()
     if not source:
         raise ValueError("code_examples[].source не может быть пустым")
+    source = enforce_code_line_lengths(source)
     out: dict[str, Any] = {"source": source}
     caption = item.get("caption")
     if caption:
@@ -170,25 +171,247 @@ def apply_response_to_slides(
     return updated, warnings
 
 
-def code_block_height_inches(source: str, *, has_caption: bool = False) -> float:
-    """Высота одного блока кода в дюймах — совпадает с pptx_builder._render_code_examples."""
-    if not source:
-        return 0.0
-    n_lines = max(len(source.split("\n")), 1)
-    block_h = 0.19 * n_lines + 0.12
-    total = block_h + 0.06
+def count_code_lines(source: str, *, max_len: int | None = None) -> int:
+    return len(normalize_code_lines(source, max_len=max_len))
+
+
+def _split_source_lines(source: str) -> list[str]:
+    lines = source.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    while lines and not lines[-1].strip():
+        lines.pop()
+    return lines if lines else [""]
+
+
+def normalize_code_lines(source: str, *, max_len: int | None = None) -> list[str]:
+    """Строки кода без хвостовых пустых переносов; опционально — перенос длинных строк."""
+    lines = _split_source_lines(source)
+    if max_len is None:
+        return lines
+    out: list[str] = []
+    for line in lines:
+        out.extend(wrap_code_line(line, max_len))
+    return out if out else [""]
+
+
+# Высота блока кода — должна совпадать с _render_code_examples в pptx_builder
+CODE_FONT_PT = 11
+CODE_LINE_H = CODE_FONT_PT / 72.0  # одна строка = высота шрифта
+CODE_PAD_TOP = 0.05
+CODE_PAD_BOTTOM = CODE_LINE_H  # одна пустая строка под последней строкой
+CODE_PAD_X = 0.08
+CODE_BLOCK_GAP = 0.06
+CODE_CAPTION_H = 0.24
+CODE_BLOCK_TAIL = 0.04
+# Consolas в pptx: ~0.58 em ширины на pt; запас под длинные идентификаторы sklearn
+CODE_CHAR_WIDTH_RATIO = 0.58
+# Узкая колонка (BODY_WIDTH_VIS − 0.1): ~60 символов; см. max_code_line_length_for_width
+CODE_MAX_LINE_LEN = 60
+
+
+def max_code_line_length_for_width(code_width_inches: float) -> int:
+    """Макс. символов в строке кода для заданной ширины блока (дюймы)."""
+    inner = max(code_width_inches - 2 * CODE_PAD_X, 1.0)
+    chars = int(inner * 72 / CODE_FONT_PT / CODE_CHAR_WIDTH_RATIO * 0.82)
+    return max(24, min(chars, 120))
+
+
+def _split_comma_items(text: str) -> list[str]:
+    """Разбить по запятым верхнего уровня (внутри скобок)."""
+    parts: list[str] = []
+    depth = 0
+    start = 0
+    for i, ch in enumerate(text):
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth = max(depth - 1, 0)
+        elif ch == "," and depth == 0:
+            parts.append(text[start:i].strip())
+            start = i + 1
+    tail = text[start:].strip()
+    if tail or not parts:
+        parts.append(tail)
+    return parts
+
+
+def _wrap_call_or_container(line: str, max_len: int) -> list[str] | None:
+    """Перенос вызова/контейнера: foo = Bar(...), from x import a, b, c."""
+    stripped = line.strip()
+    lead = len(line) - len(stripped)
+    indent = line[:lead]
+    cont = indent + "    "
+
+    if stripped.startswith("from ") and " import " in stripped:
+        head, tail = stripped.split(" import ", 1)
+        prefix = f"{head} import "
+        if len(indent + prefix) <= max_len and "," in tail:
+            items = _split_comma_items(tail)
+            if len(items) > 1:
+                lines = [indent + prefix + "("]
+                for j, item in enumerate(items):
+                    suffix = "," if j < len(items) - 1 else ")"
+                    lines.append(cont + item + suffix)
+                if all(len(row) <= max_len for row in lines):
+                    return lines
+
+    eq = stripped.find("=")
+    if eq <= 0:
+        return None
+    lhs = stripped[:eq].strip()
+    rhs = stripped[eq + 1 :].lstrip()
+    if not rhs:
+        return None
+
+    paren_open = rhs.find("(")
+    if paren_open >= 0 and rhs.endswith(")"):
+        func_head = rhs[: paren_open + 1]
+        inner = rhs[paren_open + 1 : -1]
+        head = indent + lhs + " = " + func_head
+        if len(head) <= max_len and "," in inner:
+            list_open = inner.startswith("[") and inner.endswith("]")
+            if list_open:
+                head = head + "["
+                inner_items = _split_comma_items(inner[1:-1])
+                close_suffix = "])"
+            else:
+                inner_items = _split_comma_items(inner)
+                close_suffix = ")"
+            if len(inner_items) > 1:
+                lines = [head]
+                for j, item in enumerate(inner_items):
+                    suffix = "," if j < len(inner_items) - 1 else close_suffix
+                    row = cont + item + suffix
+                    if len(row) > max_len:
+                        return None
+                    lines.append(row)
+                return lines
+
+    open_ch = rhs[0] if rhs[0] in "([{" else ""
+    if not open_ch:
+        return None
+    close_map = {"(": ")", "[": "]", "{": "}"}
+    close_ch = close_map[open_ch]
+    if not rhs.endswith(close_ch) or len(rhs) < 2:
+        return None
+
+    inner = rhs[1:-1]
+    head = indent + lhs + " = " + open_ch
+    if len(head) > max_len:
+        return None
+
+    items = _split_comma_items(inner)
+    if len(items) <= 1:
+        return None
+
+    lines = [head]
+    for j, item in enumerate(items):
+        suffix = "," if j < len(items) - 1 else close_ch
+        row = cont + item + suffix
+        if len(row) > max_len:
+            return None
+        lines.append(row)
+    return lines
+
+
+def wrap_code_line(line: str, max_len: int) -> list[str]:
+    """Разбить длинную строку: скобки, запятые, затем пробел."""
+    if len(line) <= max_len:
+        return [line]
+
+    wrapped = _wrap_call_or_container(line, max_len)
+    if wrapped:
+        return wrapped
+
+    lead = len(line) - len(line.lstrip())
+    indent = line[:lead]
+    cont = indent + "    "
+    text = line.strip()
+    if len(indent + text) <= max_len:
+        return [line]
+
+    words = text.split(" ")
+    if len(words) > 1:
+        rows: list[str] = []
+        current = indent + words[0]
+        for word in words[1:]:
+            candidate = current + " " + word
+            if len(candidate) <= max_len:
+                current = candidate
+            else:
+                rows.append(current)
+                current = cont + word
+        rows.append(current)
+        if all(len(row) <= max_len for row in rows):
+            return rows
+
+    out: list[str] = []
+    chunk = indent
+    for ch in text:
+        if len(chunk) + 1 > max_len and chunk.strip():
+            out.append(chunk.rstrip())
+            chunk = cont + ch
+        else:
+            chunk += ch
+    if chunk:
+        out.append(chunk.rstrip())
+    return out if out else [line[:max_len]]
+
+
+def enforce_code_line_lengths(
+    source: str,
+    *,
+    max_len: int = CODE_MAX_LINE_LEN,
+) -> str:
+    """Нормализовать переносы и уложить строки в лимит ширины блока кода."""
+    lines = normalize_code_lines(source, max_len=max_len)
+    return "\n".join(lines)
+
+
+def apply_tight_code_paragraph(paragraph) -> None:
+    """Одна строка в своём textbox — без межстрочного интервала."""
+    from pptx.util import Pt
+
+    paragraph.space_before = Pt(0)
+    paragraph.space_after = Pt(0)
+    paragraph.level = 0
+
+
+def _single_code_block_height(n_lines: int, *, has_caption: bool) -> float:
+    n = max(n_lines, 1)
+    h = CODE_PAD_TOP + CODE_LINE_H * n + CODE_PAD_BOTTOM
+    h += CODE_BLOCK_GAP
     if has_caption:
-        total += 0.24
-    total += 0.04
-    return total
+        h += CODE_CAPTION_H
+    h += CODE_BLOCK_TAIL
+    return h
 
 
-def estimate_code_height_inches(examples: list[dict]) -> float:
-    """Суммарная высота всех code_examples на слайде (дюймы)."""
+def measure_code_block_height_inches(
+    examples: list[dict],
+    *,
+    code_width: float | None = None,
+) -> float:
+    """Высота блока кода в дюймах — совпадает с _render_code_examples в pptx_builder."""
+    max_len = (
+        max_code_line_length_for_width(code_width)
+        if code_width is not None
+        else CODE_MAX_LINE_LEN
+    )
     total = 0.0
-    for ex in examples:
-        source = ex.get("source", "")
+    for block in examples:
+        source = block.get("source", "")
         if not source:
             continue
-        total += code_block_height_inches(source, has_caption=bool(ex.get("caption")))
+        n_lines = len(normalize_code_lines(source, max_len=max_len))
+        total += _single_code_block_height(n_lines, has_caption=bool(block.get("caption")))
     return total
+
+
+def estimate_code_height_inches(
+    examples: list[dict],
+    *,
+    code_width: float | None = None,
+) -> float:
+    """Оценка высоты блока кода в дюймах для pptx."""
+    h = measure_code_block_height_inches(examples, code_width=code_width)
+    return h if h else 0.0

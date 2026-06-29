@@ -23,8 +23,8 @@ BOOTSTRAP: dict[tuple[str, str], list[dict]] = {
     ],
     ("lineynaya_regressiya", "Предобработка: масштабирование и категории"): [
         _ex(
-            "from sklearn.preprocessing import StandardScaler, OneHotEncoder\n"
             "from sklearn.compose import ColumnTransformer\n"
+            "from sklearn.preprocessing import StandardScaler, OneHotEncoder\n"
             "prep = ColumnTransformer([\n"
             "    ('num', StandardScaler(), num_cols),\n"
             "    ('cat', OneHotEncoder(), cat_cols),\n"
@@ -36,20 +36,20 @@ BOOTSTRAP: dict[tuple[str, str], list[dict]] = {
     ("lineynaya_regressiya", "Переобучение и разделение train/test"): [
         _ex(
             "from sklearn.model_selection import train_test_split\n"
-            "X_tr, X_te, y_tr, y_te = train_test_split(\n"
-            "    X, y, test_size=0.2, random_state=42\n"
-            ")\n"
-            "model.fit(X_tr, y_tr)  # метрики только на X_te",
+            "from sklearn.linear_model import LinearRegression\n"
+            "X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)\n"
+            "LinearRegression().fit(X_tr, y_tr)  # метрики только на X_te",
             "Отложенная выборка",
         ),
     ],
     ("lineynaya_regressiya", "Метрики качества регрессии"): [
         _ex(
-            "from sklearn.metrics import mean_absolute_error, r2_score\n"
+            "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n"
             "mae = mean_absolute_error(y_te, y_pred)\n"
+            "rmse = mean_squared_error(y_te, y_pred, squared=False)\n"
             "r2 = r2_score(y_te, y_pred)\n"
-            "print(f'MAE={mae:.2f}, R²={r2:.3f}')",
-            "MAE и R²",
+            "print(f'MAE={mae:.2f}, RMSE={rmse:.2f}, R²={r2:.3f}')",
+            "MAE, RMSE и R²",
         ),
     ],
     ("lineynaya_regressiya", "sklearn и защита от утечек данных"): [
@@ -57,10 +57,7 @@ BOOTSTRAP: dict[tuple[str, str], list[dict]] = {
             "from sklearn.pipeline import Pipeline\n"
             "from sklearn.preprocessing import StandardScaler\n"
             "from sklearn.linear_model import LinearRegression\n"
-            "pipe = Pipeline([\n"
-            "    ('scaler', StandardScaler()),\n"
-            "    ('reg', LinearRegression()),\n"
-            "])\n"
+            "pipe = Pipeline([('scaler', StandardScaler()), ('reg', LinearRegression())])\n"
             "pipe.fit(X_train, y_train)",
             "Pipeline без утечки",
         ),
