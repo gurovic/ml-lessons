@@ -20,9 +20,9 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "agents"))
 from viz_style import (  # noqa: E402
     BG_BOX,
-    COL_HSPACE,
     FIGSIZE_DUAL_COL,
     FIGSIZE_SINGLE,
+    FIGSIZE_TRIPLE_COL,
     TEXT_DARK,
     FONT_ANNOT,
     FONT_DIAGRAM,
@@ -30,8 +30,11 @@ from viz_style import (  # noqa: E402
     FONT_TITLE,
     apply_matplotlib_slide_style,
     legend_kwargs,
+    save_dual_col_figure,
+    save_single_panel_figure,
     save_slide_figure,
     style_axes,
+    style_panel_title,
 )
 
 ASSETS = Path(__file__).resolve().parent
@@ -60,29 +63,13 @@ def fig_mse_vs_mae():
     ax.axhline(0, color="#444444", lw=0.6)
     ax.scatter([2, -2], [4, 4], c="#1f77b4", s=50, zorder=5)
     ax.scatter([2, -2], [2, 2], c="#ff7f0e", s=50, zorder=5)
-    ax.annotate(
-        "$|e|=2$ → MSE=4",
-        xy=(2, 4),
-        xytext=(2.3, 6.2),
-        fontsize=FONT_ANNOT,
-        color=TEXT_DARK,
-        arrowprops=dict(arrowstyle="->", color="#1f77b4"),
-    )
-    ax.annotate(
-        "«угол» MAE\nв $e=0$",
-        xy=(0, 0),
-        xytext=(-2.6, 1.4),
-        fontsize=FONT_ANNOT,
-        color=TEXT_DARK,
-        arrowprops=dict(arrowstyle="->", color="#ff7f0e"),
-    )
+    ax.text(-2.6, 5.8, "«угол» MAE", fontsize=FONT_ANNOT, color="#ff7f0e", va="top")
+    ax.text(2.2, 6.8, "$|e|=2$ → MSE=4", fontsize=FONT_ANNOT, color="#1f77b4", va="top")
     ax.set_xlabel("ошибка $e = y - \\hat{y}$")
     ax.set_ylabel("вклад в потери")
-    ax.set_title("MSE гладкая; MAE — «угол» в нуле")
-    ax.legend(**legend_kwargs())
+    style_panel_title(ax, "MSE гладкая; MAE — «угол» в нуле")
     _grid(ax)
-    plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "mse_vs_mae_loss.png")
+    save_single_panel_figure(fig, ax, ASSETS / "mse_vs_mae_loss.png", legend_ncol=2)
 
 
 def fig_gradient_descent():
@@ -102,10 +89,8 @@ def fig_gradient_descent():
     ax.scatter([1.2], [0.8], c="#2ca02c", s=80, zorder=5, label="минимум MSE")
     ax.set_xlabel("$w_0$")
     ax.set_ylabel("$w_1$")
-    ax.set_title("Итеративный поиск минимума")
-    ax.legend(**legend_kwargs())
-    plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "gradient_descent_contour.png")
+    style_panel_title(ax, "Итеративный поиск минимума")
+    save_single_panel_figure(fig, ax, ASSETS / "gradient_descent_contour.png", legend_ncol=2)
 
 
 def fig_hyperplane():
@@ -118,7 +103,7 @@ def fig_hyperplane():
     m1 = LinearRegression().fit(x1.reshape(-1, 1), y)
     m2 = LinearRegression().fit(x2.reshape(-1, 1), y)
 
-    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL)
     for ax, xs, m, xlabel, title in [
         (axes[0], x1, m1, "площадь, м²", "$y$ vs площадь"),
         (axes[1], x2, m2, "этаж", "$y$ vs этаж"),
@@ -129,10 +114,10 @@ def fig_hyperplane():
         ax.plot(xx, m.predict(xx.reshape(-1, 1)), "r-", lw=2.2)
         ax.set_xlabel(xlabel)
         ax.set_ylabel("цена")
-        ax.set_title(title)
+        style_panel_title(ax, title)
         _grid(ax)
     fig.suptitle("$\\hat{y} = w_1 x_1 + w_2 x_2 + b$", color=TEXT_DARK, fontsize=FONT_TITLE, y=0.98)
-    save_slide_figure(fig, ASSETS / "hyperplane_3d.png")
+    save_dual_col_figure(fig, axes, ASSETS / "hyperplane_3d.png")
 
 
 def fig_scaling():
@@ -144,7 +129,7 @@ def fig_scaling():
     lr_raw = LinearRegression().fit(X, price)
     lr_scaled = LinearRegression().fit(StandardScaler().fit_transform(X), price)
 
-    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL)
     raw = lr_raw.coef_
     scaled = lr_scaled.coef_
     for ax, coefs, title, note in [
@@ -155,7 +140,7 @@ def fig_scaling():
         bars = ax.bar(["площадь", "этаж"], coefs, color=["#1f77b4", "#ff7f0e"])
         ax.axhline(0, color="#444444", lw=0.6)
         ax.set_ylabel("вес")
-        ax.set_title(title)
+        style_panel_title(ax, title)
         for bar, v in zip(bars, coefs):
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
@@ -167,7 +152,7 @@ def fig_scaling():
                 fontsize=FONT_ANNOT,
             )
         ax.text(0.98, 0.92, note, transform=ax.transAxes, ha="right", va="top", fontsize=FONT_ANNOT, color=TEXT_DARK)
-    save_slide_figure(fig, ASSETS / "scaling_weights_compare.png")
+    save_dual_col_figure(fig, axes, ASSETS / "scaling_weights_compare.png")
 
 
 def fig_multicollinearity():
@@ -183,13 +168,13 @@ def fig_multicollinearity():
         coefs.append(LinearRegression().fit(X[idx], y[idx]).coef_)
     coefs = np.array(coefs)
 
-    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL)
     style_axes(axes[0])
     axes[0].scatter(x1, x2, c="#1f77b4", s=28, alpha=0.75)
     axes[0].plot([-3, 3], [-9, 9], "r--", lw=1.5, alpha=0.7)
     axes[0].set_xlabel("$x_1$ (площадь, м²)")
     axes[0].set_ylabel("$x_2$ (площадь, ft²)")
-    axes[0].set_title("признаки почти дубли")
+    style_panel_title(axes[0], "признаки почти дубли")
     axes[0].text(0.04, 0.92, "$r \\approx 0.99$", transform=axes[0].transAxes, fontsize=FONT_ANNOT, color=TEXT_DARK)
 
     style_axes(axes[1])
@@ -198,7 +183,7 @@ def fig_multicollinearity():
         patch.set_facecolor(c)
     axes[1].axhline(0, color="#444444", lw=0.8)
     axes[1].set_ylabel("вес (bootstrap)")
-    axes[1].set_title("bootstrap: веса «прыгают», знак меняется")
+    style_panel_title(axes[1], "bootstrap: веса «прыгают», знак меняется")
     for j, col in enumerate(coefs.T):
         axes[1].text(
             j + 1,
@@ -208,7 +193,7 @@ def fig_multicollinearity():
             color=TEXT_DARK,
             fontsize=FONT_ANNOT,
         )
-    save_slide_figure(fig, ASSETS / "multicollinearity.png")
+    save_dual_col_figure(fig, axes, ASSETS / "multicollinearity.png")
 
 
 def fig_train_test():
@@ -227,7 +212,7 @@ def fig_train_test():
     r2_tr = r2(y_train, m.predict(x_train.reshape(-1, 1)))
     r2_te = r2(y_test, m.predict(x_test.reshape(-1, 1)))
 
-    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL)
     for ax, xs, ys, title, highlight in [
         (axes[0], x_train, y_train, f"train: $R^2$={r2_tr:.2f}", None),
         (axes[1], x_test, y_test, f"test: $R^2$={r2_te:.2f}", x_test > 6),
@@ -241,13 +226,11 @@ def fig_train_test():
             ax.scatter(xs, ys, c="#1f77b4", s=28)
         lx = np.array([0, 10])
         ax.plot(lx, m.predict(lx.reshape(-1, 1)), "r-", lw=2.2, label="модель (train)")
-        ax.set_title(title)
+        style_panel_title(ax, title)
         ax.set_xlabel("$x$")
         ax.set_ylabel("$y$")
-        if highlight is not None:
-            ax.legend(**legend_kwargs(fontsize=FONT_ANNOT - 1), loc="upper left")
         _grid(ax)
-    save_slide_figure(fig, ASSETS / "train_test_split.png")
+    save_dual_col_figure(fig, axes, ASSETS / "train_test_split.png")
 
 
 def fig_metrics():
@@ -258,7 +241,7 @@ def fig_metrics():
     mae = np.mean(np.abs(err))
     rmse = np.sqrt(np.mean(err**2))
 
-    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL)
     ax = axes[0]
     style_axes(ax)
     x = np.arange(len(y_true))
@@ -267,8 +250,7 @@ def fig_metrics():
     ax.set_xticks(x)
     ax.set_xticklabels([f"#{i+1}" for i in x])
     ax.set_ylabel("значение")
-    ax.set_title("промах #4: $|e_4|=8$")
-    ax.legend(**legend_kwargs(), loc="upper right")
+    style_panel_title(ax, "промах #4: $|e_4|=8$")
 
     ax = axes[1]
     style_axes(ax)
@@ -276,10 +258,10 @@ def fig_metrics():
     vals = [mae, rmse]
     bars = ax.bar(labels, vals, color=["#1f77b4", "#d62728"])
     ax.set_ylabel("метрика")
-    ax.set_title(f"MAE={mae:.1f}  ·  RMSE={rmse:.1f} — RMSE выше")
+    style_panel_title(ax, f"MAE={mae:.1f}  ·  RMSE={rmse:.1f} — RMSE выше")
     for bar, v in zip(bars, vals):
         ax.text(bar.get_x() + bar.get_width() / 2, v + 0.08, f"{v:.1f}", ha="center", color=TEXT_DARK, fontsize=FONT_ANNOT)
-    save_slide_figure(fig, ASSETS / "regression_metrics_bar.png")
+    save_dual_col_figure(fig, axes, ASSETS / "regression_metrics_bar.png")
 
 
 def fig_weights_interpretation():
@@ -291,16 +273,15 @@ def fig_weights_interpretation():
     bars = ax.barh(features, weights, color=["#2ca02c" if w >= 0 else "#d62728" for w in weights])
     ax.axvline(0, color="#444444", lw=0.8)
     ax.set_xlabel("вес (после StandardScaler)")
-    ax.set_title("Сравнимое влияние признаков")
+    style_panel_title(ax, "Сравнимое влияние признаков")
     for bar, w in zip(bars, weights):
         ax.text(w + (0.03 if w >= 0 else -0.03), bar.get_y() + bar.get_height() / 2, f"{w:+.2f}", va="center", ha="left" if w >= 0 else "right", fontsize=FONT_ANNOT, color=TEXT_DARK)
-    plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "standardized_weights.png")
+    save_single_panel_figure(fig, ax, ASSETS / "standardized_weights.png")
 
 
 def fig_pipeline():
     apply_matplotlib_slide_style()
-    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL)
     for ax, title, steps, bad in [
         (axes[0], "Плохо: масштаб до split", ["Scaler\nвсе данные", "split", "fit"], True),
         (axes[1], "Хорошо: Pipeline", ["split", "Pipeline\nfit train", "predict test"], False),
@@ -309,7 +290,7 @@ def fig_pipeline():
         ax.set_xlim(0, 10)
         ax.set_ylim(0, 2.8)
         ax.axis("off")
-        ax.set_title(title, color="#d62728" if bad else "#2ca02c", fontsize=FONT_TITLE, loc="left", pad=6)
+        style_panel_title(ax, title, color="#d62728" if bad else "#2ca02c", loc="left")
         xs = [1.4, 5.0, 8.6]
         bw, bh = 2.0, 1.25
         for i, (x, label) in enumerate(zip(xs, steps)):
@@ -335,12 +316,12 @@ def fig_pipeline():
                 ha="center",
                 arrowprops=dict(arrowstyle="->", color="#d62728", lw=1.5),
             )
-    save_slide_figure(fig, ASSETS / "pipeline_leakage.png")
+    save_dual_col_figure(fig, axes, ASSETS / "pipeline_leakage.png", hspace=0.72 + 0.18)
 
 
 def fig_outlier_effects():
     apply_matplotlib_slide_style()
-    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL)
 
     x = np.linspace(1, 10, 22)
     y = 2 * x + 1 + RNG.normal(0, 0.6, 22)
@@ -367,8 +348,7 @@ def fig_outlier_effects():
     ax.set_xlim(-0.2, 11)
     ax.set_xlabel("$x$")
     ax.set_ylabel("$y$")
-    ax.set_title("Выброс в $y$ → сдвиг intercept")
-    ax.legend(**legend_kwargs(), loc="lower right")
+    style_panel_title(ax, "Выброс в $y$ → сдвиг intercept")
 
     x_l = np.concatenate([np.linspace(1, 9, 24), [15.0]])
     y_l = 1.8 * x_l + 2 + RNG.normal(0, 0.8, 25)
@@ -395,10 +375,9 @@ def fig_outlier_effects():
     ax.set_xlim(0, 15)
     ax.set_xlabel("$x$")
     ax.set_ylabel("$y$")
-    ax.set_title("Leverage по $x$ → меняется наклон")
-    ax.legend(**legend_kwargs(), loc="upper left")
+    style_panel_title(ax, "Leverage по $x$ → меняется наклон")
 
-    save_slide_figure(fig, ASSETS / "outlier_effects.png")
+    save_dual_col_figure(fig, axes, ASSETS / "outlier_effects.png")
 
 
 def fig_residuals_geometry():
@@ -411,7 +390,7 @@ def fig_residuals_geometry():
     intercept = float(m.intercept_)
     resid = y - y_hat
 
-    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL)
 
     ax = axes[0]
     style_axes(ax)
@@ -420,18 +399,20 @@ def fig_residuals_geometry():
     ax.plot(xx, m.predict(xx.reshape(-1, 1)), "r-", lw=2.2)
     for xi, yi, yhi in zip(x, y, y_hat):
         ax.vlines(xi, yhi, yi, colors="#555555", linestyles=(0, (4, 3)), lw=2.2)
-    ax.scatter([0], [intercept], c="#2ca02c", s=55, zorder=6)
-    ax.annotate(
+    ax.scatter([0], [intercept], c="#2ca02c", s=40, zorder=6)
+    ax.text(
+        0.03,
+        0.97,
         f"intercept $b$={intercept:.1f}",
-        xy=(0, intercept),
-        xytext=(1.5, intercept + 3),
-        color=TEXT_DARK,
+        transform=ax.transAxes,
         fontsize=FONT_ANNOT,
-        arrowprops=dict(arrowstyle="->", color="#2ca02c"),
+        color="#2ca02c",
+        va="top",
+        ha="left",
     )
     ax.set_xlabel("признак $x$")
     ax.set_ylabel("$y$")
-    ax.set_title("Вертикальные остатки $\\varepsilon$")
+    style_panel_title(ax, "Вертикальные остатки $\\varepsilon$")
     _grid(ax)
 
     ax = axes[1]
@@ -440,10 +421,9 @@ def fig_residuals_geometry():
     ax.axvline(0, color="#d62728", lw=1.8, label="среднее ≈ 0")
     ax.set_xlabel("остаток $\\varepsilon$")
     ax.set_ylabel("частота")
-    ax.set_title("Симметрично вокруг нуля")
-    ax.legend(**legend_kwargs())
+    style_panel_title(ax, "Симметрично вокруг нуля")
 
-    save_slide_figure(fig, ASSETS / "residuals_geometry.png")
+    save_dual_col_figure(fig, axes, ASSETS / "residuals_geometry.png")
 
 
 def fig_regularization():
@@ -461,7 +441,7 @@ def fig_regularization():
         est.fit(Xs, y)
         coefs[name] = est.coef_
 
-    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
+    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL)
     ax = axes[0]
     style_axes(ax)
     n_feat = len(coefs["OLS"])
@@ -487,8 +467,7 @@ def fig_regularization():
     ax.set_xticks(xpos)
     ax.set_xticklabels([f"$w_{j+1}$" for j in range(n_feat)])
     ax.set_ylabel("вес")
-    ax.set_title("Ridge сжимает, Lasso обнуляет")
-    ax.legend(**legend_kwargs(), loc="upper right")
+    style_panel_title(ax, "Ridge сжимает, Lasso обнуляет")
 
     from sklearn.model_selection import cross_val_score
 
@@ -518,26 +497,18 @@ def fig_regularization():
     ax.annotate(
         f"$\\alpha^*$={best_a:.2g}",
         xy=(best_a, best_mse),
-        xytext=(best_a * 2.5, best_mse + y_span * 0.35),
+        xytext=(alphas[knee_i] * 0.92, best_mse + y_span * 0.45),
         fontsize=FONT_ANNOT,
-        fontweight="bold",
         color=TEXT_DARK,
-        ha="center",
-        arrowprops=dict(arrowstyle="->", color="#d62728", lw=2),
-        bbox=dict(boxstyle="round,pad=0.25", fc="#ffe6e6", ec="#d62728", alpha=0.95),
-    )
-    ax.text(
-        alphas[knee_i] * 0.55,
-        local_max + y_span * 0.05,
-        "большой $\\alpha$ → хуже",
-        fontsize=FONT_ANNOT,
-        color="#d62728",
-        ha="center",
+        ha="right",
+        va="bottom",
+        arrowprops=dict(arrowstyle="->", color="#d62728", lw=1.5),
+        bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="#d62728", alpha=0.9),
     )
     ax.set_xlabel("$\\alpha$ (Ridge)")
     ax.set_ylabel("CV-MSE")
-    ax.set_title("Подбор $\\alpha$ (те же данные, что bar chart)")
-    save_slide_figure(fig, ASSETS / "regularization_weights.png")
+    style_panel_title(ax, "Подбор $\\alpha$")
+    save_dual_col_figure(fig, axes, ASSETS / "regularization_weights.png")
 
 
 def fig_intro_scatter():
@@ -549,15 +520,13 @@ def fig_intro_scatter():
 
     fig, ax = plt.subplots(figsize=FIGSIZE_SINGLE)
     style_axes(ax)
-    ax.scatter(area, price, c="#1f77b4", s=35)
-    ax.plot(xx, m.predict(xx.reshape(-1, 1)), "r-", lw=2.2, label="$\\hat{y}=kx+b$")
+    ax.scatter(area, price, c="#1f77b4", s=35, label="данные")
+    ax.plot(xx, m.predict(xx.reshape(-1, 1)), "r-", lw=2.2, label="модель")
     ax.set_xlabel("площадь, м²")
     ax.set_ylabel("цена")
-    ax.set_title("Линейная регрессия")
-    ax.legend(**legend_kwargs())
+    style_panel_title(ax, "Линейная регрессия")
     _grid(ax)
-    plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "intro_scatter_line.png")
+    save_single_panel_figure(fig, ax, ASSETS / "intro_scatter_line.png", legend_ncol=2)
 
 
 def fig_residual_diagnostics():
@@ -573,21 +542,33 @@ def fig_residual_diagnostics():
     pred_good = LinearRegression().fit(x_good.reshape(-1, 1), y_good).predict(x_good.reshape(-1, 1))
     resid_good = y_good - pred_good
 
-    fig, axes = plt.subplots(2, 1, figsize=FIGSIZE_DUAL_COL, gridspec_kw={"hspace": COL_HSPACE})
+    x_u = np.linspace(-3, 3, n)
+    y_u = x_u**2 + RNG.normal(0, 0.6, n)
+    pred_u = LinearRegression().fit(x_u.reshape(-1, 1), y_u).predict(x_u.reshape(-1, 1))
+    resid_u = y_u - pred_u
+
+    fig, axes = plt.subplots(3, 1, figsize=FIGSIZE_TRIPLE_COL)
     style_axes(axes[0])
-    axes[0].scatter(pred_good, resid_good, c="#1f77b4", s=26, alpha=0.75)
+    axes[0].scatter(pred_good, resid_good, c="#1f77b4", s=22, alpha=0.75)
     axes[0].axhline(0, color="#444444", lw=0.9)
     axes[0].set_xlabel("$\\hat{y}$")
     axes[0].set_ylabel("остаток")
-    axes[0].set_title("✓ облако вокруг 0")
+    style_panel_title(axes[0], "✓ облако вокруг 0")
 
     style_axes(axes[1])
-    axes[1].scatter(pred_bad, resid_bad, c="#1f77b4", s=26, alpha=0.75)
+    axes[1].scatter(pred_bad, resid_bad, c="#1f77b4", s=22, alpha=0.75)
     axes[1].axhline(0, color="#444444", lw=0.9)
     axes[1].set_xlabel("$\\hat{y}$")
     axes[1].set_ylabel("остаток")
-    axes[1].set_title("✗ «воронка» — дисперсия растёт")
-    save_slide_figure(fig, ASSETS / "residual_diagnostics.png")
+    style_panel_title(axes[1], "✗ «воронка» — дисперсия растёт")
+
+    style_axes(axes[2])
+    axes[2].scatter(pred_u, resid_u, c="#1f77b4", s=22, alpha=0.75)
+    axes[2].axhline(0, color="#444444", lw=0.9)
+    axes[2].set_xlabel("$\\hat{y}$")
+    axes[2].set_ylabel("остаток")
+    style_panel_title(axes[2], "✗ U-форма — нелинейность")
+    save_dual_col_figure(fig, axes, ASSETS / "residual_diagnostics.png")
 
 
 def fig_nonlinear():
@@ -606,11 +587,9 @@ def fig_nonlinear():
     ax.plot(x, y_poly, color="#2ca02c", lw=2.2, label=f"полином 2° (RMSE={rmse_poly:.1f})")
     ax.set_xlabel("$x$")
     ax.set_ylabel("$y$")
-    ax.set_title("Нелинейность: прямая не описывает параболу")
-    ax.legend(**legend_kwargs(), loc="upper left")
+    style_panel_title(ax, "Нелинейность: прямая не описывает параболу")
     _grid(ax)
-    plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "nonlinear_vs_linear.png", tight=False)
+    save_single_panel_figure(fig, ax, ASSETS / "nonlinear_vs_linear.png", legend_ncol=2)
 
 
 def _remove_orphan_png():

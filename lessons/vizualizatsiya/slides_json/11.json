@@ -22,7 +22,7 @@
   },
   "code_examples": [
     {
-      "source": "sns.countplot(data=df, x='category', order=df['category'].value_counts().index)\nplt.xticks(rotation=30)",
+      "source": "sns.countplot(data=df, x='category',\n    order=df['category'].value_counts().index)\nplt.xticks(rotation=30)",
       "caption": "countplot"
     }
   ]

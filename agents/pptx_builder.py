@@ -56,11 +56,12 @@ BODY_WIDTH_VIS = 6.85
 BULLET_COL_W = 3.4
 IMG_COL_LEFT = 7.95
 IMG_COL_W = 5.5
-VISUAL_TOP = 1.45
+VISUAL_TOP = BULLET_TOP  # правая колонка: верх картинки = верх буллетов
 TEXT_IMG_GAP = 0.18
 BULLET_CODE_GAP = 0.38
 BULLET_CODE_GAP_COL = 0.55  # слайд: текст слева + картинка справа + код внизу слева
 VISUAL_STACK_GAP = 0.16
+IMG_VERTICAL_GAP = 0.34  # ≈ 1 строка буллета между картинками в колонке
 STACKED_IMG_GAP = 0.22
 WIDE_BAND_LEFT = 0.7
 WIDE_BAND_W = 7.9
@@ -71,6 +72,7 @@ BULLET_CHAR = "\u2022"  # • — единый маркер для всех сл
 SLIDE_WIDTH = 13.333
 SLIDE_HEIGHT = 7.5
 SLIDE_RIGHT_MARGIN = 0.5
+CODE_BOTTOM_MARGIN = 0.12  # блок кода прижат к низу слайда
 
 
 def _max_image_right(slide_width: float = SLIDE_WIDTH) -> float:
@@ -164,10 +166,15 @@ def _compute_slide_layout(
     stacked = False
     two_col = _use_two_column_bullets(bullets, has_visuals)
     has_code = bool(code_examples)
-    code_h = estimate_code_height_inches(code_examples) if has_code else 0.0
+    body_width = BODY_WIDTH_VIS if has_visuals else BODY_WIDTH_FULL
+    code_w = body_width - 0.1
+    code_h = (
+        estimate_code_height_inches(code_examples, code_width=code_w)
+        if has_code
+        else 0.0
+    )
     min_bullet_h = 0.9 if bullets else 0.0
 
-    body_width = BODY_WIDTH_VIS if has_visuals else BODY_WIDTH_FULL
     bullet_col_w = FULL_COL_W if two_col else body_width
 
     aspects: list[float] = []
@@ -189,13 +196,17 @@ def _compute_slide_layout(
         n_rows = len(bullets)
 
     est_bullet_h = _estimate_bullet_height(bullets, two_col=two_col, col_w=bullet_col_w)
-    code_top = content_bottom - code_h if has_code else None
 
     bullet_h = 0.0
     bullet_bottom = bullet_top
 
     column_with_code = has_code and has_visuals and not stacked
     bullet_clipped = False
+
+    if has_code:
+        code_top = SLIDE_HEIGHT - CODE_BOTTOM_MARGIN - code_h
+    else:
+        code_top = None
 
     if bullets:
         if stacked and code_top is not None:
@@ -212,29 +223,22 @@ def _compute_slide_layout(
         elif code_top is not None:
             max_h = code_top - bullet_top - BULLET_CODE_GAP
             bullet_h = max(min_bullet_h, min(max_h, est_bullet_h))
+            bullet_clipped = est_bullet_h > max_h + 0.05
         else:
             bullet_h = min(5.2, max(2.0, est_bullet_h))
         bullet_bottom = bullet_top + bullet_h
 
-    visual_top = (bullet_bottom + STACKED_IMG_GAP) if stacked else VISUAL_TOP
+    visual_top = (bullet_bottom + STACKED_IMG_GAP) if stacked else BULLET_TOP
     visual_bottom = content_bottom - 0.08
 
-    if has_code:
-        code_top = content_bottom - code_h
-        gap = BULLET_CODE_GAP_COL if column_with_code else BULLET_CODE_GAP
-        min_code_top = bullet_bottom + gap
-        if stacked:
-            min_code_top = max(min_code_top, visual_top + MIN_WIDE_BAND_H + TEXT_IMG_GAP)
-        if code_top < min_code_top:
-            code_top = min_code_top
-        if not column_with_code:
-            visual_bottom = code_top - TEXT_IMG_GAP
+    if has_code and code_top is not None and column_with_code:
+        visual_bottom = min(visual_bottom, code_top - TEXT_IMG_GAP)
 
     wide_band = (not stacked) and _would_use_wide_band(aspects, size_hints)
     band_top = band_h = None
 
     if wide_band:
-        band_top = (bullet_bottom + TEXT_IMG_GAP) if bullets else VISUAL_TOP
+        band_top = (bullet_bottom + TEXT_IMG_GAP) if bullets else BULLET_TOP
         band_h = min(MAX_WIDE_BAND_H, visual_bottom - band_top)
         if band_h < MIN_WIDE_BAND_H:
             wide_band = False
@@ -306,7 +310,7 @@ def _visual_layout_slots(
     layout: dict | None = None,
 ):
     """Координаты ячеек (left, top, width, height) в дюймах для 1–4 картинок."""
-    gap = VISUAL_STACK_GAP if layout.get("stacked") else 0.06
+    gap = VISUAL_STACK_GAP if layout.get("stacked") else IMG_VERTICAL_GAP
     layout = layout or {}
 
     if layout.get("stacked"):
@@ -524,7 +528,7 @@ def _get_python_highlighter():
         from pygments.lexers import PythonLexer
         from pygments.styles import get_style_by_name
 
-        return PythonLexer(), get_style_by_name("default")
+        return PythonLexer(stripnl=False), get_style_by_name("friendly")
     except ImportError:
         return None, None
 
@@ -536,7 +540,7 @@ def _rgb_from_hex(hex_color: str):
     return RGBColor(int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
 
 
-def _add_highlighted_code_line(
+def _append_highlighted_code_line(
     paragraph,
     line: str,
     *,
@@ -565,11 +569,16 @@ def _add_highlighted_code_line(
         run.text = text
         run.font.name = code_font
         run.font.size = code_size
-        color = style.style_for_token(token_type).get("color")
+        token_style = style.style_for_token(token_type)
+        color = token_style.get("color")
         if color:
             run.font.color.rgb = _rgb_from_hex(color)
         else:
             run.font.color.rgb = RGBColor(*default_rgb)
+        if token_style.get("bold"):
+            run.font.bold = True
+        if token_style.get("italic"):
+            run.font.italic = True
 
 
 def _render_code_examples(
@@ -582,28 +591,45 @@ def _render_code_examples(
     Inches,
     body_rgb,
 ):
-    """Моноширинный блок(и) кода под буллетами."""
+    """Моноширинный блок(и) кода: серая рамка + по одному textbox на строку."""
     from pptx.dml.color import RGBColor
-    from pptx.enum.text import MSO_AUTO_SIZE, PP_ALIGN
+    from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE, PP_ALIGN
     from pptx.util import Pt
+
+    from slide_code_utils import (
+        CODE_BLOCK_GAP,
+        CODE_BLOCK_TAIL,
+        CODE_CAPTION_H,
+        CODE_FONT_PT,
+        CODE_LINE_H,
+        CODE_PAD_BOTTOM,
+        CODE_PAD_TOP,
+        CODE_PAD_X,
+        apply_tight_code_paragraph,
+        max_code_line_length_for_width,
+        normalize_code_lines,
+    )
 
     if not code_examples:
         return top
 
     lexer, style = _get_python_highlighter()
+    if lexer is None:
+        print("  [warn] Pygments не установлен — код без подсветки (pip install pygments)")
     code_font = "Consolas"
-    code_size = Pt(11)
+    code_size = Pt(CODE_FONT_PT)
     caption_size = Pt(10)
-    pad = 0.08
     y = top
+    inner_w = width - 2 * CODE_PAD_X
+    max_len = max_code_line_length_for_width(width)
 
     for block in code_examples:
         source = block.get("source", "")
         if not source:
             continue
-        lines = source.split("\n")
-        n_lines = max(len(lines), 1)
-        block_h = 0.17 * n_lines + 0.10
+        lines = normalize_code_lines(source, max_len=max_len)
+        n_lines = len(lines)
+        block_h = CODE_PAD_TOP + CODE_LINE_H * n_lines + CODE_PAD_BOTTOM
 
         bg = slide.shapes.add_shape(
             1,
@@ -616,18 +642,23 @@ def _render_code_examples(
         bg.fill.fore_color.rgb = RGBColor(0xF5, 0xF5, 0xF5)
         bg.line.color.rgb = RGBColor(0xDD, 0xDD, 0xDD)
 
-        box = slide.shapes.add_textbox(
-            Inches(left + pad),
-            Inches(y + pad * 0.5),
-            Inches(width - 2 * pad),
-            Inches(block_h - pad),
-        )
-        tf = box.text_frame
-        tf.word_wrap = False
-        tf.auto_size = MSO_AUTO_SIZE.NONE
         for j, line in enumerate(lines):
-            p = tf.paragraphs[0] if j == 0 else tf.add_paragraph()
-            _add_highlighted_code_line(
+            line_box = slide.shapes.add_textbox(
+                Inches(left + CODE_PAD_X),
+                Inches(y + CODE_PAD_TOP + j * CODE_LINE_H),
+                Inches(inner_w),
+                Inches(CODE_LINE_H),
+            )
+            line_box.fill.background()
+            line_box.line.fill.background()
+            tf = line_box.text_frame
+            tf.word_wrap = False
+            tf.auto_size = MSO_AUTO_SIZE.NONE
+            tf.vertical_anchor = MSO_ANCHOR.TOP
+            tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+            p = tf.paragraphs[0]
+            apply_tight_code_paragraph(p)
+            _append_highlighted_code_line(
                 p,
                 line,
                 lexer=lexer,
@@ -636,9 +667,8 @@ def _render_code_examples(
                 code_size=code_size,
                 default_rgb=body_rgb,
             )
-            p.space_after = Pt(0)
 
-        y += block_h + 0.06
+        y += block_h + CODE_BLOCK_GAP
 
         caption = block.get("caption")
         if caption:
@@ -654,9 +684,9 @@ def _render_code_examples(
             cp.font.italic = True
             cp.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
             cp.alignment = PP_ALIGN.LEFT
-            y += 0.24
+            y += CODE_CAPTION_H
 
-        y += 0.04
+        y += CODE_BLOCK_TAIL
 
     return y
 
@@ -728,7 +758,7 @@ def _collect_visual_rects(
     aspects = [_image_aspect(p) for p in paths]
     size_hints = [_visual_size_hint(v) for _, v in items]
     col_left, col_w = _image_column_dims()
-    vtop = layout.get("visual_top", VISUAL_TOP) if layout.get("stacked") else VISUAL_TOP
+    vtop = layout.get("visual_top", BULLET_TOP)
     vbottom = layout.get("visual_bottom", layout["content_bottom"])
     slots = _visual_layout_slots(
         len(paths),
@@ -870,7 +900,7 @@ def _place_visuals(
     aspects = [_image_aspect(p) for p in paths]
 
     col_left, col_w = _image_column_dims()
-    vtop = layout.get("visual_top", VISUAL_TOP) if layout.get("stacked") else VISUAL_TOP
+    vtop = layout.get("visual_top", BULLET_TOP)
     vbottom = layout.get("visual_bottom", layout["content_bottom"])
     slots = _visual_layout_slots(
         len(paths),

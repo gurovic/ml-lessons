@@ -21,7 +21,7 @@
   },
   "code_examples": [
     {
-      "source": "prep = ColumnTransformer([\n    ('num', StandardScaler(), num_cols),\n    ('cat', OneHotEncoder(), cat_cols)])\nX_scaled = prep.fit_transform(X_train)",
+      "source": "from sklearn.compose import ColumnTransformer\nfrom sklearn.preprocessing import (\n    StandardScaler,\n    OneHotEncoder)\nprep = ColumnTransformer([\n    ('num', StandardScaler(), num_cols),\n    ('cat', OneHotEncoder(), cat_cols),\n])\nX_scaled = prep.fit_transform(X_train)",
       "caption": "Числа + категории"
     }
   ]

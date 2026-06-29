@@ -1,11 +1,15 @@
 """
 Пайплайн иллюстраций урока: генерация PNG, программная проверка, сборка pptx.
 
+Пилотный урок для стиля иллюстраций: lessons/lineynaya_regressiya (см. docs/visuals.md).
+Сначала правки и перегенерация только там; остальные уроки — после одобрения pptx.
+
 Использование:
-    python agents/visuals_pipeline.py <lesson_dir>              # generate + check + pptx
-    python agents/visuals_pipeline.py <lesson_dir> --check-only
-    python agents/visuals_pipeline.py <lesson_dir> --review    # промпт AI-рецензии визуалов
-    python agents/visuals_pipeline.py <lesson_dir> --generate-only
+    python agents/visuals_pipeline.py --pilot                    # lineynaya_regressiya, generate + check + pptx
+    python agents/visuals_pipeline.py lessons/<slug>             # один урок
+    python agents/visuals_pipeline.py lessons/<slug> --check-only
+    python agents/visuals_pipeline.py lessons/<slug> --review    # промпт AI-рецензии визуалов
+    python agents/visuals_pipeline.py --all-lessons --generate-only  # все уроки (после одобрения пилота)
 """
 
 from __future__ import annotations
@@ -22,6 +26,9 @@ PROMPT_PATH = AGENTS / "prompts" / "visuals_reviewer.md"
 # Широкие PNG (>1.6) плохо читаются в правой колонке pptx (~5.5″)
 MAX_COLUMN_ASPECT = 1.65
 
+# Пилот для изменений viz_style / generate_visuals — остальные уроки после одобрения pptx
+PILOT_VISUALS_LESSON = "lineynaya_regressiya"
+
 
 def _read_slides(slides_dir: Path) -> list[dict]:
     from slide_utils import read_slides
@@ -35,6 +42,26 @@ def _image_aspect(path: Path) -> float:
     with Image.open(path) as im:
         w, h = im.size
     return w / h if h else 1.0
+
+
+def pilot_lesson_dir() -> Path:
+    return REPO_ROOT / "lessons" / PILOT_VISUALS_LESSON
+
+
+def find_lessons_with_visuals() -> list[Path]:
+    """Уроки с assets/generate_visuals.py."""
+    return sorted(p.parent.parent for p in REPO_ROOT.glob("lessons/*/assets/generate_visuals.py"))
+
+
+def run_all_lessons_generate(*, skip_pilot: bool = False) -> bool:
+    ok = True
+    for lesson_dir in find_lessons_with_visuals():
+        if skip_pilot and lesson_dir.name == PILOT_VISUALS_LESSON:
+            continue
+        print(f"\n--- {lesson_dir.name} ---")
+        if not run_generate_visuals(lesson_dir):
+            ok = False
+    return ok
 
 
 def find_generate_script(lesson_dir: Path) -> Path | None:
@@ -89,7 +116,7 @@ def check_visuals_quality(lesson_dir: Path) -> list[str]:
             if len(bullets) >= 3 and not slide.get("link") and not skip_no_visual:
                 issues.append(
                     f"«{title}»: нет visuals при {len(bullets)} буллетах "
-                    "(см. docs/visuals.md — по умолчанию ≥1 иллюстрация)"
+                    "(см. docs/visuals.md — по умолчанию >=1 иллюстрация)"
                 )
         for viz in visuals:
             output = viz.get("output", "")
@@ -193,16 +220,42 @@ def build_review_prompt(lesson_dir: Path) -> str:
 
 
 def main():
-    if len(sys.argv) < 2:
+    argv = sys.argv[1:]
+    if not argv:
         print(__doc__)
         sys.exit(1)
 
-    lesson_dir = Path(sys.argv[1])
+    # --pilot [--check-only | --generate-only | --review | --all]
+    if argv[0] == "--pilot":
+        lesson_dir = pilot_lesson_dir()
+        mode = argv[1] if len(argv) >= 2 else "--all"
+        argv = [str(lesson_dir), mode]
+
+    # --all-lessons --generate-only (после одобрения пилота)
+    if argv[0] == "--all-lessons":
+        mode = argv[1] if len(argv) >= 2 else "--generate-only"
+        if mode != "--generate-only":
+            print("Для --all-lessons поддерживается только --generate-only")
+            sys.exit(1)
+        print(
+            f"Перегенерация PNG всех уроков (пилот: {PILOT_VISUALS_LESSON}). "
+            "Запускайте только после одобрения presentation.pptx пилота."
+        )
+        if not run_all_lessons_generate():
+            sys.exit(1)
+        print("\nГотово: PNG всех уроков")
+        return
+
+    if len(argv) < 1:
+        print(__doc__)
+        sys.exit(1)
+
+    lesson_dir = Path(argv[0])
     if not lesson_dir.exists():
         print(f"Папка не найдена: {lesson_dir}")
         sys.exit(1)
 
-    mode = sys.argv[2] if len(sys.argv) >= 3 else "--all"
+    mode = argv[1] if len(argv) >= 2 else "--all"
 
     if mode == "--review":
         print(build_review_prompt(lesson_dir))

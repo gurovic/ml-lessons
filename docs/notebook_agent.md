@@ -115,6 +115,32 @@ type response.json | python agents/notebook_generator.py lessons/derevo_resheniy
 
 Выход: `lessons/<урок>/code.ipynb`.
 
+## Рецензия ноутбуков (notebook_reviewer)
+
+**После** создания `code.ipynb` и `project.ipynb` — опциональная проверка агентом **notebook_reviewer** (промпт: `agents/prompts/notebook_reviewer.md`).
+
+### Программная проверка (`--check-only`)
+
+- наличие файлов, валидный JSON nbformat;
+- одна setup-ячейка `# Setup` с `%matplotlib inline` и `np.random.seed(42)`;
+- импорты и seed не повторяются в других code-ячейках;
+- синтаксис code-ячейок (`compile`);
+- `code.ipynb`: заголовки секций совпадают с отбором слайдов (`notebook_utils.select_slides_for_notebook`);
+- `project.ipynb`: «Решение:», `final_model`/`final_pipe`, один `train_test_split`, без `make_*`;
+- нет перекрёстных ссылок на номера слайдов.
+
+### AI-рецензия и правки
+
+```powershell
+python agents/notebook_reviewer.py lessons/lineynaya_regressiya --check-only
+python agents/notebook_reviewer.py lessons/lineynaya_regressiya
+python agents/notebook_reviewer.py lessons/lineynaya_regressiya --save notebook_review.md
+python agents/notebook_reviewer.py lessons/lineynaya_regressiya --apply fixes.json
+python agents/notebook_reviewer.py --pilot
+```
+
+Отчёт: `notebook_review.md`. Исправления: JSON с полями `report`, `code.sections`, `project.sections` — см. промпт.
+
 ## project.ipynb (мини-проект)
 
 Сквозной end-to-end сценарий на реальных данных — см. **docs/project_notebook.md**.  

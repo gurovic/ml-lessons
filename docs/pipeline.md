@@ -22,6 +22,7 @@
    - `pptx_builder` → **`presentation.pptx`**;
    - `notebook_generator` → `code.ipynb`;
    - `project.ipynb` (вручную или по шаблону);
+   - **`notebook_reviewer`** — автопроверка + AI-рецензия `code.ipynb` / `project.ipynb` (`--check-only`, `--apply`);
    - `references_agent` → слайд «Источники и практика» + пересборка pptx;
    - `link_checker_agent` → проверка URL (после references, до финальной QA pptx).
 3. **Пользователь проверяет и правит `presentation.pptx` в PowerPoint** — не JSON. Замечания по слайдам — в **`author_feedback.md`** (чеклисты; файл не перезаписывается рецензентом).
@@ -75,6 +76,8 @@ presentation.pptx (pptx_builder)
 [опционально] plan.md / чат → агенты → JSON → pptx (перезапись!)
     ↓
 code.ipynb, project.ipynb, references, link_checker (агенты)
+    ↓
+[опционально] notebook_reviewer — QA ноутбуков
 ```
 
 ## Связанные документы
@@ -91,12 +94,30 @@ code.ipynb, project.ipynb, references, link_checker (агенты)
 Если в уроке есть `assets/generate_visuals.py`:
 
 ```bash
+python agents/visuals_pipeline.py --pilot                         # пилот: lineynaya_regressiya
 python agents/visuals_pipeline.py lessons/<slug>              # generate + check + pptx
 python agents/visuals_pipeline.py lessons/<slug> --check-only
 python agents/visuals_pipeline.py lessons/<slug> --review     # промпт для AI-рецензии PNG
+python agents/visuals_pipeline.py --all-lessons --generate-only  # все уроки (после одобрения пилота)
 ```
 
 Шаги: (1) запуск `generate_visuals.py`; (2) проверка — missing/orphan PNG, aspect для правой колонки, слайды без visuals; (3) пересборка pptx. Рецензия **PNG** (педагогика, контраст, подписи) — отдельно от `lesson_reviewer` (текст JSON).
+
+**Пилот:** правки иллюстраций сначала в `lessons/lineynaya_regressiya`; остальные уроки — после одобрения pptx (см. docs/visuals.md).
+
+### Ноутбуки (notebook_reviewer)
+
+После `code.ipynb` и `project.ipynb`:
+
+```bash
+python agents/notebook_reviewer.py --pilot                         # пилот: lineynaya_regressiya
+python agents/notebook_reviewer.py lessons/<slug>              # check + промпт AI
+python agents/notebook_reviewer.py lessons/<slug> --check-only
+python agents/notebook_reviewer.py lessons/<slug> --save notebook_review.md
+python agents/notebook_reviewer.py lessons/<slug> --apply fixes.json
+```
+
+Шаги: (1) программная проверка — синтаксис, Setup, imports, покрытие слайдов, narrative; (2) промпт для AI-рецензии; (3) `--apply` — пересборка ipynb из JSON-ответа. Отчёт — `notebook_review.md` (не путать с `review.md` для JSON-слайдов).
 
 ## Отвергнутые альтернативы
 

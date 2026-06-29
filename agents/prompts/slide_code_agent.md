@@ -11,15 +11,16 @@
 
 - **1–2 блока** `code_examples` на слайд.
 - **3–5 строк** Python в каждом `source` (строго, не больше).
+- **~60 символов в строке** (узкая колонка с картинкой): длинные выражения переноси по скобкам и запятым, как в обычном Python (`ColumnTransformer([...])`, `from x import (a, b)`).
 - Комментарии в коде — **на русском**, кратко.
 - Код должен **иллюстрировать буллеты** слайда, не дублировать всю теорию.
-- **Импорты:** только в **первом** слайде урока с кодом; на остальных — фрагмент без `import`/`from` (контекст с предыдущих слайдов).
+- **Импорты в каждом блоке:** включай в `source` все нужные `import`/`from` для этого фрагмента — слайд читают отдельно, без «контекста с прошлого слайда». Если используется `LinearRegression`, `Pipeline`, `pd` — соответствующий import в том же блоке (в пределах 3–5 строк).
 - Без `%matplotlib inline` на слайде (это для ноутбука).
 
 ## Стиль (RULES.md → «Стиль кода в примерах»)
 
-- Максимальная лаконичность, без boilerplate.
-- Не повторять `import`, `seed`, `plt.style` в каждом блоке.
+- Максимальная лаконичность, без лишнего boilerplate.
+- Не повторять `np.random.seed`, `plt.style`, `%matplotlib inline` на слайдах.
 - Простые конструкции sklearn/pandas; без walrus и тяжёлых comprehensions.
 - Для pandas/numpy-примеров ориентируйся на `docs/pandas_numpy_basics.md` и выбирай самые базовые паттерны.
 
@@ -42,7 +43,7 @@
       "title": "Точное совпадение с title слайда",
       "code_examples": [
         {
-          "source": "import pandas as pd\ndf = pd.read_csv('data.csv')\n# первые строки\ndf.head()",
+          "source": "from sklearn.linear_model import LinearRegression\nmodel = LinearRegression().fit(X, y)",
           "caption": "Загрузка таблицы"
         }
       ]

@@ -1,4 +1,4 @@
-"""Генерация всех иллюстраций logisticheskaya_regressiya.
+﻿"""Генерация всех иллюстраций logisticheskaya_regressiya.
 
 Данные подобраны педагогически: эффект на графике должен быть виден сразу.
 """
@@ -31,6 +31,7 @@ from viz_style import (  # noqa: E402
     FONT_TITLE,
     apply_matplotlib_slide_style,
     legend_kwargs,
+    save_dual_col_figure,
     save_slide_figure,
     style_axes,
 )
@@ -74,9 +75,9 @@ def fig_binary_classification_boundary():
     ax.set_xlabel("$x_1$")
     ax.set_ylabel("$x_2$")
     ax.set_title("Бинарная классификация")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "binary_classification_boundary.png")
+    save_slide_figure(fig, ASSETS / "binary_classification_boundary.png", tight=False, axes=ax)
 
 
 def fig_linear_reg_on_classification():
@@ -112,7 +113,7 @@ def fig_linear_reg_on_classification():
         ax.set_title(title)
     fig.suptitle("Линейная регрессия для классификации", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "linear_reg_on_classification.png")
+    save_dual_col_figure(fig, axes, ASSETS / "linear_reg_on_classification.png")
 
 
 def fig_sigmoid_curve():
@@ -132,9 +133,9 @@ def fig_sigmoid_curve():
     ax.set_xlabel("$z = \\vec{w}\\cdot\\vec{x} + b$")
     ax.set_ylabel("$P(y=1)$")
     ax.set_title("Сигмоида сжимает выход в [0, 1]")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "sigmoid_curve.png")
+    save_slide_figure(fig, ASSETS / "sigmoid_curve.png", tight=False, axes=ax)
 
 
 def fig_decision_threshold_05():
@@ -167,10 +168,10 @@ def fig_decision_threshold_05():
     ax.set_xlabel("$x_1$")
     ax.set_ylabel("$x_2$")
     ax.set_title("$\\vec{w}\\cdot\\vec{x}+b=0$")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     fig.suptitle("От вероятности к границе", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "decision_threshold_05.png")
+    save_dual_col_figure(fig, axes, ASSETS / "decision_threshold_05.png")
 
 
 def fig_vanishing_gradient_mse():
@@ -204,7 +205,7 @@ def fig_vanishing_gradient_mse():
     ax.set_title("градиент остаётся")
     fig.suptitle("Затухание градиента при MSE", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "vanishing_gradient_mse.png")
+    save_dual_col_figure(fig, axes, ASSETS / "vanishing_gradient_mse.png")
 
 
 def fig_logloss_curves():
@@ -222,7 +223,7 @@ def fig_logloss_curves():
     ax.set_xlabel("предсказанная $p$")
     ax.set_ylabel("штраф")
     ax.set_ylim(0, 5)
-    ax.legend()
+    ax.legend(**legend_kwargs())
     ax.set_title("LogLoss по классам")
 
     ax = axes[1]
@@ -238,7 +239,7 @@ def fig_logloss_curves():
         ax.text(v + 0.08, bar.get_y() + bar.get_height() / 2, f"{v:.1f}", va="center", color=TEXT_DARK)
     fig.suptitle("LogLoss (бинарная кросс-энтропия)", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "logloss_curves.png")
+    save_dual_col_figure(fig, axes, ASSETS / "logloss_curves.png")
 
 
 def fig_logreg_gradient_descent():
@@ -266,9 +267,9 @@ def fig_logreg_gradient_descent():
     ax.set_xlabel("$w_0$")
     ax.set_ylabel("$w_1$")
     ax.set_title("$\\nabla_w L = \\frac{1}{N} X^T (p - y)$")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "logreg_gradient_descent.png")
+    save_slide_figure(fig, ASSETS / "logreg_gradient_descent.png", tight=False, axes=ax)
 
 
 def fig_regularization_C_weights():
@@ -306,7 +307,7 @@ def fig_regularization_C_weights():
         ax.text(bar.get_x() + bar.get_width() / 2, v + 0.05, f"{v:.2f}", ha="center", color=TEXT_DARK)
     fig.suptitle("Регуляризация: параметр C", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "regularization_C_weights.png")
+    save_dual_col_figure(fig, axes, ASSETS / "regularization_C_weights.png")
 
 
 def fig_accuracy_imbalance_trap():
@@ -333,7 +334,7 @@ def fig_accuracy_imbalance_trap():
         ax.text(bar.get_x() + bar.get_width() / 2, v + 0.02, lbl, ha="center", color=TEXT_DARK, fontweight="bold")
     fig.suptitle("Ловушка Accuracy", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "accuracy_imbalance_trap.png")
+    save_dual_col_figure(fig, axes, ASSETS / "accuracy_imbalance_trap.png")
 
 
 def fig_roc_and_pr_curves():
@@ -358,7 +359,7 @@ def fig_roc_and_pr_curves():
     ax.set_xlabel("FPR")
     ax.set_ylabel("TPR (Recall)")
     ax.set_title("ROC-кривая")
-    ax.legend()
+    ax.legend(**legend_kwargs())
 
     ax = axes[1]
     style_axes(ax)
@@ -371,7 +372,7 @@ def fig_roc_and_pr_curves():
     ax.legend(**legend_kwargs())
     fig.suptitle("ROC vs PR при дисбалансе", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "roc_and_pr_curves.png")
+    save_dual_col_figure(fig, axes, ASSETS / "roc_and_pr_curves.png")
 
 
 def fig_softmax_three_classes():
@@ -392,7 +393,7 @@ def fig_softmax_three_classes():
         ax.text(bar.get_x() + bar.get_width() / 2, val + 0.03, f"{val:.2f}", ha="center", color=TEXT_DARK)
     ax.axhline(1.0, color="#888888", lw=0.6, linestyle="--", alpha=0.5)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "softmax_three_classes.png")
+    save_slide_figure(fig, ASSETS / "softmax_three_classes.png", tight=False, axes=ax)
 
 
 def fig_odds_logodds_scale():
@@ -423,7 +424,7 @@ def fig_odds_logodds_scale():
     ax.set_title("$z = \\vec{w}\\cdot\\vec{x}+b$")
     fig.suptitle("Odds и log-odds", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "odds_logodds_scale.png")
+    save_dual_col_figure(fig, axes, ASSETS / "odds_logodds_scale.png")
 
 
 def fig_logreg_pipeline():
@@ -451,7 +452,7 @@ def fig_logreg_pipeline():
 
     ax.text(4.9, 0.35, "make_pipeline(StandardScaler(), LogisticRegression(C=1.0))", ha="center", color="#666666", fontsize=FONT_ANNOT)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "logreg_pipeline.png")
+    save_slide_figure(fig, ASSETS / "logreg_pipeline.png", tight=False, axes=ax)
 
 
 def fig_class_weight_balanced():
@@ -484,7 +485,7 @@ def fig_class_weight_balanced():
         ax.legend(**legend_kwargs())
     fig.suptitle("Несбалансированные данные", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "class_weight_balanced.png")
+    save_dual_col_figure(fig, axes, ASSETS / "class_weight_balanced.png")
 
 
 def fig_calibration_reliability():
@@ -527,7 +528,7 @@ def fig_calibration_reliability():
         ax.legend(**legend_kwargs())
     fig.suptitle("Калибровка вероятностей", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "calibration_reliability.png")
+    save_dual_col_figure(fig, axes, ASSETS / "calibration_reliability.png")
 
 
 def fig_nonlinear_decision_boundary():
@@ -570,7 +571,7 @@ def fig_nonlinear_decision_boundary():
     ax.set_ylabel("$x_2$")
     fig.suptitle("Когда LogReg не справляется", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "nonlinear_decision_boundary.png")
+    save_dual_col_figure(fig, axes, ASSETS / "nonlinear_decision_boundary.png")
 
 
 def fig_linear_vs_logistic_summary():
@@ -607,7 +608,7 @@ def fig_linear_vs_logistic_summary():
     ax.legend(**legend_kwargs())
     fig.suptitle("Регрессия vs классификация", color=TEXT_DARK)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "linear_vs_logistic_summary.png")
+    save_dual_col_figure(fig, axes, ASSETS / "linear_vs_logistic_summary.png")
 
 
 def main():

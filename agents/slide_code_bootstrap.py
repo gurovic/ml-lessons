@@ -23,28 +23,40 @@ BOOTSTRAP: dict[tuple[str, str], list[dict]] = {
     ],
     ("lineynaya_regressiya", "Предобработка: масштабирование и категории"): [
         _ex(
-            "prep = ColumnTransformer([('num', StandardScaler(), num_cols), ('cat', OneHotEncoder(), cat_cols)])\n"
+            "from sklearn.compose import ColumnTransformer\n"
+            "from sklearn.preprocessing import StandardScaler, OneHotEncoder\n"
+            "prep = ColumnTransformer([\n"
+            "    ('num', StandardScaler(), num_cols),\n"
+            "    ('cat', OneHotEncoder(), cat_cols),\n"
+            "])\n"
             "X_scaled = prep.fit_transform(X_train)",
             "Числа + категории",
         ),
     ],
     ("lineynaya_regressiya", "Переобучение и разделение train/test"): [
         _ex(
+            "from sklearn.model_selection import train_test_split\n"
+            "from sklearn.linear_model import LinearRegression\n"
             "X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)\n"
-            "model.fit(X_tr, y_tr)  # метрики только на X_te",
+            "LinearRegression().fit(X_tr, y_tr)  # метрики только на X_te",
             "Отложенная выборка",
         ),
     ],
     ("lineynaya_regressiya", "Метрики качества регрессии"): [
         _ex(
+            "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n"
             "mae = mean_absolute_error(y_te, y_pred)\n"
+            "rmse = mean_squared_error(y_te, y_pred, squared=False)\n"
             "r2 = r2_score(y_te, y_pred)\n"
-            "print(f'MAE={mae:.2f}, R²={r2:.3f}')",
-            "MAE и R²",
+            "print(f'MAE={mae:.2f}, RMSE={rmse:.2f}, R²={r2:.3f}')",
+            "MAE, RMSE и R²",
         ),
     ],
     ("lineynaya_regressiya", "sklearn и защита от утечек данных"): [
         _ex(
+            "from sklearn.pipeline import Pipeline\n"
+            "from sklearn.preprocessing import StandardScaler\n"
+            "from sklearn.linear_model import LinearRegression\n"
             "pipe = Pipeline([('scaler', StandardScaler()), ('reg', LinearRegression())])\n"
             "pipe.fit(X_train, y_train)",
             "Pipeline без утечки",
