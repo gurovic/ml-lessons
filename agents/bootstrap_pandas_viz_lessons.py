@@ -1,4 +1,8 @@
-"""Bootstrap pandas and vizualizatsiya lessons (slides JSON, plans, metadata)."""
+"""Bootstrap pandas and vizualizatsiya lessons (slides JSON, plans, metadata).
+
+LEGACY: одноразовый скрипт начальной загрузки слайдов. Не часть обычного пайплайна.
+Для пересборки уроков используйте slides_orchestrator и агенты (см. RULES.md).
+"""
 from __future__ import annotations
 
 import json

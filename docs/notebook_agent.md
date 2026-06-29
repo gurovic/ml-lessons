@@ -144,7 +144,11 @@ python agents/notebook_reviewer.py --pilot
 ## project.ipynb (мини-проект)
 
 Сквозной end-to-end сценарий на реальных данных — см. **docs/project_notebook.md**.  
-Сборка шаблонов: `python agents/build_project_notebooks.py` (пока для lineynaya и logisticheskaya).
+Сборка шаблонов:
+
+- `python agents/build_project_notebooks.py` — `project.ipynb` для lineynaya_regressiya, logisticheskaya_regressiya, derevo_resheniy
+- `python agents/build_pandas_viz_notebooks.py` — `code.ipynb` и `project.ipynb` для pandas и vizualizatsiya
+- `python agents/rebuild_code_ipynb.py <lesson_dir>` — нормализация существующего `code.ipynb`
 
 ## Отвергнутые альтернативы
 

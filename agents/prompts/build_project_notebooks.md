@@ -1,6 +1,6 @@
 # Промпт: сборка project.ipynb (мини-проект)
 
-Используй при ручной генерации или доработке project.ipynb для урока. Шаблоны кода — в gents/build_project_notebooks.py и gents/build_pandas_viz_notebooks.py.
+Используй при ручной генерации или доработке project.ipynb для урока. Шаблоны кода — в `agents/build_project_notebooks.py` и `agents/build_pandas_viz_notebooks.py`.
 
 Ты — автор сквозных ML-мини-проектов для уроков. Создай или обнови project.ipynb так, чтобы он был непрерывной историей на одном реальном датасете, а не набором независимых демо.
 
@@ -15,18 +15,15 @@
 **project.ipynb — одна непрерывная история**, не каталог изолированных демо.
 
 - Один реальный датасет на весь ноутбук.
-- Состояние передаётся: df → df_clean/df_model → X_train, X_test, y_train, y_test → inal_model или inal_pipe.
+- Состояние передаётся: df → df_clean/df_model → X_train, X_test, y_train, y_test → final_model или final_pipe.
 - Между этапами — markdown «**Решение:** …» перед кодом, который применяет решение.
-- Один 	rain_test_split; финальная оценка всегда на том же test.
-- После сравнения вариантов (Ridge/Lasso, C, max_depth) — явный выбор и переменная inal_model / inal_pipe.
+- Один train_test_split; финальная оценка всегда на том же test.
+- После сравнения вариантов (Ridge/Lasso, C, max_depth) — явный выбор и переменная final_model / final_pipe.
 
 ## Правила кода
 
-1. **Одна setup-ячейка** # Setup в начале: импорты, %matplotlib inline, 
-p.random.seed(42). Ниже не повторять import pandas as pd, import numpy as np, seed и настройки графиков.
-2. **pandas/numpy:** использовать прежде всего паттерны из docs/pandas_numpy_basics.md (illna, stype, pd.get_dummies, groupby, map/merge, 	o_numpy, 
-p.where, 
-p.clip, простые метрики). Сложные цепочки и helper-функции — только если реально упрощают урок.
+1. **Одна setup-ячейка** `# Setup` в начале: импорты, `%matplotlib inline`, `np.random.seed(42)`. Ниже не повторять `import pandas as pd`, `import numpy as np`, seed и настройки графиков.
+2. **pandas/numpy:** использовать прежде всего паттерны из docs/pandas_numpy_basics.md (`fillna`, `astype`, `pd.get_dummies`, `groupby`, `map`/`merge`, `to_numpy`, `np.where`, `np.clip`, простые метрики). Сложные цепочки и helper-функции — только если реально упрощают урок.
 3. **Лаконичность:** короткие code-ячейки, базовый синтаксис, комментарии на русском только там, где без них трудно понять ход.
 
 ## Запрещено
@@ -34,8 +31,7 @@ p.clip, простые метрики). Сложные цепочки и helper-
 - Синтетические ответвления (XOR, искусственные выбросы в копии массива), не связанные с основным df.
 - Изолированные синтетические демо, если они не влияют на основной df.
 - Второй несвязанный датасет в том же project.
-- Повторный split с другим 
-andom_state или другими данными.
+- Повторный split с другим random_state или другими данными.
 - Внешние CSV, если данные можно взять из sklearn/OpenML.
 - Демо «ради техники» без влияния на следующие ячейки.
 - Дублирование теории из слайдов длинными markdown-блоками.
@@ -48,15 +44,14 @@ andom_state или другими данными.
 3. EDA (code + markdown с выводами).
 4. Проблема → **Решение:** (markdown) → применение (code).
 5. Split → переменные X_train, X_test, y_train, y_test.
-6. Baseline → сравнение → **Решение:** выбор гиперпараметров → inal_model.fit(...).
-7. Метрики, диагностика, интерпретация — **только inal_model и тот же test**.
+6. Baseline → сравнение → **Решение:** выбор гиперпараметров → final_model.fit(...).
+7. Метрики, диагностика, интерпретация — **только final_model и тот же test**.
 8. Чек-лист (markdown).
 
 ## Язык и стиль
 
 - Markdown на русском.
-- 
-andom_state=42, %matplotlib inline, подписи осей на русском.
+- `random_state=42`, `%matplotlib inline`, подписи осей на русском.
 - sklearn / pandas как в существующих ноутбуках курса.
 - Не ссылаться на номера слайдов и JSON-файлы.
 
@@ -67,8 +62,8 @@ andom_state=42, %matplotlib inline, подписи осей на русском.
 | lineynaya_regressiya | OpenML california_housing | выбросы → IQR → Ridge/Lasso → метрики |
 | logisticheskaya_regressiya | OpenML credit-g | дисбаланс → class_weight → C → ROC/PR |
 | derevo_resheniy | load_wine | criterion → max_depth → финальное дерево |
-| pandas | OpenML 	itanic | EDA → clean → FE → model table → Pipeline |
-| izualizatsiya | OpenML 	itanic | вопросы EDA → графики → итоговая панель |
+| pandas | OpenML titanic | EDA → clean → FE → model table → Pipeline |
+| vizualizatsiya | OpenML titanic | вопросы EDA → графики → итоговая панель |
 
 ## Проверка готовности
 
@@ -76,7 +71,7 @@ andom_state=42, %matplotlib inline, подписи осей на русском.
 - [ ] Setup-импорты не повторяются ниже.
 - [ ] Нет ячеек, которые не используют результат предыдущих.
 - [ ] Есть ≥2 явных «**Решение:**» между этапами.
-- [ ] inal_model (или inal_pipe) используется в метриках, диагностике и интерпретации.
+- [ ] final_model (или final_pipe) используется в метриках, диагностике и интерпретации.
 - [ ] Все pandas/numpy-приёмы выглядят как базовые конструкции из docs/pandas_numpy_basics.md.
 - [ ] Финальные метрики считаются на том же test-set, который был создан в начале проекта.
 - [ ] Темы из plan.md урока покрыты по смыслу этапов.

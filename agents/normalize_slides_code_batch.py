@@ -1,4 +1,8 @@
-﻿"""Batch-normalize code_examples in all slides_json."""
+﻿"""Batch-normalize code_examples in all slides_json.
+
+Использование:
+    python agents/normalize_slides_code_batch.py
+"""
 from __future__ import annotations
 
 import json

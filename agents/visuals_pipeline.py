@@ -10,6 +10,7 @@
     python agents/visuals_pipeline.py lessons/<slug> --check-only
     python agents/visuals_pipeline.py lessons/<slug> --review    # промпт AI-рецензии визуалов
     python agents/visuals_pipeline.py --all-lessons --generate-only  # все уроки (после одобрения пилота)
+    python agents/normalize_slides_code_batch.py                   # нормализация длины строк code_examples
 """
 
 from __future__ import annotations

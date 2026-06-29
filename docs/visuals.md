@@ -106,16 +106,14 @@
 
 Сохраняется пропорция; картинка вписывается в ячейку.
 
-### Пилотный урок
+### Эталонный урок (lineynaya_regressiya)
 
 **`lessons/lineynaya_regressiya`** — эталон для правок стиля и иллюстраций:
 
-1. Изменения в `agents/viz_style.py`, `generate_visuals.py`, `slides_json` — **сначала только** в lineynaya_regressiya.
-2. Перегенерация и проверка: `python agents/visuals_pipeline.py --pilot` (или явный путь к уроку).
-3. Автор проверяет `presentation.pptx` пилота; замечания — в `author_feedback.md`.
-4. После одобрения — массовая перегенерация: `python agents/visuals_pipeline.py --all-lessons --generate-only`, затем `pptx_builder` по каждому уроку.
-
-До одобрения пилота **не** перегенерировать PNG и pptx остальных уроков (изменения в общем `viz_style.py` на них пока не раскатываются).
+1. Крупные изменения в `agents/viz_style.py` и `generate_visuals.py` — **сначала** проверить на lineynaya_regressiya.
+2. Перегенерация: `python agents/visuals_pipeline.py --pilot` (или явный путь к уроку).
+3. Замечания автора — в `author_feedback.md` (файл сохранять; см. docs/pipeline.md).
+4. Массовая перегенерация: `python agents/visuals_pipeline.py --all-lessons --generate-only`, затем `pptx_builder` по урокам.
 
 ### Пайплайн
 
