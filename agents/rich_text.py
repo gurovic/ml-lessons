@@ -18,25 +18,36 @@ _SEGMENT_RE = re.compile(
     r"\$\$(.+?)\$\$|\$(.+?)\$|\\\$"
 )
 
-# **жирный** (markdown); нежадное совпадение
-_BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
+# **bold** или `code` — один проход слева направо
+_INLINE_STYLE_RE = re.compile(r"\*\*(.+?)\*\*|`([^`]+?)`")
+
+CODE_INLINE_FONT = "Consolas"
+
+
+def iter_inline_style_chunks(text: str, default_bold: bool = False):
+    """Разбивает текст на (подстрока, bold, code). Маркеры ** и ` снимаются."""
+    if "**" not in text and "`" not in text:
+        if text:
+            yield text, default_bold, False
+        return
+
+    pos = 0
+    for match in _INLINE_STYLE_RE.finditer(text):
+        if match.start() > pos:
+            yield text[pos : match.start()], default_bold, False
+        if match.group(1) is not None:
+            yield match.group(1), True, False
+        else:
+            yield match.group(2), default_bold, True
+        pos = match.end()
+    if pos < len(text):
+        yield text[pos:], default_bold, False
 
 
 def iter_bold_chunks(text: str, default_bold: bool = False):
     """Разбивает текст на фрагменты (подстрока, bold). Маркеры ** снимаются."""
-    if "**" not in text:
-        if text:
-            yield text, default_bold
-        return
-
-    pos = 0
-    for match in _BOLD_RE.finditer(text):
-        if match.start() > pos:
-            yield text[pos : match.start()], default_bold
-        yield match.group(1), True
-        pos = match.end()
-    if pos < len(text):
-        yield text[pos:], default_bold
+    for chunk, bold, _code in iter_inline_style_chunks(text, default_bold):
+        yield chunk, bold
 
 
 def parse_segments(text: str) -> list[Segment]:
@@ -70,7 +81,9 @@ def _clear_paragraph_runs(paragraph) -> None:
             p_el.remove(child)
 
 
-def _append_text_run(p_el, text: str, *, font_size, bold, color) -> None:
+def _append_text_run(
+    p_el, text: str, *, font_size, bold, color, font_name: str | None = None
+) -> None:
     from pptx.oxml.ns import qn
 
     if not text:
@@ -85,6 +98,10 @@ def _append_text_run(p_el, text: str, *, font_size, bold, color) -> None:
         r_pr.set("sz", str(sz_val))
     if bold:
         r_pr.set("b", "1")
+    if font_name:
+        for tag in ("a:latin", "a:cs", "a:ea"):
+            el = etree.SubElement(r_pr, qn(tag))
+            el.set("typeface", font_name)
     if color is not None:
         solid = etree.SubElement(r_pr, qn("a:solidFill"))
         srgb = etree.SubElement(solid, qn("a:srgbClr"))
@@ -105,13 +122,19 @@ def _append_rich_text(
     color,
     warnings: list[str],
 ) -> None:
-    """Текст с **bold** и $...$ в одном фрагменте."""
-    for chunk, chunk_bold in iter_bold_chunks(text, default_bold=bold):
+    """Текст с **bold**, `code` и $...$ в одном фрагменте."""
+    for chunk, chunk_bold, chunk_code in iter_inline_style_chunks(text, default_bold=bold):
         effective_bold = bold or chunk_bold
+        mono_font = CODE_INLINE_FONT if chunk_code else None
         for kind, content in parse_segments(chunk):
             if kind == "text":
                 _append_text_run(
-                    p_el, content, font_size=font_size, bold=effective_bold, color=color
+                    p_el,
+                    content,
+                    font_size=font_size,
+                    bold=effective_bold,
+                    color=color,
+                    font_name=mono_font,
                 )
                 continue
             try:
@@ -120,7 +143,12 @@ def _append_rich_text(
                 fallback = f"$${content}$$" if kind == "display" else f"${content}$"
                 warnings.append(f"Формула не сконвертирована ({content!r}): {e}")
                 _append_text_run(
-                    p_el, fallback, font_size=font_size, bold=effective_bold, color=color
+                    p_el,
+                    fallback,
+                    font_size=font_size,
+                    bold=effective_bold,
+                    color=color,
+                    font_name=mono_font,
                 )
 
 

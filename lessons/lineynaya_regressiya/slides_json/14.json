@@ -22,7 +22,7 @@
   },
   "code_examples": [
     {
-      "source": "pipe = Pipeline([('scaler', StandardScaler()), ('reg', LinearRegression())])\npipe.fit(X_train, y_train)",
+      "source": "from sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LinearRegression\npipe = Pipeline([\n    ('scaler', StandardScaler()),\n    ('reg', LinearRegression())])\npipe.fit(X_train, y_train)",
       "caption": "Pipeline без утечки"
     }
   ]

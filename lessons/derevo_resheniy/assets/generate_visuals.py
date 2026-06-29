@@ -32,6 +32,8 @@ from viz_style import (  # noqa: E402
     FONT_TICK,
     FONT_TITLE,
     apply_matplotlib_slide_style,
+    legend_kwargs,
+    save_dual_col_figure,
     save_slide_figure,
     style_axes,
 )
@@ -148,12 +150,12 @@ def fig_binary_classification_rectangles() -> None:
     ax.set_xlabel("$x_1$")
     ax.set_ylabel("$x_2$")
     ax.set_title("Границы решения: дерево глубины 2")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 10)
     ax.grid(alpha=0.2)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "binary_classification_rectangles.png")
+    save_slide_figure(fig, ASSETS / "binary_classification_rectangles.png", tight=False, axes=ax)
     print("Done: binary_classification_rectangles.png")
 
 
@@ -191,11 +193,11 @@ def fig_decision_boundary() -> None:
     ax.set_xlabel("$x_1$")
     ax.set_ylabel("$x_2$")
     ax.set_title("Границы решения: дерево глубины 3")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 10)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "decision_boundary.png")
+    save_slide_figure(fig, ASSETS / "decision_boundary.png", tight=False, axes=ax)
     print("Done: decision_boundary.png")
 
 
@@ -215,7 +217,7 @@ def fig_feature_importance() -> None:
     ax.set_xlim(0, 0.45)
     ax.grid(alpha=0.3, axis="x")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "feature_importance.png")
+    save_slide_figure(fig, ASSETS / "feature_importance.png", tight=False, axes=ax)
     print("Done: feature_importance.png")
 
 
@@ -234,10 +236,10 @@ def fig_overfitting_curve() -> None:
     ax.set_xlabel("Глубина дерева")
     ax.set_ylabel("Accuracy")
     ax.set_title("Переобучение дерева решений")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     ax.grid(alpha=0.3)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "overfitting_curve.png")
+    save_slide_figure(fig, ASSETS / "overfitting_curve.png", tight=False, axes=ax)
     print("Done: overfitting_curve.png")
 
 
@@ -256,10 +258,10 @@ def fig_impurity_functions() -> None:
     ax.set_xlabel("p (доля класса 1)")
     ax.set_ylabel("Impurity")
     ax.set_title("Функции impurity для бинарного случая")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     ax.grid(alpha=0.3)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "impurity_functions.png")
+    save_slide_figure(fig, ASSETS / "impurity_functions.png", tight=False, axes=ax)
     print("Done: impurity_functions.png")
 
 

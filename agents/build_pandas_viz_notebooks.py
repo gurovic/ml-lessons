@@ -1135,22 +1135,6 @@ def build_all() -> None:
     ]
     for lesson_dir, topic, code_sections, proj_sections, proj_title in jobs:
         code_nb = build_ipynb(code_sections, topic=topic)
-        if lesson_dir.name == "pandas":
-            code_nb["cells"][1]["source"] = [
-                "# Практика к уроку — выполняйте ячейки по порядку\n",
-                "%matplotlib inline\n",
-                "\n",
-                "import numpy as np\n",
-                "import pandas as pd\n",
-                "import matplotlib.pyplot as plt\n",
-                "\n",
-                "try:\n",
-                "    from IPython.display import display\n",
-                "except ImportError:\n",
-                "    display = print\n",
-                "\n",
-                "np.random.seed(42)\n",
-            ]
         save_ipynb(lesson_dir / "code.ipynb", code_nb)
         proj_nb = build_ipynb(proj_sections, topic=proj_title)
         proj_nb["cells"][0]["source"] = [

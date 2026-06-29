@@ -51,7 +51,7 @@
 Единые правила для `code_examples` в slides_json, `code.ipynb` и `project.ipynb`:
 
 1. **Максимальная лаконичность** — минимум строк, без boilerplate; простые конструкции sklearn/pandas вместо многословных паттернов.
-2. **Импорты и настройки один раз** — в ноутбуке: первая code-ячейка `# Setup` с импортами, `np.random.seed(42)`, `%matplotlib inline`; в последующих ячейках не повторять. На слайдах: импорты только в **первом** слайде урока с `code_examples`; дальше — фрагменты, предполагающие импорты из предыдущих слайдов.
+2. **Импорты:** в **ноутбуке** — один раз в `# Setup`; в последующих ячейках не повторять. На **слайдах** (`code_examples`) — в **каждом** блоке сохранять нужные `import`/`from`, чтобы фрагмент был понятен сам по себе (слайд не опирается на код с предыдущих слайдов).
 3. **Длина фрагмента на слайде** — 3–5 строк в `source`; без `%matplotlib inline`.
 4. **Базовый синтаксис** — без walrus, сложных comprehensions и лишней обработки ошибок; комментарии на русском, кратко.
 5. **pandas/numpy по справочнику** — во всех ноутбуках предпочитать базовые конструкции из **docs/pandas_numpy_basics.md**; более сложный API использовать только если этого требует тема урока.
@@ -84,7 +84,7 @@
 - Из JSON собирает presentation.pptx с титульным слайдом из info.json.
 - Формулы в `$...$` в тексте рендерятся как native Equation (см. docs/formulas.md, agents/rich_text.py).
 - **Буллеты:** маркер `•` добавляется автоматически при сборке (см. раздел «Значки буллетов»); в `slides_json` писать текст **без** маркера.
-- До 4 иллюстраций на слайд — сетка/столбик в правой колонке (см. docs/visuals.md).
+- До 4 иллюстраций на слайд — сетка/столбик в правой колонке (см. docs/visuals.md). Если **>3** графиков или картинки перегружены — допустимо (и предпочтительно) вынести их на **отдельный слайд сразу после** текущего.
 - Использование: python agents/pptx_builder.py <lesson_dir>
 
 ### Генератор визуализаций (agents/viz_generator.py)
@@ -94,7 +94,8 @@
 ### Пайплайн иллюстраций (agents/visuals_pipeline.py)
 - Запуск `assets/generate_visuals.py` (если есть), программная проверка PNG, пересборка pptx.
 - AI-рецензия качества картинок: `--review` → промпт `agents/prompts/visuals_reviewer.md`.
-- Использование: `python agents/visuals_pipeline.py <lesson_dir>` | `--check-only` | `--generate-only` | `--review`
+- **Пилот:** `lessons/lineynaya_regressiya` — все правки стиля/иллюстраций сначала там; `--pilot` = полный цикл для пилота; остальные уроки — `--all-lessons --generate-only` только после одобрения pptx.
+- Использование: `python agents/visuals_pipeline.py --pilot` | `lessons/<slug>` | `--check-only` | `--generate-only` | `--review`
 
 ### Рецензент урока (agents/lesson_reviewer.py)
 - Опционально до сборки pptx: фактология, логика, понятность, лаконичность, полнота по JSON; замечания вносят агенты в slides_json/, не автор вручную.
@@ -108,6 +109,15 @@
 - Использование: python agents/notebook_generator.py <lesson_dir>
 - --list — показать отобранные слайды
 - --save [file] — собрать ноутбук из JSON-ответа AI (файл или stdin)
+
+### Рецензент ноутбуков (agents/notebook_reviewer.py)
+- Проверяет `code.ipynb` и `project.ipynb`: синтаксис, setup, imports, покрытие слайдов, narrative pipeline.
+- AI-рецензия и правки: промпт `agents/prompts/notebook_reviewer.md`; отчёт в `notebook_review.md`.
+- Описание: docs/notebook_agent.md (раздел «Рецензия»)
+- Использование: python agents/notebook_reviewer.py <lesson_dir> | --pilot
+- --check-only — только программная проверка
+- --save [file] — сохранить markdown-отчёт AI
+- --apply [file] — применить JSON с исправленными sections к ipynb
 
 ### Агент примеров кода на слайдах (agents/slide_code_agent.py)
 - Короткие фрагменты Python на слайдах с практикой (`code_examples` в JSON).
@@ -154,15 +164,16 @@
 1. Создать plan.md (и info.json).
 2. Оркестратор → промпт → AI → сохранить JSON в slides_json/ (повторить для каждого слайда).
 3. **Опционально:** рецензент → review.md → агенты правят JSON по замечаниям (можно пропустить и перейти к сборке pptx).
-4. **visuals_pipeline** (или `--visuals` оркестратора): `generate_visuals.py` → проверка PNG → при необходимости `--review` (AI-рецензия) → правки в `generate_visuals.py` / JSON.
+4. **visuals_pipeline** (или `--visuals` оркестратора): правки **сначала в пилоте** `lineynaya_regressiya` (`--pilot`) → проверка PNG → при необходимости `--review` → одобрение pptx → `--all-lessons --generate-only` для остальных.
 5. **slide_code_agent** → --apply или --prompt → --save → `code_examples` в JSON (см. docs/slide_code_agent.md).
 6. **pptx_builder** (или `visuals_pipeline` без флагов — generate + check + pptx) → `presentation.pptx`.
 7. **Проверка и правка пользователем в PowerPoint** — не JSON. Ручные правки pptx не синхронизируются с JSON; повторный pptx_builder перезаписывает файл. Замечания по слайдам фиксировать в **author_feedback.md** (чеклисты по слайдам).
 8. При содержательных правках после pptx: **author_feedback.md** и/или чат → агенты правят JSON и пересобирают pptx (указать, что сохранить из ручных правок, или сделать backup).
 9. **notebook_generator** → промпт → AI → --save → `code.ipynb` (см. docs/notebook_agent.md).
-10. **project.ipynb** — мини-проект end-to-end по docs/project_notebook.md (вручную или отдельным промптом).
-11. **references_agent** → --prompt → AI → --save → --apply (статьи + Colab + QR; см. docs/colab_references.md).
-12. **link_checker_agent** → проверить URL (--all или по уроку); при необходимости --fix (Colab) или --llm → AI для paper URL → снова проверить presentation.pptx.
+10. **notebook_reviewer** → автопроверка + AI-рецензия → `notebook_review.md`; при необходимости --apply → правки `code.ipynb` / `project.ipynb`.
+11. **project.ipynb** — мини-проект end-to-end по docs/project_notebook.md (вручную или отдельным промптом).
+12. **references_agent** → --prompt → AI → --save → --apply (статьи + Colab + QR; см. docs/colab_references.md).
+13. **link_checker_agent** → проверить URL (--all или по уроку); при необходимости --fix (Colab) или --llm → AI для paper URL → снова проверить presentation.pptx.
 
 Структурные изменения (новый слайд, порядок) — через plan.md и оркестратор, не только правкой pptx.
 
@@ -187,7 +198,7 @@
 - Тезисно материал по теме, взятый как из plan.md, так и подготовленный AI RULES.md
 - **Буллеты** — массив `bullets[]` в JSON; маркер в pptx добавляет `pptx_builder` (см. «Значки буллетов»)
 - Формулы — inline в тексте через `$...$` (см. docs/formulas.md)
-- **Иллюстрации** — по политике docs/visuals.md: по умолчанию ≥1 график/схема на слайд; 2–4 где несколько наглядных идей; `visuals[]` с `description`, `output`, опционально `size: "large"`; шрифт на диаграмме ≥18 pt эквивалент на слайде (`agents/viz_style.py`)
+- **Иллюстрации** — по политике docs/visuals.md: по умолчанию ≥1 график/схема на слайд; 2–4 где несколько наглядных идей; при **>3** графиках или перегруженных картинках — вынести на отдельный слайд сразу после текущего; `visuals[]` с `description`, `output`, опционально `size: "large"`; шрифт на диаграмме ≥18 pt эквивалент на слайде (`agents/viz_style.py`)
 - При необходимости - ссылка и QR-код на внешний ресурс (поле `link`; см. docs/references_slide.md для слайда литературы + Colab)
 - Опционально — поле `notebook` для практики в code.ipynb (см. docs/notebook_agent.md):
   ```json

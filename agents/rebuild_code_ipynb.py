@@ -9,33 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "agents"))
 
-from notebook_utils import _make_cell, build_ipynb, save_ipynb  # noqa: E402
+from notebook_utils import build_ipynb, save_ipynb  # noqa: E402
 from slide_utils import read_slides  # noqa: E402
-
-SETUP_IMPORTS = (
-    "import ipywidgets as widgets",
-    "import matplotlib.pyplot as plt",
-    "import numpy as np",
-    "import pandas as pd",
-    "from ipywidgets import interact",
-    "from sklearn.compose import ColumnTransformer",
-    "from sklearn.datasets import fetch_california_housing, make_regression",
-    "from sklearn.impute import SimpleImputer",
-    "from sklearn.linear_model import HuberRegressor, Lasso, LinearRegression, QuantileRegressor, Ridge",
-    "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score",
-    "from sklearn.model_selection import train_test_split",
-    "from sklearn.pipeline import make_pipeline, Pipeline",
-    "from sklearn.preprocessing import OneHotEncoder, PolynomialFeatures, StandardScaler",
-)
-
-LINEYNAYA_SETUP = """\
-# Setup
-%matplotlib inline
-
-""" + "\n".join(SETUP_IMPORTS) + """
-
-np.random.seed(42)
-"""
 
 
 def _source_text(cell: dict) -> str:
@@ -43,20 +18,6 @@ def _source_text(cell: dict) -> str:
     if isinstance(src, list):
         return "".join(src)
     return src
-
-
-def _strip_duplicate_imports(source: str) -> str:
-    lines = source.split("\n")
-    out = []
-    for line in lines:
-        stripped = line.strip()
-        if stripped.startswith("import ") or stripped.startswith("from "):
-            continue
-        if stripped in ("%matplotlib inline",) or stripped.startswith("np.random.seed"):
-            continue
-        out.append(line)
-    text = "\n".join(out).strip()
-    return text + ("\n" if text else "")
 
 
 def _parse_section_header(text: str) -> tuple[str, str]:
@@ -81,8 +42,8 @@ def ipynb_to_sections(nb: dict) -> list[dict]:
         if current is None:
             continue
         if cell["cell_type"] == "code":
-            source = _strip_duplicate_imports(text)
-            if source.strip():
+            source = text.strip()
+            if source:
                 current["cells"].append({"type": "code", "source": source})
         elif cell["cell_type"] == "markdown" and text.strip():
             current["cells"].append({"type": "markdown", "source": text})
@@ -107,13 +68,6 @@ def rebuild(lesson_dir: Path) -> None:
         topic = json.loads(info_path.read_text(encoding="utf-8")).get("topic", topic)
 
     new_nb = build_ipynb(sections, topic=topic, setup=True)
-    for i, cell in enumerate(new_nb["cells"]):
-        if cell["cell_type"] != "code":
-            continue
-        src = _source_text(cell).lstrip()
-        if src.startswith("# Setup") or src.startswith("# Практика"):
-            new_nb["cells"][i] = _make_cell("code", LINEYNAYA_SETUP)
-            break
 
     save_ipynb(code_path, new_nb)
     slides = read_slides(lesson_dir / "slides_json")

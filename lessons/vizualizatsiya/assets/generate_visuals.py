@@ -1,4 +1,4 @@
-"""Генерация всех иллюстраций vizualizatsiya."""
+﻿"""Генерация всех иллюстраций vizualizatsiya."""
 from __future__ import annotations
 
 import sys
@@ -25,6 +25,8 @@ from viz_style import (  # noqa: E402
     FONT_TICK,
     apply_matplotlib_slide_style,
     heatmap_text_color,
+    legend_kwargs,
+    save_dual_col_figure,
     save_slide_figure,
     style_axes,
 )
@@ -80,9 +82,9 @@ def fig_line_learning_curve():
     ax.set_xlabel("число примеров")
     ax.set_ylabel("accuracy")
     ax.set_title("Разрыв train/test — переобучение")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "line_learning_curve.png")
+    save_slide_figure(fig, ASSETS / "line_learning_curve.png", tight=False, axes=ax)
 
 
 def fig_scatter_classes():
@@ -94,10 +96,10 @@ def fig_scatter_classes():
     ax.scatter(X[y == 1, 0], X[y == 1, 1], c="#ff7f0e", alpha=0.7, s=35, label="класс 1")
     ax.set_xlabel("$x_1$")
     ax.set_ylabel("$x_2$")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     ax.set_title("Scatter: два кластера")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "scatter_classes.png")
+    save_slide_figure(fig, ASSETS / "scatter_classes.png", tight=False, axes=ax)
 
 
 def fig_bar_metrics_compare():
@@ -115,10 +117,10 @@ def fig_bar_metrics_compare():
     ax.set_xticklabels(models)
     ax.set_ylabel("ошибка ($)")
     ax.set_ylim(0, max(rmse) * 1.1)
-    ax.legend()
+    ax.legend(**legend_kwargs())
     ax.set_title("Grouped bar: RMSE > MAE")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "bar_metrics_compare.png")
+    save_slide_figure(fig, ASSETS / "bar_metrics_compare.png", tight=False, axes=ax)
 
 
 def fig_hist_box_combo():
@@ -143,7 +145,7 @@ def fig_hist_box_combo():
     axes[1].set_ylabel("Fare")
     axes[1].set_title("Boxplot по классу")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "hist_box_combo.png")
+    save_dual_col_figure(fig, axes, ASSETS / "hist_box_combo.png")
 
 
 def fig_seaborn_scatter_reg():
@@ -156,7 +158,7 @@ def fig_seaborn_scatter_reg():
     sns.regplot(data=df, x="x", y="y", scatter_kws={"alpha": 0.6, "s": 25}, line_kws={"color": "#d62728"}, ax=ax)
     ax.set_title("sns.regplot: тренд + scatter")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "seaborn_scatter_reg.png")
+    save_slide_figure(fig, ASSETS / "seaborn_scatter_reg.png", tight=False, axes=ax)
 
 
 def fig_legend_color_marker():
@@ -166,10 +168,10 @@ def fig_legend_color_marker():
     style_axes(ax)
     ax.plot(x, np.sin(x), "o-", color="#1f77b4", label="sin (круг)")
     ax.plot(x, np.cos(x), "s--", color="#ff7f0e", label="cos (квадрат)")
-    ax.legend()
+    ax.legend(**legend_kwargs())
     ax.set_title("Цвет + маркер + linestyle")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "legend_color_marker.png")
+    save_slide_figure(fig, ASSETS / "legend_color_marker.png", tight=False, axes=ax)
 
 
 def fig_subplots_grid_2x2():
@@ -211,7 +213,7 @@ def fig_correlation_heatmap():
             ax.text(j, i, f"{v:.2f}", ha="center", va="center", fontsize=FONT_HEATMAP, color=heatmap_text_color(abs(v), 0, 1))
     ax.set_title("Heatmap корреляций")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "correlation_heatmap.png")
+    save_slide_figure(fig, ASSETS / "correlation_heatmap.png", tight=False, axes=ax)
 
 
 def fig_categorical_plots():
@@ -231,7 +233,7 @@ def fig_categorical_plots():
     style_axes(axes[1])
     axes[1].set_title("mean Fare by Pclass")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "categorical_plots.png")
+    save_dual_col_figure(fig, axes, ASSETS / "categorical_plots.png")
 
 
 def fig_pie_vs_bar():
@@ -247,7 +249,7 @@ def fig_pie_vs_bar():
     axes[1].set_ylim(0, max(sizes) * 1.15)
     axes[1].set_title("bar — доли читаются")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "pie_vs_bar.png")
+    save_dual_col_figure(fig, axes, ASSETS / "pie_vs_bar.png")
 
 
 def fig_style_clean_vs_clutter():
@@ -262,7 +264,7 @@ def fig_style_clean_vs_clutter():
     axes[1].plot(x, np.sin(x), color="#1f77b4", lw=2)
     axes[1].set_title("чисто: whitegrid, одна мысль")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "style_clean_vs_clutter.png")
+    save_dual_col_figure(fig, axes, ASSETS / "style_clean_vs_clutter.png")
 
 
 def fig_residuals_good_vs_funnel():
@@ -287,7 +289,7 @@ def fig_residuals_good_vs_funnel():
         ax.set_ylabel("остаток")
         ax.set_title(title)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "residuals_good_vs_funnel.png")
+    save_dual_col_figure(fig, axes, ASSETS / "residuals_good_vs_funnel.png")
 
 
 def fig_roc_pr_curves():
@@ -307,7 +309,7 @@ def fig_roc_pr_curves():
     axes[0].plot([0, 1], [0, 1], "k--", alpha=0.5)
     axes[0].set_xlabel("FPR")
     axes[0].set_ylabel("TPR")
-    axes[0].legend()
+    axes[0].legend(**legend_kwargs())
     axes[0].set_title("ROC")
     style_axes(axes[1])
     axes[1].plot(rec, prec, color="#d62728", lw=2)
@@ -315,7 +317,7 @@ def fig_roc_pr_curves():
     axes[1].set_ylabel("precision")
     axes[1].set_title("PR (дисбаланс)")
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "roc_pr_curves.png")
+    save_dual_col_figure(fig, axes, ASSETS / "roc_pr_curves.png")
 
 
 def fig_truncated_axis_trap():
@@ -330,7 +332,7 @@ def fig_truncated_axis_trap():
         ax.set_ylabel("accuracy")
         ax.set_title(title)
     plt.tight_layout()
-    save_slide_figure(fig, ASSETS / "truncated_axis_trap.png")
+    save_dual_col_figure(fig, axes, ASSETS / "truncated_axis_trap.png")
 
 
 def fig_ml_lessons_viz_collage():
