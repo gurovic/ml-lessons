@@ -1,0 +1,28 @@
+{
+  "title": "Общие техники: overlay и комбинирование графиков",
+  "bullets": [
+    "ML-задача: показать **несколько распределений/моделей** на одном графике для сравнения",
+    "Overlay гистограмм: `plt.hist(train, alpha=0.5, label='train'); plt.hist(test, alpha=0.5, label='test')`",
+    "Overlay линий: `plt.plot(train_scores); plt.plot(val_scores)`"
+  ],
+  "notes": "Сравнение train и test на одном графике — overlay гистограмм с `alpha=0.5` и разными `label`: два полупрозрачных слоя показывают сдвиг распределения лучше, чем два отдельных рисунка. То же для learning curve: train и val на одних осях. `FacetGrid` в seaborn разбивает данные по категории (`col='city'`) и рисует маленькие multiples — паттерн «small multiples» Эдварда Тафти.\n\nОсторожно с `twinx()` — второй y-axis часто создаёт ложное впечатление корреляции между сериями с разным масштабом. Plotly `make_subplots` собирает интерактивные панели с синхронным zoom. Правило: overlay — для **одной осмысленной** сравниваемой величины; facet — для **разных подгрупп** одного типа графика.",
+  "visuals": [
+    {
+      "description": "Overlay гистограмм train и test с alpha=0.5.",
+      "output": "overlay_hist_train_test.png",
+      "size": "compact"
+    },
+    {
+      "description": "Две линии train_scores и val_scores на одних осях.",
+      "output": "overlay_lines_scores.png",
+      "size": "compact"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "overlay hist, FacetGrid, twinx caution."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "title": "Качество при разных порогах: ROC и PR кривые",
+  "bullets": [
+    "ML-задача: выбрать **оптимальный порог**, сравнить модели",
+    "`RocCurveDisplay` и `PrecisionRecallDisplay` из sklearn",
+    "**PR-кривая** важнее при сильном дисбалансе классов"
+  ],
+  "notes": "Бинарный классификатор выдаёт вероятность; порог 0.5 — не единственный выбор. ROC-кривая: по оси FPR и TPR при переборе порогов; площадь AUC — качество ранжирования независимо от порога. Диагональ — случайный классifier. PR-кривая (precision vs recall) информативнее при **сильном дисбалансе**: ROC может выглядеть оптимистично, пока PR показывает низкий precision на редком классе.\n\nOverlay нескольких моделей на одном графике — стандарт сравнения на слайде защиты проекта. `RocCurveDisplay` и `PrecisionRecallDisplay` из sklearn экономят код. Выбор порога — бизнес-решение: в медицине часто повышают recall (не пропустить болезнь), в спам-фильтре — precision (не блокировать важную почту).",
+  "visuals": [
+    {
+      "description": "1×2: ROC (AUC=0.92) с diagonal baseline + PR curve. Две модели overlay разными цветами.",
+      "output": "roc_pr_curves_overlay.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "RocCurveDisplay, PrecisionRecallDisplay overlay."
+  }
+}

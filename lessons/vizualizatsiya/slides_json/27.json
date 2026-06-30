@@ -1,0 +1,24 @@
+{
+  "title": "Кросс-валидация: стабильность модели",
+  "bullets": [
+    "ML-задача: оценить **variance** модели, а не только среднее качество",
+    "Box plot метрик по фолдам: `sns.boxplot(data=cv_scores)`",
+    "Line plot: `plt.plot(cv_scores, marker='o')` — видны **аномальные фолды**",
+    "Большой разброс означает **нестабильность** модели",
+    "Сравнение моделей: `sns.boxplot` для нескольких наборов `cv_scores`"
+  ],
+  "notes": "Средний score по 5-fold CV — одна цифра; box plot scores по фолдам — **картина стабильности**. Узкий box — модель ведёт себя предсказуемо на разных подвыборках; широкий — один неудачный fold может сильно испортить деплой. Line plot с маркерами по fold выявляет аномальный фолд («что было в этом сплите?»).\n\nСравнение двух моделей side-by-side boxplot честнее, чем «модель A: 0.82, модель B: 0.81» — возможно, B просто повезло с split. В production нестабильная модель — риск: завтра метрика может упасть без видимых причин. CV + визуализация variance — часть ответственного model selection.",
+  "visuals": [
+    {
+      "description": "Boxplot CV scores двух моделей (Model A узкий, Model B широкий) + line plot fold scores с outlier fold.",
+      "output": "cv_scores_stability_boxplot.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "cross_val_score, boxplot по фолдам."
+  }
+}

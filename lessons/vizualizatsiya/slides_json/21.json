@@ -1,0 +1,23 @@
+{
+  "title": "Диагностика регрессии: Residual plot",
+  "bullets": [
+    "ML-задача: проверить качество регрессии, найти **систематические ошибки**",
+    "`sns.residplot(x=y_pred, y=y_true - y_pred, lowess=True)` — остатки vs предсказания",
+    "Хорошая модель: **хаотичное облако** вокруг нуля (гомоскедастичность)",
+    "Plotly: `px.scatter(x=y_pred, y=residuals, trendline='lowess')`"
+  ],
+  "notes": "Остаток — $e = y - \\hat{y}$. Идеальная линейная регрессия при корректной спецификации даёт облако остатков **случайным** вокруг нуля без структуры. `sns.residplot(x=y_pred, y=residuals, lowess=True)` строит scatter остатков против предсказания и добавляет сглаженную линию LOWESS: если она горизонтальна — хорошо; U-образная — не учтена нелинейность; наклонная — смещение; воронка — гетероскедастичность (дисперсия ошибки растёт с $\\hat{y}$).\n\nResidual plot важнее одного числа RMSE: RMSE может быть приемлемым, пока модель систематически недооценивает дорогие объекты. Увидев воронку, вы пробуете log-трансформацию таргета или weighted loss. Plotly-версия с `trendline='lowess'` удобна для интерактивного разбора выбросов.",
+  "visuals": [
+    {
+      "description": "Две панели: residplot хаотичный (good) vs воронка (heteroscedastic bad). LOWESS линия красная.",
+      "output": "residual_plot_good_bad.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "residplot, residuals vs y_pred."
+  }
+}

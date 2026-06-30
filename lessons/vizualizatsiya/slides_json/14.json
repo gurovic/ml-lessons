@@ -1,16 +1,14 @@
 {
-  "title": "Визуализация для ML: остатки",
+  "title": "Пропуски в данных: missingno",
   "bullets": [
-    "Residual plot: ось X — $\\hat{y}$, ось Y — $y - \\hat{y}$",
-    "Идеал — случайное облако вокруг нуля без «воронки» или U-образного паттерна",
-    "Histogram остатков — близость к симметрии (не строгая нормальность)",
-    "Тот же приём, что в уроке линейной регрессии — единый язык диагностики"
+    "ML-задача: увидеть **паттерны пропусков** — случайные или систематические",
+    "Библиотека `missingno` визуализирует пропуски одной командой"
   ],
-  "notes": "Синтетика с heteroscedastic funnel vs good.",
+  "notes": "Таблица `df.isnull().sum()` говорит *сколько* пропусков, но не *как* они устроены. Библиотека missingno рисует матрицу: белые полосы — NaN, порядок строк и столбцов помогает увидеть блоки. `msno.dendrogram(df)` кластеризует признаки по схожести паттернов пропусков: если столбцы A и B пропадают вместе, возможно, пропуск **не случайный** (MNAR — missing not at random).\n\nЭто критично для стратегии imputation: заполнение средним при систематических пропусках смещает распределение и портит модель. График не заменяет формальный тест MCAR/MAR/MNAR, но направляет интуицию: нужен ли отдельный индикатор «был пропуск», групповая imputation или другой источник данных. Пропуски — часть EDA, которую нельзя сводить к одной цифре.",
   "visuals": [
     {
-      "description": "2 panel: хорошие остатки vs воронка (heteroscedastic).",
-      "output": "residuals_good_vs_funnel.png"
+      "description": "msno.matrix слева (белые полосы = NaN) + msno.dendrogram справа (кластеры признаков с похожими пропусками).",
+      "output": "missingno_matrix_dendrogram.png"
     }
   ],
   "notebook": {
@@ -18,12 +16,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "scatter y_hat vs residual."
-  },
-  "code_examples": [
-    {
-      "source": "residuals = y_test - y_pred\nax.scatter(y_pred, residuals, alpha=0.6)\nax.axhline(0, color='red', linestyle='--')",
-      "caption": "Остатки vs предсказание"
-    }
-  ]
+    "hint": "msno.matrix, msno.dendrogram."
+  }
 }

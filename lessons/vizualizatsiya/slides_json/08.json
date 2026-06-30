@@ -1,29 +1,18 @@
 {
-  "title": "Подписи, легенды и цвет",
+  "title": "Plotly: интерактивные графики одной строкой",
   "bullets": [
-    "Оси: `set_xlabel`, `set_ylabel`, `set_title` — **на русском** в наших ноутбуках",
-    "`legend()` — подписи серий; `loc='best'` или явное место",
-    "Цвет: colorblind-friendly палитры (`tab10`, `colorblind` в seaborn)",
-    "Не полагайся только на цвет — добавь маркер/ linestyle для различия серий"
+    "ML-задача: **исследовать** данные — zoom, hover, фильтр серий в легенде",
+    "**Plotly Express** — один вызов на типичный график: scatter, histogram, line",
+    "Scatter: цвет по категории, hover с дополнительными полями (id, сегмент)",
+    "Histogram с marginal box — распределение и квантили на одном экране"
   ],
-  "notes": "Доступность: color + marker.",
-  "visuals": [
-    {
-      "description": "Две серии: разный цвет И маркер (o vs s), legend.",
-      "output": "legend_color_marker.png"
-    }
-  ],
+  "notes": "Plotly Express (`import plotly.express as px`) построен вокруг идеи «одна функция — один осмысленный график». `px.scatter(df, x='area', y='price', color='city', hover_data=['id'])` сразу даёт цвет по категории и всплывающую подсказку с дополнительными полями — в matplotlib на это ушли бы десятки строк. `px.histogram` с `marginal='box'` добавляет боковые распределения; `px.line` для временных рядов включает zoom по умолчанию.\n\nИнтерактив особенно ценен на совещании: можно навести на точку, отфильтровать класс в легенде, приблизить подозрительный кластер. `fig.show()` в ноутбуке, `fig.write_html()` для шаринга. Plotly не заменяет seaborn на каждом шаге EDA — он дороже по ресурсам, — но там, где audience должна *исследовать* данные, а не только посмотреть, он незаменим.",
+  "visuals": [],
   "notebook": {
     "include": true,
     "kinds": [
       "example"
     ],
-    "hint": "legend, title, colorblind palette."
-  },
-  "code_examples": [
-    {
-      "source": "ax.set_title('ROC-кривая', fontsize=14)\nax.legend(loc='lower right')\nax.grid(True, alpha=0.3)",
-      "caption": "title / legend / grid"
-    }
-  ]
+    "hint": "px.scatter, px.histogram, write_html."
+  }
 }

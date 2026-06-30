@@ -1,16 +1,17 @@
 {
-  "title": "Bar chart",
+  "title": "Несколько графиков на одной фигуре: subplot",
   "bullets": [
-    "`ax.bar(categories, values)` — сравнение **дискретных** категорий",
-    "Горизонтальный `barh` — длинные подписи категорий",
-    "Grouped bar — несколько серий рядом; stacked — доли суммы",
-    "Ось Y для bar должна начинаться с **0**, иначе преувеличение различий"
+    "ML-задача: **сравнить** train и test (или до/после) на одном экране",
+    "subplots — сетка маленьких графиков внутри одного figure; у каждой ячейки свой axes",
+    "Верхний ряд: одна и та же переменная в train и test — сразу виден **сдвиг распределения**",
+    "Общий заголовок всей фигуры — suptitle; подписи осей — в каждой ячейке отдельно",
+    "constrained_layout или tight_layout — **обязательны**, иначе подписи и заголовки **перекрываются**"
   ],
-  "notes": "Сравнение метрик моделей.",
+  "notes": "Один слайд — одна мысль, но иногда одна мысль требует четырёх картинок: сравнить распределение age в train и test, показать scatter таргета, boxplot по категории и bar с частотами. `plt.subplots(2, 2, figsize=(12, 10))` возвращает figure и массив axes; обращение `axes[0, 0]`, `axes[0, 1]` задаёт, куда рисовать. Общий заголовок — `fig.suptitle()`, он стоит над всей композицией.\n\nТипичная ошибка новичков — нарисовать четыре графика и забыть про `tight_layout()`: подписи осей обрезаются или накладываются. Для сравнения панелей полезны `sharex=True` или `sharey=True` — тогда масштабы совпадают и глаз честно сравнивает формы. Subplot — стандартный приём для EDA-dashboard: за один экран вы отвечаете на несколько связанных вопросов о данных.",
   "visuals": [
     {
-      "description": "Grouped bar: MAE и RMSE двух моделей; y=0 на оси.",
-      "output": "bar_metrics_compare.png"
+      "description": "2×1 subplot: слева hist train age, справа hist test age — явный сдвив вправо у test. suptitle «train vs test». Крупные подписи.",
+      "output": "subplot_train_test_clear.png"
     }
   ],
   "notebook": {
@@ -18,12 +19,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "bar и barh сравнение категорий."
-  },
-  "code_examples": [
-    {
-      "source": "ax.bar(categories, values, color='steelblue')\nax.set_ylabel('count')\nplt.xticks(rotation=45)",
-      "caption": "Столбчатая диаграмма"
-    }
-  ]
+    "hint": "subplots 2x1 train/test hist, suptitle, tight_layout."
+  }
 }

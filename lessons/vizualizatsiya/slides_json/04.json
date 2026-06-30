@@ -1,16 +1,23 @@
 {
-  "title": "Scatter plot",
+  "title": "Matplotlib: архитектура Figure и Axes",
   "bullets": [
-    "`ax.scatter(x, y, alpha=0.5, s=20)` — связь двух числовых признаков",
-    "Цвет `c=target` или `hue` в seaborn — классы или третий признак",
-    "Выбросы видны как изолированные точки; кластеры — плотные облака",
-    "Базовый график регрессии и классификации в 2D"
+    "ML-задача: понимать **иерархию объектов** — без неё сложно править сложные фигуры",
+    "**Figure** — весь «лист» (холст); **Axes** — прямоугольная область, где рисуется график",
+    "Сначала создаём figure и axes, затем вызываем методы **на axes** — plot, scatter, подписи осей",
+    "Перед показом или сохранением — **подгонка отступов**, иначе подписи обрежутся",
+    "Эта схема — основа для subplot, кастомизации и export в PNG/PDF"
   ],
-  "notes": "Scatter income vs price из California.",
+  "notes": "Matplotlib устроен иерархически. **Figure** — это весь «лист», холст заданного размера в дюймах. **Axes** — прямоугольная область внутри figure, где живут оси, подписи и сами линии/точки. Привычный вызов `fig, ax = plt.subplots()` создаёт пару: один лист и одну область для рисования. Все методы `ax.plot()`, `ax.scatter()`, `ax.set_xlabel()` работают с конкретной областью — это объектно-ориентированный (OO) стиль, и он предпочтительнее хаотичных вызовов `plt.plot()` без явного `ax`.\n\nПонимание иерархии критично, когда на одном листе несколько графиков или когда нужно точно контролировать отступы. `plt.tight_layout()` или `constrained_layout=True` автоматически подгоняют расстояния, чтобы подписи осей не налезали друг на друга. В Jupyter не забудьте `%matplotlib inline`, чтобы график появился под ячейкой. Если вы освоите связку figure–axes, subplots и savefig — вы уже можете построить практически любой статический график в ML-проекте.",
   "visuals": [
     {
-      "description": "Scatter двух признаков, цвет по классу, alpha=0.6.",
-      "output": "scatter_classes.png"
+      "description": "Мини-график: пунктирная рамка Figure, внутри Axes с scatter. Заголовок PNG: fig, ax = plt.subplots()",
+      "output": "mpl_code_subplots.png",
+      "size": "compact"
+    },
+    {
+      "description": "Линия + scatter + подписи xlabel/ylabel. Заголовок PNG: ax.plot() / ax.scatter() / ax.set_xlabel()",
+      "output": "mpl_code_axes_methods.png",
+      "size": "compact"
     }
   ],
   "notebook": {
@@ -18,12 +25,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "scatter с цветом по y."
-  },
-  "code_examples": [
-    {
-      "source": "ax.scatter(X[:, 0], X[:, 1], c=y, cmap='viridis', alpha=0.7)\nax.set_xlabel('feature 1'); ax.set_ylabel('feature 2')",
-      "caption": "Классы цветом"
-    }
-  ]
+    "hint": "subplots, plot на ax, labels, tight_layout."
+  }
 }

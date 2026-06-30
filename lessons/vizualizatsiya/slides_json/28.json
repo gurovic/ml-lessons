@@ -1,0 +1,24 @@
+{
+  "title": "Подбор гиперпараметров: Grid Search visualization",
+  "bullets": [
+    "ML-задача: выбрать **лучшие гиперпараметры**, увидеть взаимодействия",
+    "Heatmap: `sns.heatmap(grid_results)` для 2D grid search (`max_depth` vs `min_samples_leaf`)",
+    "Line plot: зависимость метрики от одного параметра с **доверительными интервалами**",
+    "Часто есть **«плато»** — широкий диапазон параметров даёт схожее качество",
+    "Plotly: `px.imshow` для интерактивного heatmap с hover"
+  ],
+  "notes": "GridSearchCV перебирает сетку параметров и возвращает таблицу результатов. Heatmap двух параметров (например, `max_depth` × `min_samples_leaf` для дерева) показывает «ландшафт» метрики: тёмные ячейки — лучше, светлые — хуже. **Плато** — широкая область с близким качеством — подсказка: гиперпараметры не нужно подгонять с точностью до единицы, модель робастна.\n\nLine plot «метрика vs один параметр» с error bars по CV полезен, когда второй параметр зафиксирован. Интерактивный `px.imshow` с hover — для разбора в ноутбуке. Визуализация grid search защищает от overfitting к конкретной ячейке сетки: выбирайте центр плато, а не случайный пик.",
+  "visuals": [
+    {
+      "description": "Heatmap grid search max_depth × min_samples_leaf, annot F1-score. Плато в центре (robust region).",
+      "output": "grid_search_heatmap_plateau.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "GridSearchCV results heatmap, line plot param."
+  }
+}

@@ -7,20 +7,28 @@
       "title": "Graphical Perception: Theory, Experimentation, and Application to the Development of Graphical Methods",
       "authors": "Cleveland W.S., McGill R.",
       "year": 1984,
-      "url": "https://faculty.washington.edu/aragon/classes/hcde511/s12/readings/cleveland84.pdf"
+      "url": "https://www.jstor.org/stable/2288400"
     },
     {
       "kind": "paper",
-      "title": "A Layered Grammar of Graphics",
-      "authors": "Wickham H.",
-      "year": 2010,
-      "url": "http://vita.had.co.nz/papers/layered-grammar.pdf"
+      "title": "Anscombe's Quartet",
+      "authors": "Anscombe F.J.",
+      "year": 1973,
+      "url": "https://en.wikipedia.org/wiki/Anscombe%27s_quartet"
     },
     {
       "kind": "paper",
-      "title": "The Visual Display of Quantitative Information",
-      "authors": "Tufte E.R.",
-      "year": 1983
+      "title": "matplotlib: A 2D Graphics Environment",
+      "authors": "Hunter J.D.",
+      "year": 2007,
+      "url": "https://matplotlib.org/stable/citing.html"
+    },
+    {
+      "kind": "paper",
+      "title": "seaborn: statistical data visualization",
+      "authors": "Waskom M.L.",
+      "year": 2021,
+      "url": "https://seaborn.pydata.org/index.html"
     }
   ],
   "bullets": [],

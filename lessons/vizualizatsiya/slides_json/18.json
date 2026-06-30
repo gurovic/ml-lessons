@@ -1,40 +1,23 @@
 {
-  "title": "Источники и практика",
-  "type": "references",
-  "references": [
+  "title": "Границы решений: Decision Boundaries",
+  "bullets": [
+    "ML-задача: визуализировать, как **классификатор** разделяет пространство признаков",
+    "`DecisionBoundaryDisplay.from_estimator(clf, X, y)` — для **2D**-классификаторов",
+    "Видим: линейная граница (логрег), нелинейная (деревья, SVM RBF), **переобучение**",
+    "Кастомизация: `alpha=0.3` для прозрачности + overlay scatter точек"
+  ],
+  "notes": "Классификатор в 2D можно «увидеть»: `DecisionBoundaryDisplay.from_estimator(model, X, y)` рисует фоновую сетку цветов по предсказанному классу и накладывает точки данных. Логистическая регрессия даёт прямую (или гиперплоскость в многомерном случае) границу; дерево или RBF-SVM — изломанную, обтекающую кластеры.\n\nКлассический учебный пример — XOR: линейная модель не разделит классы ни при каких весах, нелинейная — справится. Граница решений также выявляет переобучение: дерево глубины 20 обводит каждую точку train, а на test выглядит как «островки» вокруг выбросов. Работает только в 2D (или 2 признака из PCA) — но для интуиции этого достаточно.",
+  "visuals": [
     {
-      "kind": "paper",
-      "title": "Graphical Perception: Theory, Experimentation, and Application to the Development of Graphical Methods",
-      "authors": "Cleveland W.S., McGill R.",
-      "year": 1984,
-      "url": "https://faculty.washington.edu/aragon/classes/hcde511/s12/readings/cleveland84.pdf"
-    },
-    {
-      "kind": "paper",
-      "title": "A Layered Grammar of Graphics",
-      "authors": "Wickham H.",
-      "year": 2010,
-      "url": "http://vita.had.co.nz/papers/layered-grammar.pdf"
-    },
-    {
-      "kind": "paper",
-      "title": "The Visual Display of Quantitative Information",
-      "authors": "Tufte E.R.",
-      "year": 1983
-    },
-    {
-      "kind": "colab",
-      "title": "code.ipynb",
-      "label": "Примеры по слайдам",
-      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/vizualizatsiya/code.ipynb"
-    },
-    {
-      "kind": "colab",
-      "title": "project.ipynb",
-      "label": "Мини-проект",
-      "url": "https://colab.research.google.com/github/gurovic/ml-lessons/blob/main/lessons/vizualizatsiya/project.ipynb"
+      "description": "Две панели: линейная граница (логрег, XOR fail) vs нелинейная (RBF SVM, XOR ok). Scatter точек поверх.",
+      "output": "decision_boundary_linear_nonlinear.png"
     }
   ],
-  "bullets": [],
-  "notes": "Colab-ссылки обновляются агентом при --apply."
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "DecisionBoundaryDisplay, make_moons."
+  }
 }

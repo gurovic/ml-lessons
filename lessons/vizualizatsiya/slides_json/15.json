@@ -1,16 +1,17 @@
 {
-  "title": "Визуализация для ML: ROC и PR",
+  "title": "Мультиколлинеарность: Heatmap корреляций",
   "bullets": [
-    "ROC: TPR vs FPR при смене порога; площадь AUC — ранжирование",
-    "PR-кривая важнее при **дисбалансе** классов",
-    "sklearn: `RocCurveDisplay.from_predictions`, `PrecisionRecallDisplay`",
-    "Добавляй диагональ случайного классификатора на ROC для ориентира"
+    "ML-задача: найти **дублирующие признаки** и их связь с таргетом",
+    "`sns.heatmap(df.corr(), annot=True, cmap='coolwarm', center=0)` — карта с центром в нуле",
+    "Ищем: $|r| > 0.9$ — кандидаты на удаление; высокая корреляция с **таргетом**",
+    "Пирсон по умолчанию (линейная связь); для нелинейной — `method='spearman'`",
+    "Plotly: `px.imshow(df.corr(), text_auto='.2f', color_continuous_scale='RdBu_r')`"
   ],
-  "notes": "Связь с уроком логистической регрессии.",
+  "notes": "Матрица корреляций — карта линейных связей между признаками. `sns.heatmap(df.corr(), annot=True, cmap='coolwarm', center=0)` раскрашивает ячейки: красный — положительная связь, синий — отрицательная, белый около нуля. Пары с |r| > 0.9 — кандидаты на удаление одного из дублей: два почти одинаковых признака не добавляют информации, но ломают интерпретацию весов в линейных моделях.\n\nСмотрите и на столбец таргета: высокая корреляция с признаком — хороший знак, но помните, что Пирсон видит только линейность; для монотонных нелинейных связей — `method='spearman'`. Heatmap не доказывает причинность: корреляция площади и цены не означает, что увеличение площади *вызывает* рост цены. Plotly `px.imshow` добавляет hover с точным значением r — удобно на больших матрицах.",
   "visuals": [
     {
-      "description": "Панели ROC и PR одной модели, AUC/AP в заголовке.",
-      "output": "roc_pr_curves.png"
+      "description": "Heatmap 8×8 corr, annot=True, coolwarm center=0. Пара признаков с |r|>0.9 выделена рамкой.",
+      "output": "correlation_heatmap_multicollinearity.png"
     }
   ],
   "notebook": {
@@ -18,12 +19,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "RocCurveDisplay и PR на синтетике."
-  },
-  "code_examples": [
-    {
-      "source": "RocCurveDisplay.from_predictions(y_test, y_score)\nplt.title('ROC')",
-      "caption": "RocCurveDisplay"
-    }
-  ]
+    "hint": "df.corr(), sns.heatmap, spearman."
+  }
 }

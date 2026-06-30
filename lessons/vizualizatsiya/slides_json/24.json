@@ -1,0 +1,23 @@
+{
+  "title": "Диагностика классификации: Confusion Matrix",
+  "bullets": [
+    "ML-задача: понять, **какие классы** модель путает",
+    "`ConfusionMatrixDisplay.from_estimator(model, X, y)` — тепловая карта ошибок",
+    "Ищем: большие **off-diagonal** элементы, дисбаланс FN vs FP",
+    "Кастомизация: `cmap='Blues'`, `annot=True`, `fmt='.0f'`"
+  ],
+  "notes": "Confusion matrix — таблица «истинный класс × предсказанный». Диагональ — верные ответы, off-diagonal — путаница: модель приняла класс 2 за класс 3. `ConfusionMatrixDisplay.from_estimator` рисует heatmap с подписями — сразу видно, **какие** классы проблемные, а не только общий accuracy.\n\n`normalize='true'` нормирует по строкам — в ячейках recall для каждого класса («из всех настоящих двоек сколько угадано»). При дисбалансе смотрите на редкий класс отдельно: общая accuracy может быть высокой, а recall minority — нулевым. Цветовая карта `cmap='Blues'` и `annot=True` делают матрицу читаемой на слайде.",
+  "visuals": [
+    {
+      "description": "Confusion matrix heatmap 3×3, Blues cmap, annot числа. Off-diagonal 2→3 выделен.",
+      "output": "confusion_matrix_heatmap.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "ConfusionMatrixDisplay, normalize='true'."
+  }
+}

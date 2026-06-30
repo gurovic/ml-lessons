@@ -1,16 +1,16 @@
 {
-  "title": "Категориальные графики",
+  "title": "Быстрый поиск выбросов: Box plot",
   "bullets": [
-    "`sns.countplot(data=df, x='col')` — частоты категорий",
-    "`sns.barplot(x=, y=, estimator='mean')` — агрегат по категории",
-    "Violin / stripplot — распределение внутри категории",
-    "Порядок категорий на оси X задавай явно (`order=`) для читаемости"
+    "ML-задача: найти аномалии по **IQR**, сравнить распределения по группам",
+    "`sns.boxplot(data=df, x='category', y='price')` — медиана, квантили, выбросы за «усами»",
+    "Ограничение: **не показывает форму** распределения — бимодальность скрывается",
+    "Интерактив: `px.box(df, x='category', y='price', points='all')` — hover на каждой точке"
   ],
-  "notes": "Survived по Sex — countplot.",
+  "notes": "Box plot сжимает распределение в пять чисел: минимум, Q1, медиана, Q3, максимум (с поправкой на «усы» по правилу 1.5×IQR). Точки за усами — кандидаты в выбросы. `sns.boxplot(x='category', y='price')` сразу сравнивает несколько групп: видно, где медиана выше, где разброс шире (гетероскедастичность), где торчат аномалии.\n\nВажно помнить ограничение: box plot не показывает форму — две бимодальные выборки с одинаковыми квантилями выглядят одинаково. Поэтому box — быстрый скрининг, а не полная диагностика. Для интерактивной работы `px.box(..., points='all')` даёт hover на каждой точке — удобно расследовать конкретный выброс. Решение после box plot: удалить, обрезать (winsorize), или оставить и использовать робастную модель — график показывает *масштаб* проблемы.",
   "visuals": [
     {
-      "description": "countplot Sex + barplot mean Fare by Pclass.",
-      "output": "categorical_plots.png"
+      "description": "sns.boxplot x=category y=price, 3 категории, outliers точками за whiskers. Подписи медиана/IQR.",
+      "output": "boxplot_outliers_iqr.png"
     }
   ],
   "notebook": {
@@ -18,12 +18,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "countplot и barplot seaborn."
-  },
-  "code_examples": [
-    {
-      "source": "sns.countplot(data=df, x='category',\n    order=df['category'].value_counts().index)\nplt.xticks(rotation=30)",
-      "caption": "countplot"
-    }
-  ]
+    "hint": "sns.boxplot, px.box points='all'."
+  }
 }

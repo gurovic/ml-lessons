@@ -1,0 +1,24 @@
+{
+  "title": "Важность признаков: Permutation Importance",
+  "bullets": [
+    "ML-задача: понять, **какие признаки** влияют на предсказания",
+    "Для деревьев: `model.feature_importances_` — **смещено** к high-cardinality признакам",
+    "**Permutation Importance** (честнее): перемешиваем признак, смотрим **падение метрики**",
+    "`sns.barplot(x=result.importances_mean, y=feature_names)`",
+    "Error bars: `plt.barh(y, x, xerr=std)` — показать **variance** важности"
+  ],
+  "notes": "`feature_importances_` у деревьев удобен, но смещён: признаки с большим числом уникальных значений часто получают завышенный вес. **Permutation importance** честнее: перемешиваем столбец признака, смотрим, насколько падает метрика на validation. Если падение большое — признак важен; если нулевое — модель им не пользуется.\n\nBar chart горизонтальных полос с `xerr` (разброс по повторениям permute) показывает и среднюю важность, и неопределённость. Один признак с широкими error bars — возможно, его эффект нестабилен или коррелирован с другим. Permutation importance работает для любой модели с `predict`/`predict_proba`, не только для деревьев.",
+  "visuals": [
+    {
+      "description": "Horizontal barh permutation importance top-10 features с xerr error bars. Один признак с широкими error bars.",
+      "output": "permutation_importance_barh.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "permutation_importance, barh xerr."
+  }
+}

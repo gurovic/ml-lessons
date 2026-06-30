@@ -1,16 +1,14 @@
 {
-  "title": "Несколько subplots",
+  "title": "Plotly: продвинутые возможности",
   "bullets": [
-    "`fig, axes = plt.subplots(nrows, ncols, figsize=(w,h))` — сетка графиков",
-    "`axes.ravel()` — плоский обход ячеек; `axes[0,1]` — доступ по индексу",
-    "`fig.suptitle('Общий заголовок')` — над всей фигурой",
-    "Одинаковые пределы осей (`sharex`, `sharey`) — для сравнения панелей"
+    "ML-задача: **3D**, анимация, несколько графиков на одной странице",
+    "Несколько subplots в одном plotly-figure"
   ],
-  "notes": "2×2 EDA на одном экране.",
+  "notes": "Когда двух осей мало, `px.scatter_3d` даёт третье измерение с вращением мышью — полезно для демонстрации PCA-компонент или трёх признаков одновременно. Анимация через `animation_frame='year'` показывает, как облако точек смещается во времени; slider внизу графика позволяет «прокрутить» историю. `make_subplots()` собирает несколько plotly-графиков на одной странице с общей легендой.\n\nОграничения реальны: десятки и сотни тысяч точек без `render_mode='webgl'` или агрегации (hexbin, datashader) тормозят браузер. 3D-scatter на миллионе строк — скорее антипаттерн, чем EDA. Для production-дашбордов plotly часто встраивают в Dash или Streamlit: график становится частью приложения, а не статичной картинки.",
   "visuals": [
     {
-      "description": "subplots 2×2: hist, scatter, bar, box — компактная EDA.",
-      "output": "subplots_grid_2x2.png"
+      "description": "3D scatter с color=target + inset animation_frame slider (год). Подписи осей x, y, z.",
+      "output": "plotly_3d_animation_demo.png"
     }
   ],
   "notebook": {
@@ -18,12 +16,6 @@
     "kinds": [
       "example"
     ],
-    "hint": "subplots 2x2 с разными типами."
-  },
-  "code_examples": [
-    {
-      "source": "fig, axes = plt.subplots(2, 2, figsize=(8, 6))\naxes[0, 0].hist(a); axes[0, 1].scatter(x, y)\nfig.tight_layout()",
-      "caption": "Сетка 2×2"
-    }
-  ]
+    "hint": "scatter_3d, animation_frame, make_subplots."
+  }
 }

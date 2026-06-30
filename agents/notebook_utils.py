@@ -324,6 +324,8 @@ def build_ipynb(
     sections: list[dict],
     topic: str = "Урок",
     setup: bool = True,
+    *,
+    consolidate: bool = True,
 ) -> dict:
     cells: list[dict] = []
     if setup:
@@ -365,7 +367,9 @@ def build_ipynb(
         "nbformat": 4,
         "nbformat_minor": 5,
     }
-    return consolidate_imports_in_notebook(nb)
+    if consolidate:
+        return consolidate_imports_in_notebook(nb)
+    return nb
 
 
 def parse_notebook_response(raw: str) -> dict:

@@ -1,0 +1,22 @@
+{
+  "title": "Переобучение vs недообучение: Learning Curve",
+  "bullets": [
+    "ML-задача: понять, нужно ли **больше данных** или **более сложная модель**",
+    "`LearningCurveDisplay.from_estimator(model, X, y)` — кривые train/validation",
+    "Train высоко, Val низко — **переобучение**; обе низкие — **недообучение**; обе высокие — оптимум"
+  ],
+  "notes": "Learning curve показывает метрику на train и validation в зависимости от размера обучающей выборки (или иногда от итераций). `LearningCurveDisplay.from_estimator` — готовый инструмент sklearn. Большой разрыв: train высоко, val низко — **переобучение**; нужна регуляризация, меньше параметров или больше данных. Обе кривые низко — **недообучение**; модель слишком простая. Обе высоко и сходятся — хороший баланс.\n\n`fill_between` для доверительных интервалов показывает нестабильность оценки на малых subsample. Learning curve отвечает на вопрос «поможет ли мне ещё 10 000 разметок» — если val-кривая ещё растёт, данные могут помочь; если плато — упёрлись в bias модели.",
+  "visuals": [
+    {
+      "description": "Learning curve: train score высокий, val score низкий (gap) — overfitting. fill_between CI. Подписи train/validation.",
+      "output": "learning_curve_overfitting.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "LearningCurveDisplay, fill_between CI."
+  }
+}

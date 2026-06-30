@@ -1,0 +1,22 @@
+{
+  "title": "Кластеризация: Silhouette plot и Elbow method",
+  "bullets": [
+    "ML-задача: выбрать оптимальное число кластеров $K$ в **K-means**",
+    "**Elbow method**: график WCSS от $K$ — ищем «локоть»",
+    "`fig, (ax1, ax2) = plt.subplots(1, 2)` — elbow и silhouette рядом"
+  ],
+  "notes": "K-means требует заранее задать число кластеров K — откуда его взять? Elbow method: строим график WCSS (within-cluster sum of squares) от K и ищем «локоть», где убывание замедляется — добавление кластеров перестаёт сильно помогать. Silhouette score измеряет, насколько объект ближе к своему кластеру, чем к чужому: значения около 1 — хорошо, около 0 — на границе, отрицательные — возможно, объект в «чужом» кластере.\n\nSilhouette plot показывает распределение scores **по каждому кластеру** — сразу видно, что кластер 2 широкий и «размытый», а кластер 0 компактный. Рядом на одной figure — elbow и silhouette: два независимых аргумента за одно K. Ни один метод не даёт истину в последней инстанции — используйте их вместе с domain knowledge.",
+  "visuals": [
+    {
+      "description": "1×2: elbow curve WCSS vs K (локоть при K=3) + silhouette plot bar chart по кластерам.",
+      "output": "elbow_silhouette_kmeans.png"
+    }
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "elbow WCSS, silhouette_plot KMeans."
+  }
+}

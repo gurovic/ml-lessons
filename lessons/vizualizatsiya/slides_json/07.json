@@ -1,29 +1,19 @@
 {
-  "title": "Seaborn: высокоуровневые графики",
+  "title": "Сохранение и экспорт графиков",
   "bullets": [
-    "Seaborn строит на matplotlib: `sns.scatterplot`, `sns.histplot`, `sns.heatmap`",
-    "`data=df, x=, y=, hue=` — имена столбцов вместо массивов",
-    "`sns.set_theme(style='whitegrid')` — единый стиль лекции",
-    "Для ML-диагностики: `sns.regplot`, `jointplot`, `pairplot` на подмножестве признаков"
+    "ML-задача: сохранить график для **отчёта**, статьи или внутреннего дашборда",
+    "**PNG, dpi=300** — слайды и печать; **SVG/PDF** — статьи, масштаб без потери качества",
+    "**Прозрачный фон** (transparent=True) — для наложения на цветной слайд или сайт",
+    "**Plotly → HTML** — интерактив для коллег (zoom, hover)",
+    "**bbox_inches='tight'** — иначе при savefig **обрежутся** подписи осей и легенда"
   ],
-  "notes": "pairplot только на 4–5 признаках — иначе медленно.",
-  "visuals": [
-    {
-      "description": "sns.scatterplot с hue и regression line (regplot inset).",
-      "output": "seaborn_scatter_reg.png"
-    }
-  ],
+  "notes": "График в ноутбуке живёт до перезапуска kernel; для отчёта, статьи или Confluence его нужно сохранить. `plt.savefig('plot.png', dpi=300, bbox_inches='tight')` — растр высокого разрешения для слайдов и документов. Параметр `bbox_inches='tight'` обрезает лишние поля и, главное, не отрезает подписи осей — без него края часто «съедаются». Векторные `.svg` и `.pdf` масштабируются без пикселизации — их просят журналы и типографии.\n\nPlotly сохраняется иначе: `fig.write_html('plot.html')` даёт интерактивный файл, который можно отправить коллеге или встроить в intranet. Прозрачный фон (`transparent=True`) уместен для наложения на тёмный слайд, но для печати обычно лучше белый `facecolor='white'`. Выбирайте формат под носитель: экран — 100–150 dpi, печать — 300 dpi, журнал — 600 dpi и вектор.",
+  "visuals": [],
   "notebook": {
     "include": true,
     "kinds": [
       "example"
     ],
-    "hint": "scatterplot и histplot seaborn."
-  },
-  "code_examples": [
-    {
-      "source": "sns.scatterplot(data=df, x='x', y='y', hue='class')\nsns.regplot(data=df, x='x', y='y', scatter_kws={'alpha':\n    0.5})",
-      "caption": "scatterplot / regplot"
-    }
-  ]
+    "hint": "savefig png/svg, write_html plotly."
+  }
 }

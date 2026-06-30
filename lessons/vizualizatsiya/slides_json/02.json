@@ -1,29 +1,12 @@
 {
-  "title": "Matplotlib: figure и axes",
+  "title": "Выбор библиотеки под задачу",
   "bullets": [
-    "`fig, ax = plt.subplots()` — **figure** (холст) и **axes** (область графика)",
-    "Рисуем на `ax`: `ax.plot(...)`, `ax.set_xlabel(...)` — не смешивать pyplot без нужды",
-    "`plt.tight_layout()` — подгонка отступов перед `plt.show()` или savefig",
-    "`%matplotlib inline` в Jupyter — график под ячейкой"
+    "**matplotlib** — полный контроль, кастомные графики, статьи; **основа** для остальных библиотек",
+    "**seaborn** — **90% EDA**: красивые дефолты, статистика одной строкой; работает поверх matplotlib",
+    "**plotly** — интерактивные дашборды и презентации (zoom, hover, export); медленнее на больших данных",
+    "**pandas** built-in (df.plot) — быстрые разведочные графики прямо из DataFrame",
+    "Правило: **seaborn** для EDA → **plotly** для интерактива → **matplotlib** для тонкой настройки"
   ],
-  "notes": "OO-стиль предпочтительнее plt.plot напрямую.",
-  "visuals": [
-    {
-      "description": "Схема figure с одним axes, подписи xlabel/ylabel/title.",
-      "output": "fig_axes_diagram.png"
-    }
-  ],
-  "notebook": {
-    "include": true,
-    "kinds": [
-      "example"
-    ],
-    "hint": "subplots, plot на ax, labels."
-  },
-  "code_examples": [
-    {
-      "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 4))\nax.plot([1, 2, 3], [1, 4, 9])\nax.set_xlabel('x'); ax.set_ylabel('y')",
-      "caption": "OO-стиль matplotlib"
-    }
-  ]
+  "notes": "Не существует «лучшей» библиотеки — есть подходящая под контекст. Matplotlib даёт полный контроль над каждым элементом рисунка: цветом линии, положением легенды, форматом осей. Именно на нём построены seaborn и многие другие обёртки, поэтому понимание matplotlib неизбежно, даже если вы 90% времени пишете `sns.*`. Seaborn экономит десятки строк кода: `scatterplot`, `histplot`, `heatmap` сразу приходят с разумными дефолтами и статистическими надстройками вроде регрессионной линии или KDE.\n\nPlotly добавляет интерактив: zoom, hover с точными значениями, фильтрацию серий — это бесценно при презентации или разборе большого датасета в ноутбуке, но на сотнях тысяч точек может тормозить. Pandas `df.plot()` — самый быстрый старт: открыли CSV, вызвали `df.hist()` — и уже видите порядок величин. Практическое правило: начинайте EDA с seaborn или pandas, переходите на plotly, когда нужен интерактив, и спускайтесь на matplotlib, когда нужна тонкая кастомизация под статью или брендбук.",
+  "visuals": []
 }

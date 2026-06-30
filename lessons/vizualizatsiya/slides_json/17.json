@@ -1,16 +1,24 @@
 {
-  "title": "Связь с уроками ML и итоги",
+  "title": "Дисбаланс классов: Count plot",
   "bullets": [
-    "Линейная регрессия: scatter+line, residuals, bar метрик — те же паттерны",
-    "Логистическая: ROC/PR, calibration, decision boundary",
-    "Деревья: `plot_tree`, feature importance bar, confusion matrix heatmap",
-    "Чек-лист: EDA → модель → диагностика; подписи на русском; bar с нуля"
+    "ML-задача: увидеть распределение классов в **классификации**",
+    "`sns.countplot(data=df, x='target')` — частоты каждого класса",
+    "Если соотношение **100:1** — accuracy бесполезна; нужны `class_weight`, **PR-AUC**",
+    "Стройте **в начале** каждого классификационного проекта",
+    "Альтернатива: `df['target'].value_counts().plot(kind='bar')` или `px.histogram(df, x='target')`"
   ],
-  "notes": "Завершение перед project.ipynb.",
+  "notes": "В классификации первый вопрос после загрузки данных: «сколько объектов каждого класса?» `sns.countplot(x='target')` или `value_counts().plot(kind='bar')` отвечают за секунду. Если соотношение 95:5 или 100:1, accuracy вводит в заблуждение: модель, всегда предсказывающая majority class, уже имеет 95% «точности».\n\nГрафик сразу задаёт повестку: `class_weight='balanced'`, oversampling/undersampling, метрики PR-AUC и F1 вместо accuracy, stratified split. Count plot стоит строить **до** обучения и **после** каждого resampling — убедиться, что вы не сломали валидацию. Для интерактива — `px.histogram(df, x='target', color='target')` с процентами в hover.",
   "visuals": [
     {
-      "description": "Collage 2×2: mini scatter+line, ROC, tree boundaries, importance bar.",
-      "output": "ml_lessons_viz_collage.png"
+      "description": "countplot с двумя классами 95% vs 5% — явный дисбаланс. Подпись «не используйте accuracy».",
+      "output": "countplot_class_imbalance.png"
     }
-  ]
+  ],
+  "notebook": {
+    "include": true,
+    "kinds": [
+      "example"
+    ],
+    "hint": "sns.countplot target, value_counts bar."
+  }
 }
