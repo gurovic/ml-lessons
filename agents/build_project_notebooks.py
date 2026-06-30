@@ -25,8 +25,7 @@ def build_all() -> None:
         nb["cells"][0]["source"] = [
             f"# {topic}\n",
             "\n",
-            "Сквозной мини-проект: один датасет, решения передаются между этапами. "
-            "См. docs/project_notebook.md.\n",
+            "Сквозной мини-проект: один датасет, решения передаются между этапами.\n",
         ]
         out = lesson_dir / "project.ipynb"
         save_ipynb(out, nb)
